@@ -12,6 +12,7 @@ export interface IBarbero {
     descripcion?: string;
     experiencia?: number;
     especialidades?: string;
+    comision?: number;
     estado: string;
     total_agendamientos: number;
     promedio_estrellas: number;

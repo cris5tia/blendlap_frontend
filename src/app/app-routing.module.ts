@@ -16,6 +16,9 @@ import { ReportesComponent } from './pages/admin/reportes/reportes.component';
 import { AgendarComponent } from './pages/public/agendar/agendar.component';
 import { authGuard } from './core/guards/auth.guard';
 import { BarberosComponent } from './pages/admin/barberos/barberos.component';
+import { GastosComponent } from './pages/admin/gastos/gastos.component';
+import { DashboardComponent as ClienteDashboardComponent } from './pages/cliente/dashboard/dashboard.component';
+import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 
 const routes: Routes = [
   // Rutas públicas
@@ -23,13 +26,10 @@ const routes: Routes = [
     path: '',
     component: PublicLayoutComponent,
     children: [
-      { path: '', component: HomeComponent },
-      // Agendar — layout propio
+      { path: '', component: HomeComponent }
     ]
   },
   { path: 'agendar', component: AgendarComponent },
-
-  // Login y registro
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
 
@@ -50,18 +50,20 @@ const routes: Routes = [
       { path: 'turnos', component: TurnosComponent },
       { path: 'reportes', component: ReportesComponent },
       { path: 'barberos', component: BarberosComponent },
+      { path: 'gastos', component: GastosComponent },
     ]
   },
 
   // Barbero
   {
-    path: 'barbero',
-    canActivate: [authGuard],
-    data: { rol: 'barbero' },
-    children: [
-      { path: 'dashboard', component: HomeComponent }
-    ]
-  },
+  path: 'barbero',
+  canActivate: [authGuard],
+  data: { rol: 'barbero' },
+  children: [
+    { path: '', redirectTo: 'agenda', pathMatch: 'full' },
+    { path: 'agenda', component: AgendaComponent }
+  ]
+},
 
   // Cliente
   {
@@ -69,7 +71,8 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { rol: 'cliente' },
     children: [
-      { path: 'dashboard', component: HomeComponent }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: ClienteDashboardComponent }
     ]
   },
 

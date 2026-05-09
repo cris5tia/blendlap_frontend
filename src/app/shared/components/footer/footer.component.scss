@@ -2,7 +2,6 @@
   background: var(--color-primary);
   color: var(--color-white);
 
-  // ─── Franja superior ─────────────────────────────────────
   &__top {
     background: var(--color-accent);
     padding: 30px 0;
@@ -49,17 +48,12 @@
       font-family: var(--font-primary);
       margin-bottom: 0.3rem;
     }
-
-    p {
-      font-size: 0.9rem;
-      color: rgba(26, 26, 26, 0.7);
-    }
+    p { font-size: 0.9rem; color: rgba(26,26,26,0.7); }
   }
 
-  // ─── Cuerpo ──────────────────────────────────────────────
   &__body {
     padding: 70px 0 50px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
   &__grid {
@@ -69,7 +63,10 @@
     align-items: start;
   }
 
-  // ─── Columnas ────────────────────────────────────────────
+  &__grid-movil {
+    display: none;
+  }
+
   &__col {
     &-title {
       font-family: var(--font-secondary);
@@ -80,7 +77,7 @@
       color: var(--color-accent);
       margin-bottom: 1.2rem;
       padding-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       position: relative;
 
       &::after {
@@ -95,19 +92,12 @@
     }
   }
 
-  // ─── Logo ────────────────────────────────────────────────
   &__logo {
     margin-bottom: 1.2rem;
     display: flex;
     flex-direction: column;
     line-height: 1;
     gap: 4px;
-
-    img {
-      height: 55px;
-      width: auto;
-      object-fit: contain;
-    }
 
     &-nombre {
       font-family: var(--font-primary);
@@ -120,26 +110,21 @@
     &-sub {
       font-family: var(--font-secondary);
       font-size: 0.55rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255,255,255,0.5);
       letter-spacing: 6px;
       text-transform: uppercase;
     }
   }
 
   &__descripcion {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255,255,255,0.5);
     font-size: 0.9rem;
     line-height: 1.7;
     margin-bottom: 1.5rem;
   }
 
-  // ─── Redes ───────────────────────────────────────────────
-  &__redes {
-    display: flex;
-    gap: 0.75rem;
-  }
+  &__redes { display: flex; gap: 0.75rem; }
 
-  // ─── Links ───────────────────────────────────────────────
   &__links {
     list-style: none;
     display: flex;
@@ -148,18 +133,14 @@
     padding-left: 0;
 
     li a {
-      color: rgba(255, 255, 255, 0.55);
+      color: rgba(255,255,255,0.55);
       font-size: 0.9rem;
       transition: var(--transition);
 
-      &:hover {
-        color: var(--color-accent);
-        padding-left: 5px;
-      }
+      &:hover { color: var(--color-accent); padding-left: 5px; }
     }
   }
 
-  // ─── Contacto ────────────────────────────────────────────
   &__contacto {
     list-style: none;
     display: flex;
@@ -170,31 +151,18 @@
       display: flex;
       align-items: flex-start;
       gap: 0.75rem;
-      color: rgba(255, 255, 255, 0.55);
+      color: rgba(255,255,255,0.55);
       font-size: 0.9rem;
 
-      i {
-        color: var(--color-accent);
-        font-size: 0.95rem;
-        margin-top: 2px;
-        min-width: 16px;
-      }
+      i { color: var(--color-accent); font-size: 0.95rem; margin-top: 2px; min-width: 16px; }
 
-      a {
-        color: rgba(255, 255, 255, 0.55);
-        transition: var(--transition);
-
-        &:hover {
-          color: var(--color-accent);
-        }
+      a { color: rgba(255,255,255,0.55); transition: var(--transition);
+        &:hover { color: var(--color-accent); }
       }
     }
   }
 
-  // ─── Bottom ──────────────────────────────────────────────
-  &__bottom {
-    padding: 20px 0;
-  }
+  &__bottom { padding: 20px 0; }
 
   &__bottom-content {
     display: flex;
@@ -204,22 +172,13 @@
     gap: 0.5rem;
 
     p {
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255,255,255,0.35);
       font-size: 0.8rem;
-
-      strong {
-        color: rgba(255, 255, 255, 0.6);
-      }
-
-      i {
-        color: #e25555;
-        font-size: 0.75rem;
-      }
+      strong { color: rgba(255,255,255,0.6); }
     }
   }
 }
 
-// ─── Iconos de redes ─────────────────────────────────────────
 .red-icon {
   width: 38px;
   height: 38px;
@@ -229,34 +188,17 @@
   justify-content: center;
   font-size: 1rem;
   color: var(--color-white);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
   transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
 
-  &:hover {
-    transform: translateY(-3px);
-    border-color: transparent;
-  }
-
-  &.instagram:hover {
-    background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  }
-
-  &.whatsapp:hover {
-    background: #25d366;
-  }
-
-  &.facebook:hover {
-    background: #1877f2;
-  }
-
-  &.tiktok:hover {
-    background: #010101;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
+  &:hover { transform: translateY(-3px); border-color: transparent; }
+  &.instagram:hover { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  &.whatsapp:hover { background: #25d366; }
+  &.facebook:hover { background: #1877f2; }
+  &.tiktok:hover { background: #010101; border-color: rgba(255,255,255,0.2); }
 }
 
-// ─── Responsive ──────────────────────────────────────────────
 @media (max-width: 1024px) {
   .footer__grid {
     grid-template-columns: 1fr 1fr;
@@ -265,20 +207,38 @@
 }
 
 @media (max-width: 768px) {
-  .footer {
-    &__top-content {
-      flex-direction: column;
-      text-align: center;
-    }
+  .footer__top-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
 
-    &__grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
+  .footer__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 
-    &__bottom-content {
-      flex-direction: column;
-      text-align: center;
-    }
+  .footer__col--nosotros,
+  .footer__col--legal,
+  .footer__col--contacto {
+    display: none;
+  }
+
+  .footer__col--brand {
+    width: 100%;
+  }
+
+  .footer__grid-movil {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 1.5rem;
+  }
+
+  .footer__bottom-content {
+    flex-direction: column;
+    text-align: center;
   }
 }

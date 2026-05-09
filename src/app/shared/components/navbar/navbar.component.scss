@@ -9,7 +9,7 @@
   background: transparent;
 
   &.scrolled {
-    background: rgba(26, 26, 26, 0.97);
+    background: rgba(26,26,26,0.97);
     padding: 6px 0;
     box-shadow: var(--shadow-strong);
   }
@@ -21,46 +21,20 @@
   }
 
   &__logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-
-  img {
-    height: 77px;
-    width: auto;
-    object-fit: contain;
-    transition: var(--transition);
-  }
-
-  &-text {
     display: flex;
-    flex-direction: column;
-    line-height: 1;
-    gap: 3px;
-  }
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
 
-  &-nombre {
-    font-family: var(--font-primary);
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: var(--color-accent);
-    letter-spacing: 3px;
-  }
+    img {
+      height: 77px;
+      width: auto;
+      object-fit: contain;
+      transition: var(--transition);
+    }
 
-  &-sub {
-    font-family: var(--font-secondary);
-    font-size: 0.55rem;
-    color: rgba(255,255,255,0.7);
-    letter-spacing: 5px;
-    font-weight: 400;
+    &:hover img { transform: rotate(5deg) scale(1.05); }
   }
-
-  &:hover img {
-    transform: rotate(5deg) scale(1.05);
-  }
-}
-
 
   &__links {
     display: flex;
@@ -87,9 +61,7 @@
         transition: var(--transition);
       }
 
-      &:hover::after {
-        width: 100%;
-      }
+      &:hover::after { width: 100%; }
     }
 
     .btn-nav {
@@ -100,11 +72,7 @@
       font-weight: 700;
 
       &::after { display: none; }
-
-      &:hover {
-        background: var(--color-accent-soft);
-        transform: translateY(-2px);
-      }
+      &:hover { background: var(--color-accent-soft); transform: translateY(-2px); }
     }
   }
 
@@ -136,7 +104,7 @@
 
 @media (max-width: 768px) {
   .navbar {
-    background: rgba(26, 26, 26, 0.97) !important;
+    background: rgba(26,26,26,0.97) !important;
     padding: 8px 0 !important;
 
     &__hamburger { display: flex; }
@@ -155,15 +123,13 @@
       transition: var(--transition);
       padding: 2rem;
 
-      &.active {
-        right: 0;
-        box-shadow: -10px 0 40px rgba(0,0,0,0.5);
-      }
+      &.active { right: 0; box-shadow: -10px 0 40px rgba(0,0,0,0.5); }
 
       li a { font-size: 1rem; }
     }
   }
 }
+
 .navbar__usuario {
   display: flex;
   align-items: center;
@@ -217,9 +183,54 @@
   font-size: 0.85rem;
   transition: all 0.2s;
 
-  &:hover {
-    background: #dc3545;
-    border-color: #dc3545;
-    color: #fff;
-  }
+  &:hover { background: #dc3545; border-color: #dc3545; color: #fff; }
+}
+
+.btn-nav--admin {
+  background: rgba(251,196,71,0.15);
+  color: var(--color-accent) !important;
+  border: 1px solid rgba(251,196,71,0.3);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+
+  &:hover { background: var(--color-accent); color: var(--color-primary) !important; }
+}
+
+.btn-nav--citas {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(251,196,71,0.12);
+  border: 1px solid rgba(251,196,71,0.3);
+  color: var(--color-accent) !important;
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+
+  &::after { display: none !important; }
+  &:hover { background: var(--color-accent); color: var(--color-primary) !important; }
+}
+
+.navbar__reservas-badge {
+  background: var(--color-accent);
+  color: var(--color-primary);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
 }

@@ -14,7 +14,14 @@ type Paso = 'servicio' | 'barbero' | 'fecha' | 'confirmacion';
 export class AgendarComponent implements OnInit {
 
   pasoActual: Paso = 'servicio';
-  pasos: Paso[] = ['servicio', 'barbero', 'fecha', 'confirmacion'];
+  barberoPreseleccionado = false;
+
+  get pasos(): Paso[] {
+    if (this.barberoPreseleccionado) {
+      return ['servicio', 'fecha', 'confirmacion'];
+    }
+    return ['servicio', 'barbero', 'fecha', 'confirmacion'];
+  }
 
   servicios: IServicio[] = [];
   barberos: IBarbero[] = [];
@@ -40,10 +47,16 @@ export class AgendarComponent implements OnInit {
     private authService: AuthService,
     private servicioService: ServicioService,
     private reservaService: ReservaService
-  ) { }
+  ) {
+    // Leer params síncronamente en el constructor
+    this.route.queryParams.subscribe(params => {
+      if (params['barbero']) {
+        this.barberoPreseleccionado = true;
+      }
+    });
+  }
 
   ngOnInit(): void {
-    // Recuperar reserva pendiente si viene del login
     const pendiente = sessionStorage.getItem('reserva_pendiente');
     if (pendiente) {
       const data = JSON.parse(pendiente);
@@ -55,9 +68,17 @@ export class AgendarComponent implements OnInit {
       sessionStorage.removeItem('reserva_pendiente');
     }
 
+    // Verificar params síncronamente
+    const params = this.route.snapshot.queryParams;
+    if (params['barbero']) {
+      this.barberoPreseleccionado = true;
+    }
+    console.log('params barbero:', this.route.snapshot.queryParams['barbero']);
+    console.log('barberoPreseleccionado:', this.barberoPreseleccionado);
+
     this.cargarServicios();
     this.cargarBarberos();
-    this.generarCalendario();
+    this.cargarHorarioBarberia();
 
     this.route.queryParams.subscribe(params => {
       if (params['barbero']) {
@@ -66,6 +87,7 @@ export class AgendarComponent implements OnInit {
           const b = res.data.find((b: any) => b.id_usuario === id);
           if (b) {
             this.barberoSeleccionado = b;
+            this.barberoPreseleccionado = true;
             this.pasoActual = 'servicio';
           }
         });
@@ -85,7 +107,9 @@ export class AgendarComponent implements OnInit {
 
   cargarServicios(): void {
     this.servicioService.getAll().subscribe({
-      next: (res) => this.servicios = res.data,
+      next: (res) => {
+        this.servicios = res.data.sort((a, b) => Number(b.precio) - Number(a.precio));
+      },
       error: () => this.error = 'Error al cargar servicios'
     });
   }
@@ -100,10 +124,11 @@ export class AgendarComponent implements OnInit {
   toggleServicio(servicio: IServicio): void {
     const idx = this.serviciosSeleccionados.findIndex(s => s.id_servicio === servicio.id_servicio);
     if (idx === -1) {
-      this.serviciosSeleccionados.push(servicio);
+      this.serviciosSeleccionados = [servicio];
     } else {
-      this.serviciosSeleccionados.splice(idx, 1);
+      this.serviciosSeleccionados = [];
     }
+    this.error = '';
   }
 
   isServicioSeleccionado(servicio: IServicio): boolean {
@@ -116,6 +141,29 @@ export class AgendarComponent implements OnInit {
 
   get precioTotal(): number {
     return this.serviciosSeleccionados.reduce((sum, s) => sum + Number(s.precio), 0);
+  }
+
+  horarioBarberia: any[] = [];
+
+  cargarHorarioBarberia(): void {
+  this.reservaService.getHorarioBarberia().subscribe({
+    next: (res: { ok: boolean; data: any[] }) => {
+      this.horarioBarberia = res.data;
+      console.log('horarioBarberia cargado:', this.horarioBarberia);
+      this.generarCalendario();
+    },
+    error: (err) => {
+      console.log('error horario:', err);
+      this.generarCalendario();
+    }
+  });
+}
+
+  esDiaAbierto(fecha: Date): boolean {
+    if (this.horarioBarberia.length === 0) return true;
+    const dia = fecha.getDay();
+    const horario = this.horarioBarberia.find((h: any) => h.dia_semana === dia);
+    return horario ? horario.activo === 1 : false;
   }
 
   generarCalendario(): void {
@@ -133,7 +181,8 @@ export class AgendarComponent implements OnInit {
     for (let d = 1; d <= diasEnMes; d++) {
       const fecha = new Date(año, mes, d);
       const pasado = fecha < new Date(this.hoy.getFullYear(), this.hoy.getMonth(), this.hoy.getDate());
-      this.diasCalendario.push({ fecha, disponible: !pasado });
+      const diaAbierto = this.esDiaAbierto(fecha);
+      this.diasCalendario.push({ fecha, disponible: !pasado && diaAbierto });
     }
   }
 
@@ -255,8 +304,21 @@ export class AgendarComponent implements OnInit {
     const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${año}`;
   }
+  formatearHora(hora: string): string {
+    const [hh, mm] = hora.split(':').map(Number);
+    const periodo = hh >= 12 ? 'PM' : 'AM';
+    const hora12 = hh % 12 || 12;
+    return `${hora12}:${String(mm).padStart(2, '0')} ${periodo}`;
+  }
 
   irAlHome(): void {
     this.router.navigate(['/']);
+  }
+  esDiaCerrado(dia: { fecha: Date | null; disponible: boolean }): boolean {
+    if (!dia.fecha) return false;
+    if (this.horarioBarberia.length === 0) return false;
+    const diaSemana = dia.fecha.getDay();
+    const horario = this.horarioBarberia.find((h: any) => h.dia_semana === diaSemana);
+    return horario ? horario.activo === 0 : true;
   }
 }

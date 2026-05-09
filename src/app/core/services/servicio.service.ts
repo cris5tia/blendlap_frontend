@@ -10,6 +10,7 @@ export interface IServicio {
   precio: number;
   duracion: number;
   imagen?: string;
+  categoria?: string;
 }
 
 @Injectable({ providedIn: 'root' })

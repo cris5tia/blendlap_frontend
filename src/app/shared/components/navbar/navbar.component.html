@@ -2,11 +2,7 @@
   <div class="container navbar__container">
 
     <a routerLink="/" class="navbar__logo">
-      <img src="assets/images/navbar/logooo.png" alt="Blendlap">
-      <!-- <div class="navbar__logo-text">
-        <span class="navbar__logo-nombre">BLENDLAP</span>
-        <span class="navbar__logo-sub">B A R B E R Í A</span>
-      </div> -->
+      <img src="assets/images/navbar/logo.png" alt="Blendlap">
     </a>
 
     <ul class="navbar__links" [class.active]="menuOpen">
@@ -15,23 +11,34 @@
       <li><a (click)="scrollTo('galeria')">Galería</a></li>
       <li><a (click)="scrollTo('ubicacion')">Ubicación</a></li>
 
-      <!-- No logueado -->
       <li *ngIf="!usuario">
         <a routerLink="/login" class="btn-nav" (click)="closeMenu()">Iniciar Sesión</a>
       </li>
 
-      <!-- Logueado -->
       <li *ngIf="usuario" class="navbar__usuario">
+
+        <a *ngIf="usuario.rol === 'admin'" routerLink="/admin/dashboard" class="btn-nav btn-nav--admin">
+          <i class="fas fa-tachometer-alt"></i> Admin
+        </a>
+
+        <a *ngIf="usuario.rol === 'cliente'" routerLink="/cliente/dashboard" class="btn-nav btn-nav--citas">
+          <i class="fas fa-calendar-check"></i> Mis citas
+          <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">{{ reservas.length }}</span>
+        </a>
+
         <div class="navbar__avatar" (click)="irADashboard()">
           <i class="fas fa-user"></i>
         </div>
+
         <div class="navbar__user-info">
           <span class="navbar__nombre">{{ usuario.nombre }}</span>
           <span class="navbar__rol">{{ usuario.rol }}</span>
         </div>
-        <button class="navbar__logout" (click)="logout()" title="Cerrar sesión">
+
+        <button class="navbar__logout" (click)="logout()" title="Cerrar sesion">
           <i class="fas fa-sign-out-alt"></i>
         </button>
+
       </li>
     </ul>
 

@@ -175,6 +175,7 @@ export class BarberosComponent implements OnInit {
       descripcion: '',
       foto: '',
       experiencia: 0,
+      comision: 0
     };
   }
   barberosFiltrados: IBarbero[] = [];

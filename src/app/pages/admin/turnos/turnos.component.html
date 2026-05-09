@@ -1,1 +1,107 @@
-<p>turnos works!</p>
+<div class="turnos-page">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-header__title">Turnos y Horarios</h1>
+            <p class="page-header__sub">Configura el horario de atención de la barbería</p>
+        </div>
+        <button class="btn-guardar-todo" (click)="guardarTodo()" [disabled]="guardando">
+            <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+            {{ guardando ? 'Guardando...' : 'Guardar todo' }}
+        </button>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="alert alert--success" *ngIf="exito">
+        <i class="fas fa-check-circle"></i> {{ exito }}
+    </div>
+    <div class="alert alert--error" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <!-- Resumen -->
+    <div class="resumen-horario">
+        <div class="resumen-horario__item">
+            <i class="fas fa-calendar-check"></i>
+            <span>{{ getDiasActivos() }} días activos</span>
+        </div>
+        <div class="resumen-horario__item">
+            <i class="fas fa-calendar-times"></i>
+            <span>{{ 7 - getDiasActivos() }} días cerrados</span>
+        </div>
+        <div class="resumen-horario__item" *ngIf="horario.length > 0">
+            <i class="fas fa-clock"></i>
+            <span>
+                {{ formatHora(horario[2].hora_inicio || '') }} —
+                {{ formatHora(horario[2].hora_fin || '') }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Cargando -->
+    <div class="cargando" *ngIf="cargando">
+        <i class="fas fa-spinner fa-spin"></i> Cargando horario...
+    </div>
+
+    <!-- Grid semanal -->
+    <div class="horario-grid" *ngIf="!cargando">
+        <div class="dia-card" *ngFor="let dia of horario" [class.dia-card--cerrado]="dia.activo === 0"
+            [class.dia-card--abierto]="dia.activo === 1">
+
+            <!-- Header día -->
+            <div class="dia-card__header">
+                <div class="dia-card__nombre">
+                    <span class="dia-card__dia">{{ diasNombre[dia.dia_semana] }}</span>
+                    <span class="dia-card__estado-badge" [class.abierto]="dia.activo === 1"
+                        [class.cerrado]="dia.activo === 0">
+                        {{ dia.activo === 1 ? 'Abierto' : 'Cerrado' }}
+                    </span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" [checked]="dia.activo === 1" (change)="toggleDia(dia)">
+                    <span class="toggle__slider"></span>
+                </label>
+            </div>
+
+            <!-- Horario -->
+            <div class="dia-card__body" *ngIf="dia.activo === 1">
+                <div class="hora-inputs">
+                    <div class="hora-group">
+                        <label>Apertura</label>
+                        <input type="time" [(ngModel)]="dia.hora_inicio" (change)="guardarDia(dia)" />
+                    </div>
+                    <div class="hora-separator">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="hora-group">
+                        <label>Cierre</label>
+                        <input type="time" [(ngModel)]="dia.hora_fin" (change)="guardarDia(dia)" />
+                    </div>
+                </div>
+
+                <div class="dia-card__horario-display">
+                    <i class="fas fa-clock"></i>
+                    {{ formatHora(dia.hora_inicio) }} — {{ formatHora(dia.hora_fin) }}
+                </div>
+            </div>
+
+            <!-- Cerrado -->
+            <div class="dia-card__cerrado" *ngIf="dia.activo === 0">
+                <i class="fas fa-store-slash"></i>
+                <span>Día no laborable</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Nota barberos -->
+    <div class="nota-info">
+        <i class="fas fa-info-circle"></i>
+        <p>
+            Los barberos heredan automáticamente este horario. Cada barbero puede agregar
+            sus propias excepciones (almuerzo, descanso, etc.) desde su panel personal.
+        </p>
+    </div>
+
+</div>

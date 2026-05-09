@@ -1,4 +1,4 @@
-.reservas-page {
+.gastos-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -28,13 +28,32 @@
   }
 }
 
-// ─── Resumen ─────────────────────────────────────────────────
-.resumen-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+.btn-nuevo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-accent);
+  color: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
 
-  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+}
+
+// ─── Resumen ─────────────────────────────────────────────────
+.gastos-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
 .resumen-card {
@@ -47,25 +66,29 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   border: 1px solid #f1f3f5;
 
-  &--warning { border-left: 3px solid #ffc107; }
-  &--success { border-left: 3px solid #28a745; }
-  &--danger  { border-left: 3px solid #dc3545; }
-  &--total   { border-left: 3px solid var(--color-accent); }
+  &--total {
+    border-left: 3px solid var(--color-accent);
+  }
 
   &__icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
+    background: rgba(251,196,71,0.12);
+    color: var(--color-accent);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
     flex-shrink: 0;
 
-    .resumen-card--warning & { background: rgba(255,193,7,0.12); color: #856404; }
-    .resumen-card--success & { background: rgba(40,167,69,0.12); color: #1e7e34; }
-    .resumen-card--danger &  { background: rgba(220,53,69,0.1);  color: #dc3545; }
-    .resumen-card--total &   { background: rgba(251,196,71,0.15); color: #b8860b; }
+    &--sm {
+      width: 38px;
+      height: 38px;
+      font-size: 0.9rem;
+      background: rgba(108,117,125,0.1);
+      color: var(--color-gray);
+    }
   }
 
   &__label {
@@ -79,11 +102,12 @@
 
   &__valor {
     display: block;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 900;
     color: var(--color-primary);
     font-family: var(--font-primary);
-    line-height: 1.2;
+
+    &--sm { font-size: 0.95rem; }
   }
 }
 
@@ -145,6 +169,7 @@
   cursor: pointer;
   transition: var(--transition);
   font-family: var(--font-secondary);
+
   &:hover { background: var(--color-accent); color: var(--color-primary); }
 }
 
@@ -162,6 +187,7 @@
   cursor: pointer;
   transition: var(--transition);
   font-family: var(--font-secondary);
+
   &:hover { background: #f1f3f5; color: var(--color-primary); }
 }
 
@@ -203,11 +229,10 @@
 .tabla {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
 
   th {
     padding: 0.75rem 1rem;
-    font-size: 0.73rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-gray);
     text-transform: uppercase;
@@ -215,7 +240,6 @@
     text-align: left;
     border-bottom: 1px solid #f1f3f5;
     background: #fafbfc;
-    white-space: nowrap;
   }
 
   td {
@@ -229,9 +253,8 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #fafbfc; }
 
-  .id { color: var(--color-gray); font-size: 0.78rem; }
-  .servicio { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .precio { font-weight: 700; color: #28a745; }
+  .monto { font-weight: 700; color: #dc3545; }
+  .descripcion { color: var(--color-gray); font-size: 0.82rem; max-width: 200px; }
 }
 
 .tabla-empty {
@@ -243,25 +266,15 @@
   p { margin: 0; font-size: 0.9rem; }
 }
 
-// ─── Cliente cell ────────────────────────────────────────────
-.cliente-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-
-  &__avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(251,196,71,0.15);
-    color: #b8860b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.82rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
+.badge-categoria {
+  display: inline-flex;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(251,196,71,0.12);
+  color: #b8860b;
+  border: 1px solid rgba(251,196,71,0.25);
 }
 
 // ─── Acciones ────────────────────────────────────────────────
@@ -295,22 +308,6 @@
   }
 }
 
-// ─── Badges ───────────────────────────────────────────────────
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.65rem;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: capitalize;
-
-  &-success { background: rgba(40,167,69,0.1);  color: #1e7e34; }
-  &-warning { background: rgba(255,193,7,0.15); color: #856404; }
-  &-danger  { background: rgba(220,53,69,0.1);  color: #dc3545; }
-  &-default { background: #f1f3f5; color: var(--color-gray); }
-}
-
 // ─── Modal ───────────────────────────────────────────────────
 .modal-overlay {
   position: fixed;
@@ -329,7 +326,7 @@
   background: var(--color-white);
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
@@ -343,8 +340,12 @@
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #f1f3f5;
+    position: sticky;
+    top: 0;
+    background: var(--color-white);
+    z-index: 1;
 
-    &--danger .modal__title { color: #dc3545; i { color: #dc3545; } }
+    &--danger .modal__title { color: #dc3545; }
   }
 
   &__title {
@@ -375,12 +376,7 @@
     &:hover { background: #dc3545; color: #fff; }
   }
 
-  &__body {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
+  &__body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
 
   &__footer {
     display: flex;
@@ -399,67 +395,49 @@
   }
 }
 
-// ─── Reserva info ────────────────────────────────────────────
-.reserva-info {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.88rem;
-    color: var(--color-primary);
-
-    i { color: var(--color-accent); font-size: 0.85rem; min-width: 16px; }
-  }
-}
-
-// ─── Estado opciones ─────────────────────────────────────────
+// ─── Form ────────────────────────────────────────────────────
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 
   label {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--color-primary);
     text-transform: uppercase;
     letter-spacing: 0.8px;
   }
-}
 
-.estado-opciones {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
+  input, select, textarea {
+    border: 1.5px solid #dee2e6;
+    border-radius: 9px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-family: var(--font-secondary);
+    outline: none;
+    transition: var(--transition);
+    background: #fafbfc;
+    resize: none;
 
-.estado-opcion {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1.5px solid #dee2e6;
-  background: transparent;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: var(--font-secondary);
-  color: var(--color-gray);
+    &:focus {
+      border-color: var(--color-accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(251,196,71,0.12);
+    }
 
-  &.active {
-    &.estado-opcion--completada { background: rgba(40,167,69,0.1); border-color: #28a745; color: #1e7e34; }
-    &.estado-opcion--pendiente  { background: rgba(255,193,7,0.15); border-color: #ffc107; color: #856404; }
-    &.estado-opcion--cancelada  { background: rgba(220,53,69,0.1);  border-color: #dc3545; color: #dc3545; }
+    &::placeholder { color: #adb5bd; }
   }
-
-  &:hover { border-color: var(--color-accent); color: var(--color-primary); }
 }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.required { color: #dc3545; }
 
 // ─── Botones modal ────────────────────────────────────────────
 .btn-cancelar {

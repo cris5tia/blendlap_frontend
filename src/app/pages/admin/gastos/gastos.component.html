@@ -1,0 +1,199 @@
+<div class="gastos-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">Gastos</h1>
+      <p class="page-header__sub">Gestiona los gastos del negocio</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirModal()">
+      <i class="fas fa-plus"></i> Nuevo gasto
+    </button>
+  </div>
+
+  <!-- Resumen -->
+  <div class="gastos-resumen">
+    <div class="resumen-card resumen-card--total">
+      <div class="resumen-card__icon">
+        <i class="fas fa-receipt"></i>
+      </div>
+      <div>
+        <span class="resumen-card__label">Total gastos</span>
+        <span class="resumen-card__valor">{{ formatCurrency(totalGastos) }}</span>
+      </div>
+    </div>
+
+    <div class="resumen-card" *ngFor="let cat of gastosPorCategoria.slice(0, 3)">
+      <div class="resumen-card__icon resumen-card__icon--sm">
+        <i class="fas fa-tag"></i>
+      </div>
+      <div>
+        <span class="resumen-card__label">{{ cat.categoria }}</span>
+        <span class="resumen-card__valor resumen-card__valor--sm">{{ formatCurrency(cat.total) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar">
+    <div class="filtro-group">
+      <label>Desde</label>
+      <input type="date" [(ngModel)]="filtros.desde" />
+    </div>
+    <div class="filtro-group">
+      <label>Hasta</label>
+      <input type="date" [(ngModel)]="filtros.hasta" />
+    </div>
+    <div class="filtro-group">
+      <label>Categoría</label>
+      <select [(ngModel)]="filtros.categoria">
+        <option value="">Todas</option>
+        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <button class="btn-filtrar" (click)="aplicarFiltros()">
+      <i class="fas fa-search"></i> Filtrar
+    </button>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-times"></i> Limpiar
+    </button>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" *ngIf="error && !modalVisible">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <!-- Cargando -->
+  <div class="cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando gastos...
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-card" *ngIf="!cargando">
+    <div class="tabla-card__body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let g of gastos">
+            <td><strong>{{ g.nombre }}</strong></td>
+            <td><span class="badge-categoria">{{ g.categoria }}</span></td>
+            <td class="monto">{{ formatCurrency(g.monto) }}</td>
+            <td>{{ g.fecha | date:'dd/MM/yyyy' }}</td>
+            <td class="descripcion">{{ g.descripcion || '—' }}</td>
+            <td>
+              <div class="acciones">
+                <button class="btn-accion btn-accion--editar" (click)="abrirModal(g)">
+                  <i class="fas fa-pen"></i>
+                </button>
+                <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(g)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tabla-empty" *ngIf="gastos.length === 0">
+        <i class="fas fa-receipt"></i>
+        <p>No hay gastos registrados</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal Crear / Editar -->
+<div class="modal-overlay" *ngIf="modalVisible" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <i class="fas fa-receipt"></i>
+        {{ editando ? 'Editar gasto' : 'Nuevo gasto' }}
+      </h2>
+      <button class="modal__close" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <div class="error-msg" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="formulario.nombre" placeholder="Ej: Pago arriendo" />
+        </div>
+        <div class="form-group">
+          <label>Categoría <span class="required">*</span></label>
+          <select [(ngModel)]="formulario.categoria">
+            <option value="">Seleccionar...</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Monto <span class="required">*</span></label>
+          <input type="number" [(ngModel)]="formulario.monto" placeholder="Ej: 50000" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Fecha <span class="required">*</span></label>
+          <input type="date" [(ngModel)]="formulario.fecha" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="formulario.descripcion" rows="3" placeholder="Descripción opcional..."></textarea>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn-guardar" (click)="guardar()" [disabled]="guardando">
+          <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear gasto') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal-overlay" *ngIf="modalEliminar" (click)="modalEliminar = false">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">
+        <i class="fas fa-trash"></i> Eliminar gasto
+      </h2>
+    </div>
+    <div class="modal__body">
+      <p class="modal__confirm-text">
+        ¿Estás seguro de eliminar <strong>{{ gastoAEliminar?.nombre }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancelar" (click)="modalEliminar = false">Cancelar</button>
+      <button class="btn-eliminar" (click)="eliminar()" [disabled]="eliminando">
+        <i class="fas" [ngClass]="eliminando ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+        {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>

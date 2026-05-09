@@ -3,10 +3,8 @@
     <!-- Sidebar -->
     <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
 
-        <!-- Logo -->
         <div class="sidebar__logo">
             <img src="/assets/images/navbar/logo.png" alt="Blendlap">
-            <span *ngIf="!sidebarCollapsed">Blendlap</span>
         </div>
 
         <!-- Nav -->
@@ -39,6 +37,10 @@
                 <i class="fas fa-cash-register"></i>
                 <span *ngIf="!sidebarCollapsed">Ventas</span>
             </a>
+            <a routerLink="/admin/gastos" routerLinkActive="active" class="sidebar__item">
+                <i class="fas fa-receipt"></i>
+                <span *ngIf="!sidebarCollapsed">Gastos</span>
+            </a>
             <a routerLink="/admin/turnos" routerLinkActive="active" class="sidebar__item">
                 <i class="fas fa-clock"></i>
                 <span *ngIf="!sidebarCollapsed">Turnos</span>
@@ -51,6 +53,10 @@
 
         <!-- Footer sidebar -->
         <div class="sidebar__footer">
+            <a routerLink="/" class="sidebar__home">
+                <i class="fas fa-home"></i>
+                <span *ngIf="!sidebarCollapsed">Ver sitio</span>
+            </a>
             <button class="sidebar__item" (click)="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span *ngIf="!sidebarCollapsed">Cerrar sesión</span>

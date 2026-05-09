@@ -1,1 +1,222 @@
-<p>reservas works!</p>
+<div class="reservas-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">Reservas</h1>
+      <p class="page-header__sub">Gestiona todas las citas de la barbería</p>
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div class="resumen-grid">
+    <div class="resumen-card resumen-card--warning">
+      <div class="resumen-card__icon"><i class="fas fa-clock"></i></div>
+      <div>
+        <span class="resumen-card__label">Pendientes</span>
+        <span class="resumen-card__valor">{{ totalPendientes }}</span>
+      </div>
+    </div>
+    <div class="resumen-card resumen-card--success">
+      <div class="resumen-card__icon"><i class="fas fa-check-circle"></i></div>
+      <div>
+        <span class="resumen-card__label">Completadas</span>
+        <span class="resumen-card__valor">{{ totalCompletadas }}</span>
+      </div>
+    </div>
+    <div class="resumen-card resumen-card--danger">
+      <div class="resumen-card__icon"><i class="fas fa-times-circle"></i></div>
+      <div>
+        <span class="resumen-card__label">Canceladas</span>
+        <span class="resumen-card__valor">{{ totalCanceladas }}</span>
+      </div>
+    </div>
+    <div class="resumen-card resumen-card--total">
+      <div class="resumen-card__icon"><i class="fas fa-calendar-alt"></i></div>
+      <div>
+        <span class="resumen-card__label">Total</span>
+        <span class="resumen-card__valor">{{ reservas.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar">
+    <div class="filtro-group">
+      <label>Fecha</label>
+      <input type="date" [(ngModel)]="filtros.fecha" />
+    </div>
+    <div class="filtro-group">
+      <label>Barbero</label>
+      <select [(ngModel)]="filtros.id_barbero">
+        <option value="">Todos</option>
+        <option *ngFor="let b of barberos" [value]="b.id_usuario">
+          {{ b.nombre }} {{ b.apellido }}
+        </option>
+      </select>
+    </div>
+    <div class="filtro-group">
+      <label>Estado</label>
+      <select [(ngModel)]="filtros.estado">
+        <option value="">Todos</option>
+        <option *ngFor="let e of estados" [value]="e">{{ e | titlecase }}</option>
+      </select>
+    </div>
+    <button class="btn-filtrar" (click)="aplicarFiltros()">
+      <i class="fas fa-search"></i> Filtrar
+    </button>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">
+      <i class="fas fa-times"></i> Limpiar
+    </button>
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <!-- Cargando -->
+  <div class="cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando reservas...
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-card" *ngIf="!cargando">
+    <div class="tabla-card__body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Barbero</th>
+            <th>Servicio</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reservas">
+            <td class="id">#{{ r.id_reserva }}</td>
+            <td>
+              <div class="cliente-cell">
+                <div class="cliente-cell__avatar">{{ r.nombre_cliente.charAt(0) }}</div>
+                <span>{{ r.nombre_cliente }}</span>
+              </div>
+            </td>
+            <td>{{ r.nombre_barbero }}</td>
+            <td class="servicio">{{ r.nombre_servicio || '—' }}</td>
+            <td>{{ formatFecha(r.fecha) }}</td>
+            <td>{{ formatHora(r.hora) }}</td>
+            <td class="precio">
+              <span *ngIf="r.precio_total && r.precio_total > 0">${{ r.precio_total | number:'1.0-0' }}</span>
+              <span *ngIf="!r.precio_total || r.precio_total === 0">—</span>
+            </td>
+            <td>
+              <span [class]="'badge ' + getEstadoClass(r.estado)">{{ r.estado }}</span>
+            </td>
+            <td>
+              <div class="acciones">
+                <button class="btn-accion btn-accion--editar"
+                  *ngIf="r.estado !== 'cancelada'"
+                  (click)="abrirModalEstado(r)"
+                  title="Cambiar estado">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-accion btn-accion--eliminar"
+                  *ngIf="r.estado === 'pendiente'"
+                  (click)="confirmarCancelar(r)"
+                  title="Cancelar reserva">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tabla-empty" *ngIf="reservas.length === 0">
+        <i class="fas fa-calendar-times"></i>
+        <p>No hay reservas con los filtros aplicados</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal cambiar estado -->
+<div class="modal-overlay" *ngIf="modalEstado" (click)="cerrarModalEstado()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <i class="fas fa-edit"></i> Cambiar estado
+      </h2>
+      <button class="modal__close" (click)="cerrarModalEstado()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="reserva-info" *ngIf="reservaSeleccionada">
+        <div class="reserva-info__item">
+          <i class="fas fa-user"></i>
+          <span>{{ reservaSeleccionada.nombre_cliente }}</span>
+        </div>
+        <div class="reserva-info__item">
+          <i class="fas fa-user-tie"></i>
+          <span>{{ reservaSeleccionada.nombre_barbero }}</span>
+        </div>
+        <div class="reserva-info__item">
+          <i class="fas fa-calendar"></i>
+          <span>{{ formatFecha(reservaSeleccionada.fecha) }} — {{ formatHora(reservaSeleccionada.hora) }}</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nuevo estado</label>
+        <div class="estado-opciones">
+          <button class="estado-opcion"
+            *ngFor="let e of estados"
+            [class.active]="nuevoEstado === e"
+            [class.estado-opcion--completada]="e === 'completada'"
+            [class.estado-opcion--pendiente]="e === 'pendiente'"
+            [class.estado-opcion--cancelada]="e === 'cancelada'"
+            (click)="nuevoEstado = e">
+            {{ e | titlecase }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancelar" (click)="cerrarModalEstado()">Cancelar</button>
+      <button class="btn-guardar" (click)="cambiarEstado()" [disabled]="cambiando">
+        <i class="fas" [ngClass]="cambiando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ cambiando ? 'Guardando...' : 'Confirmar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cancelar -->
+<div class="modal-overlay" *ngIf="modalCancelar" (click)="modalCancelar = false">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header modal__header--danger">
+      <h2 class="modal__title">
+        <i class="fas fa-times-circle"></i> Cancelar reserva
+      </h2>
+    </div>
+    <div class="modal__body">
+      <p class="modal__confirm-text">
+        ¿Estás seguro de cancelar la reserva de
+        <strong>{{ reservaACancelar?.nombre_cliente }}</strong>
+        para el <strong>{{ formatFecha(reservaACancelar?.fecha || '') }}</strong>?
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancelar" (click)="modalCancelar = false">No, mantener</button>
+      <button class="btn-eliminar" (click)="cancelarReserva()" [disabled]="cancelando">
+        <i class="fas" [ngClass]="cancelando ? 'fa-spinner fa-spin' : 'fa-times'"></i>
+        {{ cancelando ? 'Cancelando...' : 'Sí, cancelar' }}
+      </button>
+    </div>
+  </div>
+</div>

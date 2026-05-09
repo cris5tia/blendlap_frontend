@@ -1,0 +1,276 @@
+<div class="agenda-layout">
+
+  <!-- Sidebar desktop -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__brand-name">BLENDLAP</span>
+      <span class="sidebar__brand-sub">BARBERO</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__item active">
+        <i class="fas fa-calendar-day"></i>
+        <span>Agenda</span>
+      </a>
+      <a class="sidebar__item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Stats</span>
+      </a>
+      <a class="sidebar__item" routerLink="/">
+        <i class="fas fa-home"></i>
+        <span>Inicio</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <button class="sidebar__item sidebar__item--logout" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Salir</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="agenda-main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <div class="topbar__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
+        <div>
+          <div class="topbar__nombre">{{ usuario?.nombre }} {{ usuario?.apellido }}</div>
+          <div class="topbar__fecha">{{ formatFechaHoy() }}</div>
+        </div>
+      </div>
+      <div class="topbar__right">
+        <div class="topbar__hora">{{ horaActualStr }}</div>
+        <button class="topbar__refresh" (click)="cargarDatos()" title="Actualizar">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi kpi--accent">
+        <div class="kpi__icon"><i class="fas fa-calendar-check"></i></div>
+        <div>
+          <div class="kpi__label">Citas hoy</div>
+          <div class="kpi__valor">{{ citasHoy.length }}</div>
+          <div class="kpi__sub">{{ citasCompletadas }} completadas</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-clock"></i></div>
+        <div>
+          <div class="kpi__label">Proxima cita</div>
+          <div class="kpi__valor">{{ proximaCita ? formatHora(proximaCita.hora) : '—' }}</div>
+          <div class="kpi__sub">{{ proximaCita?.nombre_cliente || 'Sin citas' }}</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-calendar-alt"></i></div>
+        <div>
+          <div class="kpi__label">Proximas</div>
+          <div class="kpi__valor">{{ proximas.length }}</div>
+          <div class="kpi__sub">reservas futuras</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="alert-error" *ngIf="error">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <!-- Cargando -->
+    <div class="cargando" *ngIf="cargando">
+      <i class="fas fa-spinner fa-spin"></i> Cargando agenda...
+    </div>
+
+    <!-- Tabs movil -->
+    <div class="mob-tabs">
+      <button class="mob-tab" [class.active]="navActual === 'agenda'" (click)="navActual = 'agenda'">
+        <i class="fas fa-calendar-day"></i> Hoy
+        <span class="mob-tab-badge" *ngIf="citasHoy.length > 0">{{ citasHoy.length }}</span>
+      </button>
+      <button class="mob-tab" [class.active]="navActual === 'proximas'" (click)="navActual = 'proximas'">
+        <i class="fas fa-calendar-alt"></i> Proximas
+        <span class="mob-tab-badge" *ngIf="proximas.length > 0">{{ proximas.length }}</span>
+      </button>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="agenda-content" *ngIf="!cargando">
+
+      <!-- Timeline -->
+      <div class="timeline-section" [class.mob-hidden]="navActual !== 'agenda'">
+        <div class="section-title">
+          <div class="section-title__dot"></div>
+          <span>Agenda del dia</span>
+          <span class="section-title__count">{{ citasHoy.length }} citas</span>
+        </div>
+
+        <div class="empty-state" *ngIf="citasHoy.length === 0">
+          <i class="fas fa-calendar-times"></i>
+          <p>No tienes citas para hoy</p>
+        </div>
+
+        <div class="timeline" *ngIf="citasHoy.length > 0" [style.height.px]="alturaTimeline + 40">
+
+          <!-- Horas -->
+          <div class="timeline__hours">
+            <div class="timeline__hour-slot" *ngFor="let h of horasTimeline">
+              <span>{{ formatHoraNum(h) }}</span>
+            </div>
+          </div>
+
+          <!-- Linea vertical -->
+          <div class="timeline__line">
+            <div class="timeline__line-marks">
+              <div class="timeline__mark" *ngFor="let h of horasTimeline"></div>
+            </div>
+          </div>
+
+          <!-- Eventos -->
+          <div class="timeline__events">
+
+            <!-- Linea de ahora -->
+            <div class="timeline__now" *ngIf="mostrarLineaAhora" [style.top.px]="lineaAhora">
+              <div class="timeline__now-dot"></div>
+              <div class="timeline__now-label">{{ horaActualStr }}</div>
+            </div>
+
+            <!-- Citas -->
+            <div class="timeline__cita"
+              *ngFor="let cita of citasHoy"
+              [style.top.px]="horaAPixels(cita.hora)"
+              [style.height.px]="duracionAPixels(cita.duracion_total)"
+              [ngClass]="{
+                'timeline__cita--completada': getEstadoCita(cita) === 'completada',
+                'timeline__cita--en-curso': getEstadoCita(cita) === 'en-curso',
+                'timeline__cita--proxima': getEstadoCita(cita) === 'proxima'
+              }">
+
+              <div class="timeline__cita-header">
+                <span class="timeline__cita-hora">{{ formatHora(cita.hora) }}</span>
+                <span class="timeline__cita-estado" *ngIf="getEstadoCita(cita) === 'en-curso'">
+                  <i class="fas fa-circle"></i> En curso
+                </span>
+                <span class="timeline__cita-estado completada" *ngIf="getEstadoCita(cita) === 'completada'">
+                  <i class="fas fa-check"></i> Lista
+                </span>
+              </div>
+
+              <div class="timeline__cita-cliente">{{ cita.nombre_cliente }}</div>
+              <div class="timeline__cita-servicio">{{ cita.nombre_servicio }} · {{ cita.duracion_total }} min</div>
+
+              <div class="timeline__cita-acciones" *ngIf="getEstadoCita(cita) !== 'completada'">
+                <button class="btn-tl btn-tl--ok" (click)="abrirCompletar(cita); $event.stopPropagation()">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn-tl btn-tl--cancel" (click)="abrirCancelar(cita); $event.stopPropagation()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Proximas -->
+      <div class="proximas-section" [class.mob-hidden]="navActual !== 'proximas'">
+        <div class="section-title">
+          <div class="section-title__dot"></div>
+          <span>Proximas citas</span>
+          <span class="section-title__count">{{ proximas.length }}</span>
+        </div>
+
+        <div class="empty-state" *ngIf="proximas.length === 0">
+          <i class="fas fa-calendar-plus"></i>
+          <p>No tienes citas proximas</p>
+        </div>
+
+        <div class="proximas-list" *ngIf="proximas.length > 0">
+          <div class="prox-item" *ngFor="let r of proximas">
+            <div class="prox-item__fecha">
+              <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
+              <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
+            </div>
+            <div class="prox-item__info">
+              <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
+              <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
+            </div>
+            <div class="prox-item__right">
+              <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
+              <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom nav movil -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav__item" [class.active]="navActual === 'agenda'" (click)="navActual = 'agenda'">
+      <i class="fas fa-calendar-day"></i>
+      <span>Hoy</span>
+    </button>
+    <button class="bottom-nav__item" [class.active]="navActual === 'proximas'" (click)="navActual = 'proximas'">
+      <i class="fas fa-calendar-alt"></i>
+      <span>Proximas</span>
+    </button>
+    <button class="bottom-nav__item" routerLink="/">
+      <i class="fas fa-home"></i>
+      <span>Inicio</span>
+    </button>
+    <button class="bottom-nav__item" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Salir</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Modal completar -->
+<div class="modal-overlay" *ngIf="modalCompletar" (click)="modalCompletar = false">
+  <div class="modal-accion" (click)="$event.stopPropagation()">
+    <div class="modal-accion__icon modal-accion__icon--ok">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3>Marcar como completada</h3>
+    <p>Confirmas que el servicio con <strong>{{ citaSeleccionada?.nombre_cliente }}</strong> fue completado?</p>
+    <div class="modal-accion__btns">
+      <button class="btn-modal-cancel" (click)="modalCompletar = false">No</button>
+      <button class="btn-modal-ok" (click)="completarCita()" [disabled]="procesando">
+        <i class="fas fa-spinner fa-spin" *ngIf="procesando"></i>
+        <i class="fas fa-check" *ngIf="!procesando"></i>
+        {{ procesando ? 'Procesando...' : 'Si, completar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cancelar -->
+<div class="modal-overlay" *ngIf="modalCancelar" (click)="modalCancelar = false">
+  <div class="modal-accion" (click)="$event.stopPropagation()">
+    <div class="modal-accion__icon modal-accion__icon--cancel">
+      <i class="fas fa-times-circle"></i>
+    </div>
+    <h3>Cancelar cita</h3>
+    <p>Seguro que deseas cancelar la cita de <strong>{{ citaSeleccionada?.nombre_cliente }}</strong>?</p>
+    <div class="modal-accion__btns">
+      <button class="btn-modal-cancel" (click)="modalCancelar = false">No, mantener</button>
+      <button class="btn-modal-danger" (click)="cancelarCita()" [disabled]="procesando">
+        <i class="fas fa-spinner fa-spin" *ngIf="procesando"></i>
+        <i class="fas fa-times" *ngIf="!procesando"></i>
+        {{ procesando ? 'Procesando...' : 'Si, cancelar' }}
+      </button>
+    </div>
+  </div>
+</div>

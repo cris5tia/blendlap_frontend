@@ -1,0 +1,330 @@
+<div class="cliente-dashboard">
+
+  <div class="dashboard-header">
+    <div class="dashboard-header__info">
+      <div class="dashboard-header__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
+      <div>
+        <h1 class="dashboard-header__nombre">Hola, {{ usuario?.nombre }}</h1>
+        <p class="dashboard-header__sub">Tus citas y reservas</p>
+      </div>
+    </div>
+    <a routerLink="/" class="btn-inicio">
+      <i class="fas fa-home"></i> Inicio
+    </a>
+  </div>
+
+  <div class="alert alert--error" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <div class="cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando tus reservas...
+  </div>
+
+  <div class="tabs-container" *ngIf="!cargando">
+
+    <div class="tabs">
+      <button class="tab" [class.active]="tabActual === 'actuales'" (click)="tabActual = 'actuales'">
+        Actuales
+        <span class="tab-badge" *ngIf="reservasPendientes.length > 0">{{ reservasPendientes.length }}</span>
+      </button>
+      <button class="tab" [class.active]="tabActual === 'historial'" (click)="tabActual = 'historial'">
+        Historial
+      </button>
+    </div>
+
+    <!-- ACTUALES -->
+    <ng-container *ngIf="tabActual === 'actuales'">
+      <div class="empty-state" *ngIf="reservasPendientes.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-calendar-check"></i></div>
+        <h3>No tienes citas proximas</h3>
+        <p>Agenda tu proxima cita ahora</p>
+        <button class="btn-nueva mt" (click)="irAReservar()">
+          <i class="fas fa-plus"></i> Reservar ahora
+        </button>
+      </div>
+
+      <div class="citas-list" *ngIf="reservasPendientes.length > 0">
+        <div class="cita-item" *ngFor="let r of reservasPendientes">
+          <div class="cita-item__header" (click)="toggleExpand(r.id_reserva)">
+            <div class="cita-item__toggle">
+              <i class="fas" [ngClass]="estaExpandida(r.id_reserva) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </div>
+            <div class="cita-item__resumen">
+              <span class="cita-item__nombre">{{ r.nombre_servicio || 'Servicio' }}</span>
+              <span class="cita-item__cuando">{{ getFechaLabel(r.fecha) }} - {{ formatHora(r.hora) }}</span>
+            </div>
+            <span class="cita-item__estado estado--pendiente">Pendiente</span>
+          </div>
+
+          <div class="cita-item__detalle" *ngIf="estaExpandida(r.id_reserva)">
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Servicio</span>
+              <span class="detalle-fila__valor">{{ r.nombre_servicio || '—' }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Valor</span>
+              <span class="detalle-fila__valor valor--precio">${{ r.precio_total | number:'1.0-0' }}</span>
+            </div>
+            <div class="detalle-fila" *ngIf="r.duracion_total">
+              <span class="detalle-fila__label">Duracion</span>
+              <span class="detalle-fila__valor">{{ r.duracion_total }} min</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Fecha</span>
+              <span class="detalle-fila__valor">{{ formatFechaCompleta(r.fecha) }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Hora inicio</span>
+              <span class="detalle-fila__valor">{{ formatHora(r.hora) }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Profesional</span>
+              <span class="detalle-fila__valor">{{ r.nombre_barbero }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Lugar</span>
+              <span class="detalle-fila__valor">Blendlap Barberia</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Direccion</span>
+              <span class="detalle-fila__valor">Cl. 48 # 19-55, Armenia, Quindio</span>
+            </div>
+            <div class="cita-item__acciones">
+              <button class="btn-accion btn-accion--modificar" (click)="abrirModalEditar(r)">
+                Modificar cita
+              </button>
+              <button class="btn-accion btn-accion--cancelar" (click)="confirmarCancelar(r)">
+                Cancelar cita
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- HISTORIAL -->
+    <ng-container *ngIf="tabActual === 'historial'">
+      <div class="empty-state" *ngIf="reservasHistorial.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-history"></i></div>
+        <h3>Sin historial aun</h3>
+        <p>Aqui apareceran tus citas completadas y canceladas</p>
+      </div>
+
+      <div class="citas-list" *ngIf="reservasHistorial.length > 0">
+        <div class="cita-item" *ngFor="let r of reservasHistorial"
+          [class.cita-item--completada]="r.estado === 'completada'"
+          [class.cita-item--cancelada]="r.estado === 'cancelada'">
+
+          <div class="cita-item__header" (click)="toggleExpand(r.id_reserva)">
+            <div class="cita-item__toggle">
+              <i class="fas" [ngClass]="estaExpandida(r.id_reserva) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </div>
+            <div class="cita-item__resumen">
+              <span class="cita-item__nombre">{{ r.nombre_servicio || 'Servicio' }}</span>
+              <span class="cita-item__cuando">{{ formatFechaCorta(r.fecha) }} - {{ formatHora(r.hora) }}</span>
+            </div>
+            <span class="cita-item__estado"
+              [ngClass]="r.estado === 'completada' ? 'estado--completada' : 'estado--cancelada'">
+              {{ r.estado }}
+            </span>
+          </div>
+
+          <div class="cita-item__detalle" *ngIf="estaExpandida(r.id_reserva)">
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Servicio</span>
+              <span class="detalle-fila__valor">{{ r.nombre_servicio || '—' }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Valor</span>
+              <span class="detalle-fila__valor valor--precio">${{ r.precio_total | number:'1.0-0' }}</span>
+            </div>
+            <div class="detalle-fila" *ngIf="r.duracion_total">
+              <span class="detalle-fila__label">Duracion</span>
+              <span class="detalle-fila__valor">{{ r.duracion_total }} min</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Fecha</span>
+              <span class="detalle-fila__valor">{{ formatFechaCompleta(r.fecha) }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Hora</span>
+              <span class="detalle-fila__valor">{{ formatHora(r.hora) }}</span>
+            </div>
+            <div class="detalle-fila">
+              <span class="detalle-fila__label">Profesional</span>
+              <span class="detalle-fila__valor">{{ r.nombre_barbero }}</span>
+            </div>
+            <div class="cita-item__acciones" *ngIf="r.estado === 'completada'">
+              <button class="btn-accion btn-accion--resena" *ngIf="puedeResenar(r)" (click)="abrirModalResena(r)">
+                <i class="fas fa-star"></i> Dejar resena
+              </button>
+              <span class="resena-dada" *ngIf="!puedeResenar(r) && r.tiene_resena">
+                <i class="fas fa-star"></i> Resena enviada
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- Modal editar -->
+<div class="modal-overlay" *ngIf="modalEditar" (click)="cerrarModalEditar()">
+  <div class="modal-editar" (click)="$event.stopPropagation()">
+    <div class="modal-editar__header">
+      <h2>Modificar cita</h2>
+      <p>{{ reservaAEditar?.nombre_servicio }} con {{ reservaAEditar?.nombre_barbero }}</p>
+      <button class="modal-editar__close" (click)="cerrarModalEditar()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-editar__body">
+      <div class="editar-exito" *ngIf="editarExitoso">
+        <div class="editar-exito__icon"><i class="fas fa-check-circle"></i></div>
+        <h3>Cita actualizada correctamente</h3>
+        <p>Tu reserva ha sido modificada</p>
+      </div>
+
+      <ng-container *ngIf="!editarExitoso">
+        <!-- resto del contenido del body -->
+      </ng-container>
+      <div class="alert alert--error" *ngIf="editarError">
+        <i class="fas fa-exclamation-circle"></i> {{ editarError }}
+      </div>
+
+      <!-- Calendario -->
+      <div class="edit-calendario">
+        <div class="edit-calendario__nav">
+          <button (click)="editarMesAnterior()"><i class="fas fa-chevron-left"></i></button>
+          <span>{{ editarNombreMes }}</span>
+          <button (click)="editarMesSiguiente()"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="edit-calendario__header">
+          <span>Dom</span><span>Lun</span><span>Mar</span>
+          <span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span>
+        </div>
+        <div class="edit-calendario__grid">
+          <div *ngFor="let dia of editarDiasCalendario" class="edit-calendario__dia" [class.vacio]="!dia.fecha"
+            [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerradoEditar(dia)"
+            [class.cerrado]="dia.fecha && esDiaCerradoEditar(dia)"
+            [class.disponible]="dia.fecha && dia.disponible && !esDiaCerradoEditar(dia)"
+            [class.seleccionado]="esDiaSeleccionadoEditar(dia)" (click)="seleccionarFechaEditar(dia)">
+            {{ dia.fecha?.getDate() }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots -->
+      <div class="edit-slots" *ngIf="editarFecha">
+        <div class="edit-slots__cargando" *ngIf="editarCargandoSlots">
+          <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
+        </div>
+        <div class="edit-slots__empty" *ngIf="!editarCargandoSlots && editarSlots.length === 0">
+          <p>No hay horarios disponibles para este dia</p>
+        </div>
+        <div class="edit-slots__grid" *ngIf="!editarCargandoSlots && editarSlots.length > 0">
+          <button *ngFor="let slot of editarSlots" class="edit-slot" [class.disponible]="slot.disponible"
+            [class.ocupado]="!slot.disponible" [class.seleccionado]="editarHora === slot.hora"
+            [disabled]="!slot.disponible" (click)="editarHora = slot.hora">
+            {{ formatHora(slot.hora) }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-editar__footer">
+      <button class="btn-cancelar-modal" (click)="cerrarModalEditar()">Cancelar</button>
+      <button class="btn-guardar-edicion" (click)="guardarEdicion()"
+        [disabled]="editarGuardando || !editarFecha || !editarHora">
+        <i class="fas fa-spinner fa-spin" *ngIf="editarGuardando"></i>
+        <i class="fas fa-check" *ngIf="!editarGuardando"></i>
+        {{ editarGuardando ? 'Guardando...' : 'Confirmar cambio' }}
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Modal exito edicion -->
+<div class="modal-overlay" *ngIf="editarExitoso" (click)="editarExitoso = false">
+  <div class="modal-exito" (click)="$event.stopPropagation()">
+    <div class="modal-exito__icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3>Cita reagendada</h3>
+    <p>Tu reserva fue modificada correctamente</p>
+  </div>
+</div>
+<!-- Modal cancelar -->
+<div class="modal-overlay" *ngIf="modalCancelar" (click)="modalCancelar = false">
+  <div class="modal-exito" (click)="$event.stopPropagation()" style="border-top: 4px solid #dc3545;">
+    <div class="modal-exito__icon" style="color: #dc3545;">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3>Cancelar cita</h3>
+    <p>Esta seguro de cancelar tu reserva con <strong>{{ reservaACancelar?.nombre_barbero }}</strong>?</p>
+    <div style="display:flex; gap:0.75rem; margin-top:0.5rem; width:100%;">
+      <button class="btn-cancelar-modal" style="flex:1;" (click)="modalCancelar = false">
+        No, mantener
+      </button>
+      <button class="btn-accion btn-accion--cancelar" style="flex:1; border-radius:9px;" (click)="ejecutarCancelar()"
+        [disabled]="cancelando">
+        <i class="fas fa-spinner fa-spin" *ngIf="cancelando"></i>
+        {{ cancelando ? 'Cancelando...' : 'Si, cancelar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal resena -->
+<div class="modal-overlay" *ngIf="modalResena" (click)="cerrarModalResena()">
+  <div class="modal-resena" (click)="$event.stopPropagation()">
+    <button class="modal-resena__close" (click)="cerrarModalResena()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="resena-exito" *ngIf="resenaExitosa">
+      <div class="resena-exito__icon"><i class="fas fa-check-circle"></i></div>
+      <h3>Gracias por tu resena!</h3>
+      <p>Tu opinion ayuda a otros clientes</p>
+    </div>
+    <ng-container *ngIf="!resenaExitosa">
+      <div class="modal-resena__header">
+        <h2>Como fue tu experiencia?</h2>
+        <p>Con <strong>{{ reservaAResenar?.nombre_barbero }}</strong></p>
+      </div>
+      <div class="modal-resena__body">
+        <div class="estrellas-selector">
+          <i class="fas fa-star estrella" *ngFor="let s of [1,2,3,4,5]"
+            [class.activa]="s <= (estrellasHover || formularioResena.calificacion)" (mouseenter)="estrellasHover = s"
+            (mouseleave)="estrellasHover = 0" (click)="setEstrellas(s)">
+          </i>
+        </div>
+        <div class="calificacion-texto" *ngIf="formularioResena.calificacion > 0">
+          <span *ngIf="formularioResena.calificacion === 1">Muy malo</span>
+          <span *ngIf="formularioResena.calificacion === 2">Malo</span>
+          <span *ngIf="formularioResena.calificacion === 3">Regular</span>
+          <span *ngIf="formularioResena.calificacion === 4">Bueno</span>
+          <span *ngIf="formularioResena.calificacion === 5">Excelente</span>
+        </div>
+        <div class="form-group">
+          <label>Comentario (opcional)</label>
+          <textarea [(ngModel)]="formularioResena.comentario" rows="4"
+            placeholder="Cuentanos como fue tu experiencia..."></textarea>
+        </div>
+        <div class="alert alert--error" *ngIf="errorResena">
+          <i class="fas fa-exclamation-circle"></i> {{ errorResena }}
+        </div>
+      </div>
+      <div class="modal-resena__footer">
+        <button class="btn-cancelar-modal" (click)="cerrarModalResena()">Cancelar</button>
+        <button class="btn-enviar" (click)="guardarResena()" [disabled]="guardandoResena">
+          <i class="fas fa-paper-plane" *ngIf="!guardandoResena"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="guardandoResena"></i>
+          {{ guardandoResena ? 'Enviando...' : 'Enviar resena' }}
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>
