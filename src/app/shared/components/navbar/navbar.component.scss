@@ -234,3 +234,24 @@
   font-size: 0.65rem;
   font-weight: 800;
 }
+.nav-link-barbero {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-white) !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  i { color: var(--color-accent); font-size: 0.85rem; }
+
+  &::after { display: none !important; }
+
+  &:hover { color: var(--color-accent) !important; }
+}
+.nav-link-active {
+  color: var(--color-accent) !important;
+  i { color: var(--color-accent); }
+}

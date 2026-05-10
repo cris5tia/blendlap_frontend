@@ -1,0 +1,260 @@
+.horario-wrapper {
+  max-width: 580px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 1rem 3rem;
+
+  @media (max-width: 480px) { padding: 1rem 0.75rem 3rem; }
+}
+
+.horario-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+
+  &__user { display: flex; align-items: center; gap: 0.75rem; }
+
+  &__avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(251,196,71,0.15); color: #b8860b;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800;
+    font-family: var(--font-primary); flex-shrink: 0;
+  }
+
+  &__nombre { font-family: var(--font-primary); font-size: 1rem; font-weight: 900; color: var(--color-primary); line-height: 1.2; }
+  &__sub { font-size: 0.78rem; color: var(--color-gray); }
+}
+
+.btn-inicio {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1.5px solid #dee2e6; background: transparent;
+  color: var(--color-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; text-decoration: none;
+  transition: var(--transition); flex-shrink: 0;
+  &:hover { background: var(--color-primary); color: var(--color-white); border-color: var(--color-primary); }
+}
+
+.alert-error {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba(220,53,69,0.08); color: #dc3545;
+  border: 1px solid rgba(220,53,69,0.2);
+  border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.88rem;
+}
+
+.cargando {
+  text-align: center; padding: 3rem; color: var(--color-gray);
+  font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+
+// ─── Seccion card ─────────────────────────────────────────────
+.seccion-card {
+  background: var(--color-white);
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow: hidden;
+
+  &__titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f0f0ec;
+  }
+
+  &__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--color-accent); flex-shrink: 0;
+  }
+
+  span {
+    font-family: var(--font-primary);
+    font-size: 0.88rem; font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    flex: 1;
+  }
+
+  &__sub {
+    font-size: 0.72rem !important; font-weight: 500 !important;
+    color: var(--color-gray) !important;
+    background: #f1f3f5; padding: 0.15rem 0.6rem;
+    border-radius: 20px; text-transform: none !important;
+    letter-spacing: 0 !important; flex: none !important;
+  }
+}
+
+.btn-agregar {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: var(--color-accent); color: var(--color-primary);
+  border: none; border-radius: 8px; padding: 0.4rem 0.85rem;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  transition: var(--transition); font-family: var(--font-secondary);
+  flex-shrink: 0;
+  &:hover { background: var(--color-primary); color: var(--color-accent); }
+}
+
+// ─── Horario dias ────────────────────────────────────────────
+.horario-dias { display: flex; flex-direction: column; }
+
+.dia-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f8f9fa;
+  &:last-child { border-bottom: none; }
+
+  &--cerrado { opacity: 0.5; }
+
+  &__nombre {
+    font-size: 0.88rem; font-weight: 700;
+    color: var(--color-primary); min-width: 100px;
+  }
+
+  &__horario {
+    font-size: 0.82rem; color: var(--color-gray);
+    display: flex; align-items: center; gap: 0.4rem;
+    i { color: var(--color-accent); font-size: 0.75rem; }
+  }
+
+  &__cerrado {
+    font-size: 0.78rem; color: #dc3545;
+    display: flex; align-items: center; gap: 0.3rem;
+    i { font-size: 0.72rem; }
+  }
+}
+
+// ─── Excepciones ─────────────────────────────────────────────
+.excepciones-list { display: flex; flex-direction: column; }
+
+.excepcion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f8f9fa;
+  transition: background 0.15s;
+  &:last-child { border-bottom: none; }
+  &:hover { background: #f8f9fa; }
+
+  &__dia {
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--color-primary); min-width: 90px;
+  }
+
+  &__info { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
+
+  &__horas {
+    font-size: 0.82rem; color: var(--color-gray);
+    display: flex; align-items: center; gap: 0.35rem;
+    i { color: var(--color-accent); font-size: 0.72rem; }
+  }
+
+  &__motivo {
+    font-size: 0.75rem; color: #adb5bd;
+    font-style: italic;
+  }
+
+  &__delete {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: none; background: rgba(220,53,69,0.08);
+    color: #dc3545; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; transition: all 0.2s; flex-shrink: 0;
+    &:hover { background: #dc3545; color: #fff; }
+  }
+}
+
+// ─── Empty ────────────────────────────────────────────────────
+.empty-state {
+  text-align: center; padding: 2.5rem 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+
+  &__icon {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(251,196,71,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--color-accent);
+  }
+
+  h3 { font-family: var(--font-primary); font-size: 1rem; color: var(--color-primary); margin: 0; }
+  p  { font-size: 0.82rem; color: var(--color-gray); margin: 0; }
+}
+
+// ─── Modal ───────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; padding: 1rem; animation: fadeIn 0.2s ease;
+}
+
+.modal-excepcion {
+  background: var(--color-white);
+  border-radius: 20px; width: 100%; max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: slideUp 0.25s ease; position: relative;
+  overflow: hidden;
+
+  &__close {
+    position: absolute; top: 1rem; right: 1rem;
+    width: 30px; height: 30px; border-radius: 50%; border: none;
+    background: #f1f3f5; color: var(--color-gray); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; transition: all 0.2s;
+    &:hover { background: #dc3545; color: #fff; }
+  }
+
+  &__header {
+    padding: 1.5rem 1.5rem 0;
+    h3 { font-family: var(--font-primary); font-size: 1.1rem; font-weight: 900; color: var(--color-primary); margin: 0 0 0.2rem; }
+    p  { font-size: 0.82rem; color: var(--color-gray); margin: 0; }
+  }
+
+  &__body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  &__footer { display: flex; justify-content: flex-end; gap: 0.75rem; padding: 0 1.25rem 1.25rem; }
+}
+
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+}
+
+.form-group {
+  display: flex; flex-direction: column; gap: 0.35rem;
+
+  label { font-size: 0.75rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  input, select {
+    border: 1.5px solid #dee2e6; border-radius: 10px; padding: 0.65rem 0.85rem;
+    font-size: 0.88rem; color: var(--color-primary); font-family: var(--font-secondary);
+    outline: none; transition: all 0.2s; background: #fafbfc; width: 100%;
+    &:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(251,196,71,0.12); }
+  }
+}
+
+.btn-cancelar-modal {
+  padding: 0.65rem 1.2rem; border-radius: 9px;
+  border: 1.5px solid #dee2e6; background: transparent; color: var(--color-gray);
+  font-size: 0.87rem; font-weight: 600; cursor: pointer;
+  font-family: var(--font-secondary); transition: all 0.2s;
+  &:hover { background: #f1f3f5; color: var(--color-primary); }
+}
+
+.btn-guardar {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.65rem 1.4rem; border-radius: 9px; border: none;
+  background: var(--color-accent); color: var(--color-primary);
+  font-size: 0.87rem; font-weight: 700; cursor: pointer;
+  font-family: var(--font-secondary); transition: all 0.2s;
+  &:hover:not(:disabled) { background: var(--color-primary); color: var(--color-accent); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

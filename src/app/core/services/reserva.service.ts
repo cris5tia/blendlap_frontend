@@ -102,4 +102,7 @@ export class ReservaService {
 actualizar(id: number, data: { fecha: string; hora: string }): Observable<{ ok: boolean }> {
   return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, data);
 }
+getServicios(): Observable<{ ok: boolean; data: any[] }> {
+  return this.http.get<{ ok: boolean; data: any[] }>(`${environment.apiUrl}/servicios`);
+}
 }

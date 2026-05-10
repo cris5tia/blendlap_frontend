@@ -1,1 +1,212 @@
-<p>clientes works!</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-sub">Gestion y seguimiento de clientes</p>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpis-row">
+  <div class="kpi-card">
+    <div class="kpi-card__icon"><i class="fas fa-users"></i></div>
+    <div>
+      <div class="kpi-card__label">Total clientes</div>
+      <div class="kpi-card__valor">{{ totalClientes }}</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-card__icon kpi-card__icon--success"><i class="fas fa-user-check"></i></div>
+    <div>
+      <div class="kpi-card__label">Activos</div>
+      <div class="kpi-card__valor">{{ clientesActivos }}</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-card__icon kpi-card__icon--accent"><i class="fas fa-gift"></i></div>
+    <div>
+      <div class="kpi-card__label">Proximo descuento</div>
+      <div class="kpi-card__valor">{{ clientesConDescuento }}</div>
+      <div class="kpi-card__sub">clientes</div>
+    </div>
+  </div>
+</div>
+
+<!-- Busqueda -->
+<div class="search-bar">
+  <div class="search-bar__input-wrap">
+    <i class="fas fa-search"></i>
+    <input type="text" [(ngModel)]="busqueda"
+      (input)="buscar()"
+      placeholder="Buscar por nombre, correo o telefono...">
+    <button class="search-bar__clear" *ngIf="busqueda" (click)="limpiarBusqueda()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="alert alert--error" *ngIf="error">
+  <i class="fas fa-exclamation-circle"></i> {{ error }}
+</div>
+
+<!-- Cargando -->
+<div class="cargando" *ngIf="cargando">
+  <i class="fas fa-spinner fa-spin"></i> Cargando clientes...
+</div>
+
+<!-- Tabla -->
+<div class="tabla-card" *ngIf="!cargando">
+
+  <div class="empty-state" *ngIf="clientesFiltrados.length === 0">
+    <i class="fas fa-users-slash"></i>
+    <p>No se encontraron clientes</p>
+  </div>
+
+  <div class="tabla-wrap" *ngIf="clientesFiltrados.length > 0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Contacto</th>
+          <th>Cortes</th>
+          <th>Descuento</th>
+          <th>Registro</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clientesFiltrados">
+          <td>
+            <div class="cliente-info">
+              <div class="cliente-info__avatar">{{ c.nombre.charAt(0) }}</div>
+              <div>
+                <div class="cliente-info__nombre">{{ c.nombre }} {{ c.apellido }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="cliente-contacto">
+              <span>{{ c.correo_electronico }}</span>
+              <span class="cliente-contacto__tel" *ngIf="c.telefono">{{ c.telefono }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="cortes-info">
+              <span class="cortes-info__total">{{ c.total_cortes }}</span>
+              <span class="cortes-info__ciclo">{{ c.cortes_ciclo }}/11</span>
+            </div>
+          </td>
+          <td>
+            <div class="descuento-badge" [ngClass]="{
+              'descuento-badge--proximo': c.cortes_para_descuento === 1,
+              'descuento-badge--cerca': c.cortes_para_descuento <= 3 && c.cortes_para_descuento > 1,
+              'descuento-badge--normal': c.cortes_para_descuento > 3
+            }">
+              <i class="fas fa-gift" *ngIf="c.cortes_para_descuento === 1"></i>
+              <i class="fas fa-scissors" *ngIf="c.cortes_para_descuento > 1"></i>
+              {{ c.cortes_para_descuento === 1 ? 'Proximo!' : c.cortes_para_descuento + ' cortes' }}
+            </div>
+          </td>
+          <td class="fecha-col">{{ formatFecha(c.fecha_creacion) }}</td>
+          <td>
+            <span class="estado-badge" [ngClass]="c.estado === 'activo' ? 'estado-badge--activo' : 'estado-badge--inactivo'">
+              {{ c.estado }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-ver" (click)="abrirHistorial(c)">
+              <i class="fas fa-eye"></i> Ver
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal historial -->
+<div class="modal-overlay" *ngIf="modalHistorial" (click)="cerrarHistorial()">
+  <div class="modal-historial" (click)="$event.stopPropagation()">
+
+    <button class="modal-historial__close" (click)="cerrarHistorial()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-historial__header">
+      <div class="modal-historial__avatar">{{ clienteSeleccionado?.nombre?.charAt(0) }}</div>
+      <div>
+        <h3>{{ clienteSeleccionado?.nombre }} {{ clienteSeleccionado?.apellido }}</h3>
+        <p>{{ clienteSeleccionado?.correo_electronico }}</p>
+      </div>
+    </div>
+
+    <div class="modal-historial__stats" *ngIf="historial">
+      <div class="h-stat">
+        <span class="h-stat__val">{{ historial.total_cortes }}</span>
+        <span class="h-stat__label">Total cortes</span>
+      </div>
+      <div class="h-stat">
+        <span class="h-stat__val">{{ historial.cortes_ciclo }}/11</span>
+        <span class="h-stat__label">Ciclo actual</span>
+      </div>
+      <div class="h-stat h-stat--accent">
+        <span class="h-stat__val">{{ historial.cortes_para_descuento }}</span>
+        <span class="h-stat__label">Para descuento</span>
+      </div>
+    </div>
+
+    <div class="modal-historial__cargando" *ngIf="cargandoHistorial">
+      <i class="fas fa-spinner fa-spin"></i> Cargando historial...
+    </div>
+
+    <div class="modal-historial__body" *ngIf="historial && !cargandoHistorial">
+
+      <div class="historial-seccion" *ngIf="historial.reservas?.length > 0">
+        <div class="historial-seccion__titulo">
+          <i class="fas fa-calendar-check"></i> Reservas
+        </div>
+        <div class="historial-item" *ngFor="let r of historial.reservas">
+          <div class="historial-item__fecha">{{ formatFecha(r.fecha) }}</div>
+          <div class="historial-item__info">
+            <span class="historial-item__servicio">{{ r.servicios || 'Servicio' }}</span>
+            <span class="historial-item__barbero">
+              <i class="fas fa-user-tie"></i> {{ r.barbero }}
+            </span>
+          </div>
+          <span class="historial-item__estado"
+            [ngClass]="{
+              'estado--completada': r.estado === 'completada',
+              'estado--cancelada': r.estado === 'cancelada',
+              'estado--pendiente': r.estado === 'pendiente'
+            }">{{ r.estado }}</span>
+        </div>
+      </div>
+
+      <div class="historial-seccion" *ngIf="historial.presenciales?.length > 0">
+        <div class="historial-seccion__titulo">
+          <i class="fas fa-cut"></i> Cortes presenciales
+        </div>
+        <div class="historial-item" *ngFor="let p of historial.presenciales">
+          <div class="historial-item__fecha">{{ formatFecha(p.fecha) }}</div>
+          <div class="historial-item__info">
+            <span class="historial-item__servicio">${{ p.valor_cobrado | number:'1.0-0' }}</span>
+            <span class="historial-item__barbero">
+              <i class="fas fa-user-tie"></i> {{ p.barbero }}
+            </span>
+          </div>
+          <span class="descuento-badge descuento-badge--proximo" *ngIf="p.descuento_aplicado">
+            <i class="fas fa-gift"></i> 50% desc
+          </span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="historial.reservas?.length === 0 && historial.presenciales?.length === 0">
+        <i class="fas fa-history"></i>
+        <p>Sin historial aun</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>

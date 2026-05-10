@@ -46,4 +46,7 @@ export class HorarioService {
   eliminarExcepcion(id: number): Observable<{ ok: boolean }> {
     return this.http.delete<{ ok: boolean }>(`${this.url}/excepciones/${id}`);
   }
+  getMisExcepciones(): Observable<{ ok: boolean; data: IExcepcion[] }> {
+  return this.http.get<{ ok: boolean; data: IExcepcion[] }>(`${this.url}/mis-excepciones`);
+}
 }

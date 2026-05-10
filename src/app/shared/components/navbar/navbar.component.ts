@@ -18,15 +18,15 @@ export class NavbarComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private reservaService: ReservaService
+    private reservaService: ReservaService,
   ) { }
 
   ngOnInit(): void {
-    this.authService.usuario$.subscribe(u => {
-      this.usuario = u;
-      if (u?.rol === 'cliente') this.cargarReservas();
-    });
-  }
+  this.authService.usuario$.subscribe(u => {
+    this.usuario = u;
+    if (u?.rol === 'cliente') this.cargarReservas();
+  });
+}
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -75,5 +75,9 @@ export class NavbarComponent implements OnInit {
       case 'barbero': this.router.navigate(['/barbero/agenda']); break;
       case 'cliente': this.router.navigate(['/cliente/dashboard']); break;
     }
+  }
+  /* agenda cliente especial */
+  irAgendarPresencial(): void {
+    this.router.navigate(['/barbero/agenda'], { queryParams: { agendar: 'true' } });
   }
 }

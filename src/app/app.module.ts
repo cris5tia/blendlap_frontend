@@ -33,6 +33,9 @@ import { BarberosComponent } from './pages/admin/barberos/barberos.component';
 import { GastosComponent } from './pages/admin/gastos/gastos.component';
 import { ClienteModule } from './pages/cliente/cliente.module';
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
+import { StatsComponent } from './pages/barbero/stats/stats.component';
+import { HorarioComponent } from './pages/barbero/horario/horario.component';
+import { DatePipe } from '@angular/common';
 
 
 @NgModule({
@@ -59,6 +62,10 @@ import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
     BarberosComponent,
     GastosComponent,
     AgendaComponent,
+    StatsComponent,
+    HorarioComponent,
+    StatsComponent,
+    HorarioComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,14 +73,17 @@ import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    ClienteModule
+    ClienteModule,
   ],
   providers: [
+    DatePipe,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
     }
+
   ],
   bootstrap: [AppComponent]
 })

@@ -47,18 +47,36 @@
                 <div class="barbero-card__body">
                     <p class="barbero-card__cargo">{{ barbero.titulo || 'Barbero' }}</p>
                     <h3>{{ barbero.nombre }} {{ barbero.apellido }}</h3>
-                    <div class="barbero-card__rating" *ngIf="barbero.promedio_estrellas > 0">
-                        <div class="estrellas">
-                            <i class="fas fa-star" *ngFor="let s of getEstrellas(barbero.promedio_estrellas)"></i>
-                            <i class="fas fa-star-half-alt" *ngIf="barbero.promedio_estrellas % 1 >= 0.5"></i>
-                        </div>
-                        <span class="rating-num">{{ barbero.promedio_estrellas | number:'1.1-1' }}</span>
-                        <span class="rating-count">({{ barbero.total_resenas }} reseñas)</span>
+
+                    <!-- Rating — siempre ocupa espacio -->
+                    <div class="barbero-card__rating"
+                        [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
+                        (click)="barbero.promedio_estrellas > 0 && abrirModalResenas(barbero, $event)">
+                        <ng-container *ngIf="barbero.promedio_estrellas > 0">
+                            <div class="estrellas">
+                                <i class="fas fa-star" *ngFor="let s of getEstrellas(barbero.promedio_estrellas)"></i>
+                                <i class="fas fa-star-half-alt" *ngIf="barbero.promedio_estrellas % 1 >= 0.5"></i>
+                            </div>
+                            <span class="rating-num">{{ barbero.promedio_estrellas | number:'1.1-1' }}</span>
+                            <span class="rating-count">({{ barbero.total_resenas }} resenas)</span>
+                        </ng-container>
+                        <ng-container *ngIf="!barbero.promedio_estrellas || barbero.promedio_estrellas === 0">
+                            <div class="estrellas estrellas--vacias">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="rating-count rating-count--vacio">Sin resenas</span>
+                        </ng-container>
                     </div>
+
                     <div class="barbero-card__specs" *ngIf="barbero.especialidades">
                         <span *ngFor="let esp of barbero.especialidades.split(',')" class="spec-tag">{{ esp.trim()
                             }}</span>
                     </div>
+
                     <div class="barbero-card__stats">
                         <div class="stat">
                             <i class="fas fa-calendar-check"></i>
@@ -87,51 +105,106 @@
 
 <!-- ─── MODAL BARBERO ────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="barberoSeleccionado" (click)="cerrarModalBarbero()">
-    <div class="modal modal--barbero" (click)="$event.stopPropagation()">
-        <button class="modal__cerrar" (click)="cerrarModalBarbero()">
+  <div class="modal modal--barbero" (click)="$event.stopPropagation()">
+
+    <div class="modal__imagen">
+      <button class="modal__cerrar" (click)="cerrarModalBarbero()">
+        <i class="fas fa-times"></i>
+      </button>
+      <img *ngIf="barberoSeleccionado.foto"
+        [src]="'http://localhost:3000/images/barberos/' + barberoSeleccionado.foto"
+        [alt]="barberoSeleccionado.nombre" />
+      <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
+        <i class="fas fa-user-tie"></i>
+      </div>
+    </div>
+
+    <div class="modal__info">
+      <p class="modal__titulo">{{ barberoSeleccionado.titulo || 'Barbero' }}</p>
+      <h2>{{ barberoSeleccionado.nombre }} {{ barberoSeleccionado.apellido }}</h2>
+      <p class="modal__desc">{{ barberoSeleccionado.descripcion }}</p>
+      <div class="modal__rating" *ngIf="barberoSeleccionado.promedio_estrellas > 0"
+        (click)="abrirModalResenas(barberoSeleccionado, $event)">
+        <i class="fas fa-star" *ngFor="let s of getEstrellas(barberoSeleccionado.promedio_estrellas)"></i>
+        <span>{{ barberoSeleccionado.promedio_estrellas | number:'1.1-1' }}</span>
+        <span class="modal__resenas">({{ barberoSeleccionado.total_resenas }} resenas)</span>
+      </div>
+      <div class="modal__specs" *ngIf="barberoSeleccionado.especialidades">
+        <span *ngFor="let esp of barberoSeleccionado.especialidades.split(',')" class="spec-tag">
+          {{ esp.trim() }}
+        </span>
+      </div>
+      <div class="modal__stats">
+        <div class="modal__stat">
+          <i class="fas fa-calendar-check"></i>
+          <div>
+            <span class="stat-val">{{ barberoSeleccionado.total_agendamientos || 0 }}</span>
+            <span class="stat-label">agendamientos</span>
+          </div>
+        </div>
+        <div class="modal__stat" *ngIf="barberoSeleccionado.experiencia">
+          <i class="fas fa-medal"></i>
+          <div>
+            <span class="stat-val">{{ barberoSeleccionado.experiencia }} años</span>
+            <span class="stat-label">experiencia</span>
+          </div>
+        </div>
+      </div>
+      <a routerLink="/agendar" class="btn-primary modal__btn" (click)="cerrarModalBarbero()">
+        <i class="fas fa-calendar-check"></i> Agendar
+      </a>
+    </div>
+
+  </div>
+</div>
+<!-- Modal reseñas barbero -->
+<div class="modal-overlay" *ngIf="modalResenas" (click)="cerrarModalResenas()">
+    <div class="modal-resenas" (click)="$event.stopPropagation()">
+
+        <button class="modal-resenas__close" (click)="cerrarModalResenas()">
             <i class="fas fa-times"></i>
         </button>
-        <div class="modal__imagen">
-            <img *ngIf="barberoSeleccionado.foto"
-                [src]="'http://localhost:3000/images/barberos/' + barberoSeleccionado.foto"
-                [alt]="barberoSeleccionado.nombre" />
-            <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
-                <i class="fas fa-user-tie"></i>
-            </div>
-        </div>
-        <div class="modal__info">
-            <p class="modal__titulo">{{ barberoSeleccionado.titulo || 'Barbero' }}</p>
-            <h2>{{ barberoSeleccionado.nombre }} {{ barberoSeleccionado.apellido }}</h2>
-            <p class="modal__desc">{{ barberoSeleccionado.descripcion }}</p>
-            <div class="modal__rating" *ngIf="barberoSeleccionado.promedio_estrellas > 0">
-                <i class="fas fa-star" *ngFor="let s of getEstrellas(barberoSeleccionado.promedio_estrellas)"></i>
-                <span>{{ barberoSeleccionado.promedio_estrellas | number:'1.1-1' }}</span>
-                <span class="modal__resenas">({{ barberoSeleccionado.total_resenas }} reseñas)</span>
-            </div>
-            <div class="modal__specs" *ngIf="barberoSeleccionado.especialidades">
-                <span *ngFor="let esp of barberoSeleccionado.especialidades.split(',')" class="spec-tag">{{ esp.trim()
-                    }}</span>
-            </div>
-            <div class="modal__stats">
-                <div class="modal__stat">
-                    <i class="fas fa-calendar-check"></i>
-                    <div>
-                        <span class="stat-val">{{ barberoSeleccionado.total_agendamientos || 0 }}</span>
-                        <span class="stat-label">agendamientos</span>
-                    </div>
-                </div>
-                <div class="modal__stat" *ngIf="barberoSeleccionado.experiencia">
-                    <i class="fas fa-medal"></i>
-                    <div>
-                        <span class="stat-val">{{ barberoSeleccionado.experiencia }} años</span>
-                        <span class="stat-label">experiencia</span>
-                    </div>
+
+        <div class="modal-resenas__header">
+            <div class="modal-resenas__avatar">{{ barberoResenas?.nombre?.charAt(0) }}</div>
+            <div>
+                <h3>{{ barberoResenas?.nombre }} {{ barberoResenas?.apellido }}</h3>
+                <div class="modal-resenas__rating">
+                    <i class="fas fa-star"
+                        *ngFor="let s of getEstrellasArray(barberoResenas?.promedio_estrellas || 0)"></i>
+                    <span>{{ barberoResenas?.promedio_estrellas | number:'1.1-1' }}</span>
+                    <span class="modal-resenas__total">({{ barberoResenas?.total_resenas }} reseñas)</span>
                 </div>
             </div>
-            <a routerLink="/agendar" class="btn-primary modal__btn" (click)="cerrarModalBarbero()">
-                <i class="fas fa-calendar-check"></i> Agendar
-            </a>
         </div>
+
+        <div class="modal-resenas__body">
+
+            <div class="modal-resenas__cargando" *ngIf="cargandoResenas">
+                <i class="fas fa-spinner fa-spin"></i> Cargando reseñas...
+            </div>
+
+            <div class="modal-resenas__empty" *ngIf="!cargandoResenas && resenas.length === 0">
+                <i class="fas fa-comment-slash"></i>
+                <p>Sin reseñas aun</p>
+            </div>
+
+            <div class="resena-item" *ngFor="let r of resenas">
+                <div class="resena-item__top">
+                    <div class="resena-item__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
+                    <div class="resena-item__info">
+                        <span class="resena-item__nombre">{{ r.nombre_cliente }}</span>
+                        <div class="resena-item__estrellas">
+                            <i class="fas fa-star" *ngFor="let s of getEstrellasArray(r.calificacion)"></i>
+                        </div>
+                    </div>
+                    <span class="resena-item__fecha">{{ r.fecha | date:'dd MMM yyyy' }}</span>
+                </div>
+                <p class="resena-item__comentario" *ngIf="r.comentario">{{ r.comentario }}</p>
+            </div>
+
+        </div>
+
     </div>
 </div>
 
@@ -144,7 +217,6 @@
         <div class="servicios__categorias">
             <button *ngFor="let cat of categoriasServicio" class="servicios__cat-btn"
                 [class.active]="categoriaActivaServicio === cat.id" (click)="cambiarCategoriaServicio(cat.id)">
-                <span>{{ cat.icon }}</span>
                 {{ cat.nombre }}
             </button>
         </div>
@@ -214,15 +286,16 @@
     <div class="container">
         <p class="section-subtitle">Disponibles en tienda</p>
         <h2 class="section-title">Nuestros <span>Productos</span></h2>
+
         <div class="productos__categorias">
             <button *ngFor="let cat of categorias" class="productos__cat-btn"
                 [class.active]="categoriaActiva === cat.id" (click)="cambiarCategoria(cat.id)">
-                <i [class]="cat.icon"></i>
-                {{ cat.nombre }}
+                <i [class]="cat.icon"></i> {{ cat.nombre }}
             </button>
         </div>
+
         <div class="productos__grid">
-            <div class="producto-card" *ngFor="let producto of productosFiltrados" (click)="abrirModal(producto)">
+            <div class="producto-card" *ngFor="let producto of productosMostrados" (click)="abrirModal(producto)">
                 <div class="producto-card__imagen">
                     <img [src]="producto.imagen" [alt]="producto.nombre">
                     <div class="producto-card__overlay">
@@ -245,6 +318,17 @@
                 </div>
             </div>
         </div>
+
+        <div class="productos__ver-mas">
+            <button class="productos__btn-ver-mas" *ngIf="hayMasProductos" (click)="verMasProductos()">
+                <i class="fas fa-plus"></i> Ver más productos
+            </button>
+            <button class="productos__btn-ver-mas productos__btn-ver-menos"
+                *ngIf="!hayMasProductos && estaExpandidoProductos" (click)="verMenosProductos()">
+                <i class="fas fa-chevron-up"></i> Ver menos
+            </button>
+        </div>
+
     </div>
 </section>
 <!-- ─── POR QUÉ — solo móvil, 2 items ───────────────────────── -->
@@ -302,55 +386,57 @@
 
 <!-- ─── GALERÍA ───────────────────────────────────────────────── -->
 <section class="galeria" id="galeria">
-  <div class="container">
-    <p class="section-subtitle">Nuestro trabajo</p>
-    <h2 class="section-title">Galería de <span>Estilos</span></h2>
-  </div>
-
-  <div class="galeria__wrapper">
-    <div class="galeria__track" #galeriaTrack>
-
-      <ng-container *ngIf="!esMobil()">
-        <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
-          <div class="galeria__item" *ngFor="let item of col">
-            <ng-container *ngIf="item.tipo === 'imagen'">
-              <img [src]="item.src" [alt]="item.alt" draggable="false">
-            </ng-container>
-            <ng-container *ngIf="item.tipo === 'video'">
-              <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
-                <video [src]="item.src" loop muted playsinline preload="auto"></video>
-                <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="esMobil()">
-        <div class="galeria__item" *ngFor="let item of galeriaItemsMostrados">
-          <ng-container *ngIf="item.tipo === 'imagen'">
-            <img [src]="item.src" [alt]="item.alt" draggable="false">
-          </ng-container>
-          <ng-container *ngIf="item.tipo === 'video'">
-            <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
-              <video [src]="item.src" loop muted playsinline preload="auto"></video>
-              <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
-            </div>
-          </ng-container>
-        </div>
-      </ng-container>
-
+    <div class="container">
+        <p class="section-subtitle">Nuestro trabajo</p>
+        <h2 class="section-title">Galería de <span>Estilos</span></h2>
     </div>
-  </div>
 
-  <div class="galeria__ver-mas">
-    <button class="galeria__btn-ver-mas" *ngIf="hayMasGaleria" (click)="verMasGaleria()">
-      <i class="fas fa-th"></i> Ver más
-    </button>
-    <button class="galeria__btn-ver-mas galeria__btn-ver-menos" *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
-      <i class="fas fa-chevron-up"></i> Ver menos
-    </button>
-  </div>
+    <div class="galeria__wrapper">
+        <div class="galeria__track" #galeriaTrack>
+
+            <ng-container *ngIf="!esMobil()">
+                <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
+                    <div class="galeria__item" *ngFor="let item of col">
+                        <ng-container *ngIf="item.tipo === 'imagen'">
+                            <img [src]="item.src" [alt]="item.alt" draggable="false">
+                        </ng-container>
+                        <ng-container *ngIf="item.tipo === 'video'">
+                            <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)"
+                                (mouseleave)="pauseVideo($event)">
+                                <video [src]="item.src" loop muted playsinline preload="auto"></video>
+                                <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="esMobil()">
+                <div class="galeria__item" *ngFor="let item of galeriaItemsMostrados">
+                    <ng-container *ngIf="item.tipo === 'imagen'">
+                        <img [src]="item.src" [alt]="item.alt" draggable="false">
+                    </ng-container>
+                    <ng-container *ngIf="item.tipo === 'video'">
+                        <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)"
+                            (mouseleave)="pauseVideo($event)">
+                            <video [src]="item.src" loop muted playsinline preload="auto"></video>
+                            <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </ng-container>
+                </div>
+            </ng-container>
+
+        </div>
+    </div>
+
+    <div class="galeria__ver-mas">
+        <button class="galeria__btn-ver-mas" *ngIf="hayMasGaleria" (click)="verMasGaleria()">
+            <i class="fas fa-th"></i> Ver más
+        </button>
+        <button class="galeria__btn-ver-mas galeria__btn-ver-menos" *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
+            <i class="fas fa-chevron-up"></i> Ver menos
+        </button>
+    </div>
 </section>
 <!-- ─── UBICACIÓN ─────────────────────────────────────────────── -->
 <section class="ubicacion" id="ubicacion">

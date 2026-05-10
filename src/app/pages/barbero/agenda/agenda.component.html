@@ -1,240 +1,187 @@
-<div class="agenda-layout">
+<div class="agenda-wrapper">
 
-  <!-- Sidebar desktop -->
-  <aside class="sidebar">
-    <div class="sidebar__brand">
-      <span class="sidebar__brand-name">BLENDLAP</span>
-      <span class="sidebar__brand-sub">BARBERO</span>
+  <div class="agenda-topbar">
+    <div class="agenda-topbar__user">
+      <div class="agenda-topbar__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
+      <div>
+        <div class="agenda-topbar__nombre">{{ usuario?.nombre }}</div>
+        <div class="agenda-topbar__fecha">{{ formatFechaHoy() }}</div>
+      </div>
     </div>
-
-    <nav class="sidebar__nav">
-      <a class="sidebar__item active">
-        <i class="fas fa-calendar-day"></i>
-        <span>Agenda</span>
-      </a>
-      <a class="sidebar__item">
-        <i class="fas fa-chart-bar"></i>
-        <span>Stats</span>
-      </a>
-      <a class="sidebar__item" routerLink="/">
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <button class="btn-agendar-presencial" (click)="abrirModalPresencial()">
+        <i class="fas fa-plus"></i> Agendar cliente
+      </button>
+      <div class="agenda-topbar__hora">{{ horaActualStr }}</div>
+      <a routerLink="/" class="btn-inicio">
         <i class="fas fa-home"></i>
-        <span>Inicio</span>
       </a>
-    </nav>
+    </div>
+  </div>
 
-    <div class="sidebar__footer">
-      <button class="sidebar__item sidebar__item--logout" (click)="logout()">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Salir</span>
+  <div class="alert-error" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <div class="cargando" *ngIf="cargando && citasHoy.length === 0">
+    <i class="fas fa-spinner fa-spin"></i> Cargando agenda...
+  </div>
+
+  <div class="tabs-container" *ngIf="!cargando || citasHoy.length > 0">
+
+    <div class="tabs">
+      <button class="tab" [class.active]="navActual === 'agenda'" (click)="navActual = 'agenda'">
+        Hoy
+        <span class="tab-badge" *ngIf="citasHoy.length > 0">{{ citasHoy.length }}</span>
       </button>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <div class="agenda-main">
-
-    <!-- Topbar -->
-    <header class="topbar">
-      <div class="topbar__left">
-        <div class="topbar__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
-        <div>
-          <div class="topbar__nombre">{{ usuario?.nombre }} {{ usuario?.apellido }}</div>
-          <div class="topbar__fecha">{{ formatFechaHoy() }}</div>
-        </div>
-      </div>
-      <div class="topbar__right">
-        <div class="topbar__hora">{{ horaActualStr }}</div>
-        <button class="topbar__refresh" (click)="cargarDatos()" title="Actualizar">
-          <i class="fas fa-sync-alt"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- KPIs -->
-    <div class="kpis">
-      <div class="kpi kpi--accent">
-        <div class="kpi__icon"><i class="fas fa-calendar-check"></i></div>
-        <div>
-          <div class="kpi__label">Citas hoy</div>
-          <div class="kpi__valor">{{ citasHoy.length }}</div>
-          <div class="kpi__sub">{{ citasCompletadas }} completadas</div>
-        </div>
-      </div>
-      <div class="kpi">
-        <div class="kpi__icon"><i class="fas fa-clock"></i></div>
-        <div>
-          <div class="kpi__label">Proxima cita</div>
-          <div class="kpi__valor">{{ proximaCita ? formatHora(proximaCita.hora) : '—' }}</div>
-          <div class="kpi__sub">{{ proximaCita?.nombre_cliente || 'Sin citas' }}</div>
-        </div>
-      </div>
-      <div class="kpi">
-        <div class="kpi__icon"><i class="fas fa-calendar-alt"></i></div>
-        <div>
-          <div class="kpi__label">Proximas</div>
-          <div class="kpi__valor">{{ proximas.length }}</div>
-          <div class="kpi__sub">reservas futuras</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error -->
-    <div class="alert-error" *ngIf="error">
-      <i class="fas fa-exclamation-circle"></i> {{ error }}
-    </div>
-
-    <!-- Cargando -->
-    <div class="cargando" *ngIf="cargando">
-      <i class="fas fa-spinner fa-spin"></i> Cargando agenda...
-    </div>
-
-    <!-- Tabs movil -->
-    <div class="mob-tabs">
-      <button class="mob-tab" [class.active]="navActual === 'agenda'" (click)="navActual = 'agenda'">
-        <i class="fas fa-calendar-day"></i> Hoy
-        <span class="mob-tab-badge" *ngIf="citasHoy.length > 0">{{ citasHoy.length }}</span>
-      </button>
-      <button class="mob-tab" [class.active]="navActual === 'proximas'" (click)="navActual = 'proximas'">
-        <i class="fas fa-calendar-alt"></i> Proximas
-        <span class="mob-tab-badge" *ngIf="proximas.length > 0">{{ proximas.length }}</span>
+      <button class="tab" [class.active]="navActual === 'proximas'" (click)="navActual = 'proximas'">
+        Proximas
+        <span class="tab-badge" *ngIf="proximas.length > 0">{{ proximas.length }}</span>
       </button>
     </div>
 
-    <!-- Contenido principal -->
-    <div class="agenda-content" *ngIf="!cargando">
+    <!-- HOY -->
+    <ng-container *ngIf="navActual === 'agenda'">
 
-      <!-- Timeline -->
-      <div class="timeline-section" [class.mob-hidden]="navActual !== 'agenda'">
-        <div class="section-title">
-          <div class="section-title__dot"></div>
-          <span>Agenda del dia</span>
-          <span class="section-title__count">{{ citasHoy.length }} citas</span>
-        </div>
+      <div class="empty-state" *ngIf="citasHoy.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-calendar-times"></i></div>
+        <h3>No tienes citas para hoy</h3>
+        <p>Disfruta tu dia libre</p>
+      </div>
 
-        <div class="empty-state" *ngIf="citasHoy.length === 0">
-          <i class="fas fa-calendar-times"></i>
-          <p>No tienes citas para hoy</p>
-        </div>
+      <div class="timeline-wrap" *ngIf="citasHoy.length > 0">
+        <div class="timeline" [style.height.px]="alturaTimeline + 80">
 
-        <div class="timeline" *ngIf="citasHoy.length > 0" [style.height.px]="alturaTimeline + 40">
-
-          <!-- Horas -->
           <div class="timeline__hours">
-            <div class="timeline__hour-slot" *ngFor="let h of horasTimeline">
-              <span>{{ formatHoraNum(h) }}</span>
+            <div class="timeline__mark"
+              *ngFor="let marca of marcasMinutos"
+              [style.top.px]="marca.top"
+              [class.timeline__mark--principal]="marca.esPrincipal"
+              [class.timeline__mark--minuto]="!marca.esPrincipal">
+              <span>{{ marca.label }}</span>
             </div>
           </div>
 
-          <!-- Linea vertical -->
-          <div class="timeline__line">
-            <div class="timeline__line-marks">
-              <div class="timeline__mark" *ngFor="let h of horasTimeline"></div>
+          <div class="timeline__track">
+
+            <div class="timeline__grid-line"
+              *ngFor="let marca of marcasMinutos"
+              [style.top.px]="marca.top"
+              [class.timeline__grid-line--principal]="marca.esPrincipal"
+              [class.timeline__grid-line--minuto]="!marca.esPrincipal">
             </div>
-          </div>
 
-          <!-- Eventos -->
-          <div class="timeline__events">
-
-            <!-- Linea de ahora -->
             <div class="timeline__now" *ngIf="mostrarLineaAhora" [style.top.px]="lineaAhora">
               <div class="timeline__now-dot"></div>
               <div class="timeline__now-label">{{ horaActualStr }}</div>
             </div>
 
-            <!-- Citas -->
             <div class="timeline__cita"
               *ngFor="let cita of citasHoy"
               [style.top.px]="horaAPixels(cita.hora)"
               [style.height.px]="duracionAPixels(cita.duracion_total)"
               [ngClass]="{
-                'timeline__cita--completada': getEstadoCita(cita) === 'completada',
-                'timeline__cita--en-curso': getEstadoCita(cita) === 'en-curso',
-                'timeline__cita--proxima': getEstadoCita(cita) === 'proxima'
-              }">
-
-              <div class="timeline__cita-header">
-                <span class="timeline__cita-hora">{{ formatHora(cita.hora) }}</span>
-                <span class="timeline__cita-estado" *ngIf="getEstadoCita(cita) === 'en-curso'">
-                  <i class="fas fa-circle"></i> En curso
-                </span>
-                <span class="timeline__cita-estado completada" *ngIf="getEstadoCita(cita) === 'completada'">
+                'tl--completada': getEstadoCita(cita) === 'completada',
+                'tl--en-curso':   getEstadoCita(cita) === 'en-curso',
+                'tl--proxima':    getEstadoCita(cita) === 'proxima'
+              }"
+              (click)="abrirModalCita(cita)">
+              <div class="tl__header">
+                <span class="tl__hora">{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
+                <span class="tl__badge tl__badge--ok" *ngIf="getEstadoCita(cita) === 'completada'">
                   <i class="fas fa-check"></i> Lista
                 </span>
+                <span class="tl__badge tl__badge--curso" *ngIf="getEstadoCita(cita) === 'en-curso'">
+                  <i class="fas fa-circle"></i> En curso
+                </span>
               </div>
-
-              <div class="timeline__cita-cliente">{{ cita.nombre_cliente }}</div>
-              <div class="timeline__cita-servicio">{{ cita.nombre_servicio }} · {{ cita.duracion_total }} min</div>
-
-              <div class="timeline__cita-acciones" *ngIf="getEstadoCita(cita) !== 'completada'">
-                <button class="btn-tl btn-tl--ok" (click)="abrirCompletar(cita); $event.stopPropagation()">
-                  <i class="fas fa-check"></i>
-                </button>
-                <button class="btn-tl btn-tl--cancel" (click)="abrirCancelar(cita); $event.stopPropagation()">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-
+              <div class="tl__cliente">{{ cita.nombre_cliente }}</div>
+              <div class="tl__servicio">{{ cita.nombre_servicio }} · {{ cita.duracion_total }} min</div>
             </div>
 
           </div>
         </div>
       </div>
 
-      <!-- Proximas -->
-      <div class="proximas-section" [class.mob-hidden]="navActual !== 'proximas'">
-        <div class="section-title">
-          <div class="section-title__dot"></div>
-          <span>Proximas citas</span>
-          <span class="section-title__count">{{ proximas.length }}</span>
-        </div>
+    </ng-container>
 
-        <div class="empty-state" *ngIf="proximas.length === 0">
-          <i class="fas fa-calendar-plus"></i>
-          <p>No tienes citas proximas</p>
-        </div>
+    <!-- PROXIMAS -->
+    <ng-container *ngIf="navActual === 'proximas'">
 
-        <div class="proximas-list" *ngIf="proximas.length > 0">
-          <div class="prox-item" *ngFor="let r of proximas">
-            <div class="prox-item__fecha">
-              <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
-              <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
-            </div>
-            <div class="prox-item__info">
-              <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
-              <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
-            </div>
-            <div class="prox-item__right">
-              <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
-              <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
-            </div>
+      <div class="empty-state" *ngIf="proximas.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-calendar-plus"></i></div>
+        <h3>No tienes citas proximas</h3>
+        <p>Tu agenda futura esta libre</p>
+      </div>
+
+      <div class="proximas-list" *ngIf="proximas.length > 0">
+        <div class="prox-item" *ngFor="let r of proximas">
+          <div class="prox-item__fecha">
+            <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
+            <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
+          </div>
+          <div class="prox-item__info">
+            <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
+            <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
+          </div>
+          <div class="prox-item__right">
+            <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
+            <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
           </div>
         </div>
       </div>
 
-    </div>
+    </ng-container>
 
   </div>
 
-  <!-- Bottom nav movil -->
-  <nav class="bottom-nav">
-    <button class="bottom-nav__item" [class.active]="navActual === 'agenda'" (click)="navActual = 'agenda'">
-      <i class="fas fa-calendar-day"></i>
-      <span>Hoy</span>
-    </button>
-    <button class="bottom-nav__item" [class.active]="navActual === 'proximas'" (click)="navActual = 'proximas'">
-      <i class="fas fa-calendar-alt"></i>
-      <span>Proximas</span>
-    </button>
-    <button class="bottom-nav__item" routerLink="/">
-      <i class="fas fa-home"></i>
-      <span>Inicio</span>
-    </button>
-    <button class="bottom-nav__item" (click)="logout()">
-      <i class="fas fa-sign-out-alt"></i>
-      <span>Salir</span>
-    </button>
-  </nav>
+</div>
 
+<!-- Modal detalle cita -->
+<div class="modal-overlay" *ngIf="modalCita" (click)="cerrarModalCita()">
+  <div class="modal-cita" (click)="$event.stopPropagation()">
+    <button class="modal-cita__close" (click)="cerrarModalCita()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="modal-cita__estado" [ngClass]="{
+        'estado--completada': getEstadoCita(citaSeleccionada!) === 'completada',
+        'estado--en-curso':   getEstadoCita(citaSeleccionada!) === 'en-curso',
+        'estado--proxima':    getEstadoCita(citaSeleccionada!) === 'proxima'
+      }">
+      <i class="fas fa-check-circle" *ngIf="getEstadoCita(citaSeleccionada!) === 'completada'"></i>
+      <i class="fas fa-circle"       *ngIf="getEstadoCita(citaSeleccionada!) === 'en-curso'"></i>
+      <i class="fas fa-clock"        *ngIf="getEstadoCita(citaSeleccionada!) === 'proxima'"></i>
+      {{ getEstadoCita(citaSeleccionada!) === 'completada' ? 'Completada' :
+         getEstadoCita(citaSeleccionada!) === 'en-curso' ? 'En curso' : 'Pendiente' }}
+    </div>
+    <div class="modal-cita__cliente">{{ citaSeleccionada?.nombre_cliente }}</div>
+    <div class="modal-cita__detalles">
+      <div class="det-fila">
+        <span class="det-label">Servicio</span>
+        <span class="det-valor">{{ citaSeleccionada?.nombre_servicio }}</span>
+      </div>
+      <div class="det-fila">
+        <span class="det-label">Hora</span>
+        <span class="det-valor">{{ formatHora(citaSeleccionada?.hora || '') }}</span>
+      </div>
+      <div class="det-fila">
+        <span class="det-label">Duracion</span>
+        <span class="det-valor">{{ citaSeleccionada?.duracion_total }} min</span>
+      </div>
+      <div class="det-fila">
+        <span class="det-label">Valor</span>
+        <span class="det-valor valor-precio">${{ citaSeleccionada?.precio_total | number:'1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="modal-cita__acciones" *ngIf="getEstadoCita(citaSeleccionada!) !== 'completada'">
+      <button class="btn-completar" (click)="confirmarCompletar()">
+        <i class="fas fa-check"></i> Completar
+      </button>
+      <button class="btn-cancelar-cita" (click)="confirmarCancelar()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal completar -->
@@ -272,5 +219,115 @@
         {{ procesando ? 'Procesando...' : 'Si, cancelar' }}
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Modal agendar presencial -->
+<div class="modal-overlay" *ngIf="modalPresencial" (click)="cerrarModalPresencial()">
+  <div class="modal-presencial" (click)="$event.stopPropagation()">
+
+    <button class="modal-presencial__close" (click)="cerrarModalPresencial()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="presencial-exito" *ngIf="presencialExitoso">
+      <div class="presencial-exito__icon"><i class="fas fa-check-circle"></i></div>
+      <h3>Cita registrada</h3>
+      <p>La cita fue agendada correctamente</p>
+    </div>
+
+    <ng-container *ngIf="!presencialExitoso">
+      <div class="modal-presencial__header">
+        <h3>Agendar cliente</h3>
+        <p>Registra una cita para un cliente en el local</p>
+      </div>
+
+      <div class="modal-presencial__body">
+
+        <div class="alert-error" *ngIf="presencialError">
+          <i class="fas fa-exclamation-circle"></i> {{ presencialError }}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="presencialForm.nombre" placeholder="Nombre del cliente">
+          </div>
+          <div class="form-group">
+            <label>Apellido</label>
+            <input type="text" [(ngModel)]="presencialForm.apellido" placeholder="Apellido">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Servicio</label>
+          <select [(ngModel)]="presencialForm.id_servicio">
+            <option [value]="0" disabled>Selecciona un servicio</option>
+            <option *ngFor="let s of servicios" [value]="s.id_servicio">
+              {{ s.nombre_servicio }} — ${{ s.precio | number:'1.0-0' }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Fecha</label>
+          <div class="mini-calendario">
+            <div class="mini-calendario__nav">
+              <button (click)="presencialMesAnterior()"><i class="fas fa-chevron-left"></i></button>
+              <span>{{ presencialNombreMes }}</span>
+              <button (click)="presencialMesSiguiente()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="mini-calendario__header">
+              <span>D</span><span>L</span><span>M</span>
+              <span>X</span><span>J</span><span>V</span><span>S</span>
+            </div>
+            <div class="mini-calendario__grid">
+              <div *ngFor="let dia of presencialDiasCalendario"
+                class="mini-calendario__dia"
+                [class.vacio]="!dia.fecha"
+                [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerradoPresencial(dia)"
+                [class.cerrado]="dia.fecha && esDiaCerradoPresencial(dia)"
+                [class.disponible]="dia.fecha && dia.disponible"
+                [class.seleccionado]="esDiaSeleccionadoPresencial(dia)"
+                (click)="seleccionarFechaPresencial(dia)">
+                {{ dia.fecha?.getDate() }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="presencialForm.fecha">
+          <label>Hora</label>
+          <div class="presencial-slots__cargando" *ngIf="presencialCargandoSlots">
+            <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
+          </div>
+          <div class="presencial-slots__empty" *ngIf="!presencialCargandoSlots && presencialSlots.length === 0">
+            No hay horarios disponibles
+          </div>
+          <div class="presencial-slots__grid" *ngIf="!presencialCargandoSlots && presencialSlots.length > 0">
+            <button *ngFor="let slot of presencialSlots"
+              class="presencial-slot"
+              [class.disponible]="slot.disponible"
+              [class.ocupado]="!slot.disponible"
+              [class.seleccionado]="presencialForm.hora === slot.hora"
+              [disabled]="!slot.disponible"
+              (click)="presencialForm.hora = slot.hora">
+              {{ formatHora(slot.hora) }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-presencial__footer">
+        <button class="btn-cancelar-modal" (click)="cerrarModalPresencial()">Cancelar</button>
+        <button class="btn-guardar" (click)="guardarPresencial()" [disabled]="presencialGuardando">
+          <i class="fas fa-spinner fa-spin" *ngIf="presencialGuardando"></i>
+          <i class="fas fa-check" *ngIf="!presencialGuardando"></i>
+          {{ presencialGuardando ? 'Registrando...' : 'Confirmar cita' }}
+        </button>
+      </div>
+    </ng-container>
+
   </div>
 </div>

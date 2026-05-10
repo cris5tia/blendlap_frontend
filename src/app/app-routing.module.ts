@@ -19,6 +19,8 @@ import { BarberosComponent } from './pages/admin/barberos/barberos.component';
 import { GastosComponent } from './pages/admin/gastos/gastos.component';
 import { DashboardComponent as ClienteDashboardComponent } from './pages/cliente/dashboard/dashboard.component';
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
+import { StatsComponent } from './pages/barbero/stats/stats.component';
+import { HorarioComponent } from './pages/barbero/horario/horario.component';
 
 const routes: Routes = [
   // Rutas públicas
@@ -61,7 +63,9 @@ const routes: Routes = [
   data: { rol: 'barbero' },
   children: [
     { path: '', redirectTo: 'agenda', pathMatch: 'full' },
-    { path: 'agenda', component: AgendaComponent }
+    { path: 'agenda', component: AgendaComponent },
+    { path: 'stats', component: StatsComponent },
+    { path: 'horario', component: HorarioComponent },
   ]
 },
 

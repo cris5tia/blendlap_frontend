@@ -1,0 +1,142 @@
+<div class="horario-wrapper">
+
+  <div class="horario-topbar">
+    <div class="horario-topbar__user">
+      <div class="horario-topbar__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
+      <div>
+        <div class="horario-topbar__nombre">{{ usuario?.nombre }}</div>
+        <div class="horario-topbar__sub">Mi horario</div>
+      </div>
+    </div>
+    <a routerLink="/" class="btn-inicio">
+      <i class="fas fa-home"></i>
+    </a>
+  </div>
+
+  <div class="alert-error" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <div class="cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando horario...
+  </div>
+
+  <ng-container *ngIf="!cargando">
+
+    <!-- Horario barberia -->
+    <div class="seccion-card">
+      <div class="seccion-card__titulo">
+        <div class="seccion-card__dot"></div>
+        <span>Horario de la barberia</span>
+        <span class="seccion-card__sub">Solo lectura</span>
+      </div>
+
+      <div class="horario-dias">
+        <div class="dia-item" *ngFor="let dia of horarioBarberia"
+          [class.dia-item--cerrado]="!dia.activo">
+          <div class="dia-item__nombre">{{ getNombreDia(dia.dia_semana) }}</div>
+          <div class="dia-item__horario" *ngIf="dia.activo">
+            <i class="fas fa-clock"></i>
+            {{ formatHora(dia.hora_inicio) }} — {{ formatHora(dia.hora_fin) }}
+          </div>
+          <div class="dia-item__cerrado" *ngIf="!dia.activo">
+            <i class="fas fa-times-circle"></i> Cerrado
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Excepciones -->
+    <div class="seccion-card">
+      <div class="seccion-card__titulo">
+        <div class="seccion-card__dot"></div>
+        <span>Mis descansos</span>
+        <button class="btn-agregar" (click)="abrirModalAgregar()">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+
+      <div class="empty-state" *ngIf="excepciones.length === 0">
+        <div class="empty-state__icon"><i class="fas fa-coffee"></i></div>
+        <h3>Sin descansos configurados</h3>
+        <p>Agrega tus horarios de almuerzo o descanso</p>
+      </div>
+
+      <div class="excepciones-list" *ngIf="excepciones.length > 0">
+        <div class="excepcion-item" *ngFor="let exc of excepciones">
+          <div class="excepcion-item__dia">{{ getNombreDia(exc.dia_semana) }}</div>
+          <div class="excepcion-item__info">
+            <span class="excepcion-item__horas">
+              <i class="fas fa-clock"></i>
+              {{ formatHora(exc.hora_inicio) }} — {{ formatHora(exc.hora_fin) }}
+            </span>
+            <span class="excepcion-item__motivo" *ngIf="exc.motivo">{{ exc.motivo }}</span>
+          </div>
+          <button class="excepcion-item__delete" (click)="eliminarExcepcion(exc.id_excepcion!)"
+            title="Eliminar">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>
+
+<!-- Modal agregar excepcion -->
+<div class="modal-overlay" *ngIf="modalAgregar" (click)="cerrarModalAgregar()">
+  <div class="modal-excepcion" (click)="$event.stopPropagation()">
+
+    <button class="modal-excepcion__close" (click)="cerrarModalAgregar()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-excepcion__header">
+      <h3>Agregar descanso</h3>
+      <p>Bloquea un horario en un dia especifico</p>
+    </div>
+
+    <div class="modal-excepcion__body">
+
+      <div class="form-group">
+        <label>Dia de la semana</label>
+        <select [(ngModel)]="nuevaExcepcion.dia_semana">
+          <option *ngFor="let dia of diasSemana" [value]="dia.id">{{ dia.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hora inicio</label>
+          <input type="time" [(ngModel)]="nuevaExcepcion.hora_inicio">
+        </div>
+        <div class="form-group">
+          <label>Hora fin</label>
+          <input type="time" [(ngModel)]="nuevaExcepcion.hora_fin">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Motivo (opcional)</label>
+        <input type="text" [(ngModel)]="nuevaExcepcion.motivo"
+          placeholder="Ej: Almuerzo, Descanso...">
+      </div>
+
+      <div class="alert-error" *ngIf="errorForm">
+        <i class="fas fa-exclamation-circle"></i> {{ errorForm }}
+      </div>
+
+    </div>
+
+    <div class="modal-excepcion__footer">
+      <button class="btn-cancelar-modal" (click)="cerrarModalAgregar()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarExcepcion()" [disabled]="guardando">
+        <i class="fas fa-spinner fa-spin" *ngIf="guardando"></i>
+        <i class="fas fa-check" *ngIf="!guardando"></i>
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+
+  </div>
+</div>
