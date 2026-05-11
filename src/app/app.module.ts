@@ -36,7 +36,7 @@ import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 import { StatsComponent } from './pages/barbero/stats/stats.component';
 import { HorarioComponent } from './pages/barbero/horario/horario.component';
 import { DatePipe } from '@angular/common';
-
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
   declarations: [
@@ -74,6 +74,7 @@ import { DatePipe } from '@angular/common';
     FormsModule,
     HttpClientModule,
     ClienteModule,
+    NgApexchartsModule
   ],
   providers: [
     DatePipe,

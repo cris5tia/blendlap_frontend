@@ -1,1 +1,156 @@
-<p>ventas works!</p>
+<div class="admin-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">Ventas</h1>
+      <p class="page-header__sub">Historial de ventas generadas por reservas</p>
+    </div>
+    <button class="btn-accent" (click)="mostrarCierre = true; cargarCierreCaja()">
+      <i class="fas fa-cash-register"></i> Cierre de caja
+    </button>
+  </div>
+
+  <div class="alert-error" *ngIf="error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+
+  <!-- KPIs rápidos -->
+  <div class="kpis-mini" *ngIf="!cargando">
+    <div class="kpi-mini">
+      <span class="kpi-mini__label">Total ventas</span>
+      <span class="kpi-mini__valor">{{ ventasFiltradas.length }}</span>
+    </div>
+    <div class="kpi-mini kpi-mini--green">
+      <span class="kpi-mini__label">Monto filtrado</span>
+      <span class="kpi-mini__valor">{{ formatCurrency(totalFiltrado) }}</span>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Buscar por cajero o ID..." [(ngModel)]="busqueda" (input)="filtrar()" />
+    </div>
+    <input type="date" [(ngModel)]="filtroFecha" (change)="filtrar()" />
+    <select [(ngModel)]="filtroMetodo" (change)="filtrar()">
+      <option value="">Todos los métodos</option>
+      <option *ngFor="let m of metodos" [value]="m">{{ metodoPagoLabel(m) }}</option>
+    </select>
+    <button class="btn-secondary" (click)="filtroFecha=''; filtroMetodo=''; busqueda=''; filtrar()">
+      <i class="fas fa-times"></i> Limpiar
+    </button>
+  </div>
+
+  <!-- Cargando -->
+  <div class="cargando" *ngIf="cargando"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+
+  <!-- Tabla -->
+  <div class="tabla-card" *ngIf="!cargando">
+    <div class="tabla-wrap">
+      <table class="tabla" *ngIf="ventasFiltradas.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Cajero</th>
+            <th>Método de pago</th>
+            <th>Reserva</th>
+            <th>Total</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of ventasFiltradas">
+            <td><code class="codigo">#{{ v.id_venta }}</code></td>
+            <td class="fecha-cell">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ v.nombre_cajero || '—' }}</td>
+            <td><span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">{{ metodoPagoLabel(v.metodo_pago) }}</span></td>
+            <td>{{ v.id_reserva ? '#' + v.id_reserva : '—' }}</td>
+            <td class="val-green fw-bold">{{ formatCurrency(v.total) }}</td>
+            <td>
+              <button class="btn-icon btn-icon--blue" title="Ver detalle" (click)="verDetalle(v.id_venta)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tabla-empty" *ngIf="ventasFiltradas.length === 0">
+        <i class="fas fa-receipt"></i>
+        <p>No se encontraron ventas</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODAL DETALLE VENTA ── -->
+<div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span>Detalle venta #{{ ventaDetalle?.id_venta }}</span>
+      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="cargando" *ngIf="!ventaDetalle"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      <ng-container *ngIf="ventaDetalle">
+        <div class="detalle-meta">
+          <span><i class="fas fa-user"></i> {{ ventaDetalle.nombre_cajero }}</span>
+          <span><i class="fas fa-calendar"></i> {{ ventaDetalle.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span><i class="fas fa-credit-card"></i> {{ metodoPagoLabel(ventaDetalle.metodo_pago) }}</span>
+        </div>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let d of ventaDetalle.detalles">
+                <td>{{ d.nombre_producto || '—' }}</td>
+                <td>{{ d.cantidad }}</td>
+                <td>{{ formatCurrency(d.precio_unitario) }}</td>
+                <td class="val-green fw-bold">{{ formatCurrency(d.subtotal) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="detalle-total">
+          <span>Total</span>
+          <span class="val-green fw-bold">{{ formatCurrency(ventaDetalle.total) }}</span>
+        </div>
+      </ng-container>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CIERRE DE CAJA ── -->
+<div class="modal-overlay" *ngIf="mostrarCierre" (click)="cerrarModal()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span><i class="fas fa-cash-register"></i> Cierre de caja</span>
+      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" [(ngModel)]="fechaCierre" (change)="cargarCierreCaja()" />
+      </div>
+      <div class="cargando" *ngIf="cargandoCierre"><i class="fas fa-spinner fa-spin"></i> Calculando...</div>
+      <ng-container *ngIf="cierreCaja && !cargandoCierre">
+        <div class="cierre-grid">
+          <div class="cierre-item"><span>Ventas del día</span><strong>{{ cierreCaja.cantidad_ventas }}</strong></div>
+          <div class="cierre-item cierre-item--total"><span>Total</span><strong class="val-green">{{ formatCurrency(cierreCaja.total_ventas) }}</strong></div>
+          <div class="cierre-item"><span>Efectivo</span><span>{{ formatCurrency(cierreCaja.total_efectivo) }}</span></div>
+          <div class="cierre-item"><span>Tarjeta</span><span>{{ formatCurrency(cierreCaja.total_tarjeta) }}</span></div>
+          <div class="cierre-item"><span>Transferencia</span><span>{{ formatCurrency(cierreCaja.total_transferencia) }}</span></div>
+          <div class="cierre-item"><span>Nequi</span><span>{{ formatCurrency(cierreCaja.total_nequi) }}</span></div>
+          <div class="cierre-item"><span>Otro</span><span>{{ formatCurrency(cierreCaja.total_otro) }}</span></div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>

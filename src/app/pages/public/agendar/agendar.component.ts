@@ -216,23 +216,40 @@ export class AgendarComponent implements OnInit {
   }
 
   cargarSlots(): void {
-    if (!this.barberoSeleccionado || !this.fechaSeleccionada) return;
-    this.cargandoSlots = true;
-    this.reservaService.getDisponibilidad(
-      this.barberoSeleccionado.id_usuario,
-      this.fechaSeleccionada,
-      this.duracionTotal || 30
-    ).subscribe({
-      next: (res) => {
-        this.slots = res.data.disponible ? res.data.slots : [];
-        this.cargandoSlots = false;
-      },
-      error: () => {
-        this.error = 'Error al cargar disponibilidad';
-        this.cargandoSlots = false;
+  if (!this.barberoSeleccionado || !this.fechaSeleccionada) return;
+  this.cargandoSlots = true;
+  this.reservaService.getDisponibilidad(
+    this.barberoSeleccionado.id_usuario,
+    this.fechaSeleccionada,
+    this.duracionTotal || 30
+  ).subscribe({
+    next: (res) => {
+      let slots: ISlot[] = res.data.disponible ? res.data.slots : [];
+
+      // Si la fecha seleccionada es hoy, filtrar horas que ya pasaron
+      const ahora = new Date();
+      const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+
+      if (this.fechaSeleccionada === hoyStr) {
+        const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
+        // Agregar 15 min de margen mínimo para no agendar en menos de 15 min
+        const minutoMinimo = minutosAhora + 15;
+
+        slots = slots.filter(slot => {
+          const [hh, mm] = slot.hora.split(':').map(Number);
+          return (hh * 60 + mm) >= minutoMinimo;
+        });
       }
-    });
-  }
+
+      this.slots = slots;
+      this.cargandoSlots = false;
+    },
+    error: () => {
+      this.error = 'Error al cargar disponibilidad';
+      this.cargandoSlots = false;
+    }
+  });
+}
 
   get pasoIndex(): number {
     return this.pasos.indexOf(this.pasoActual);

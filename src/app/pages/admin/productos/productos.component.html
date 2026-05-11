@@ -1,1 +1,231 @@
-<p>productos works!</p>
+<div class="admin-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">Productos</h1>
+      <p class="page-header__sub">Gestión de inventario y stock</p>
+    </div>
+    <button class="btn-primary" (click)="abrirCrear()">
+      <i class="fas fa-plus"></i> Nuevo producto
+    </button>
+  </div>
+
+  <!-- Alertas -->
+  <div class="alert-success" *ngIf="exito"><i class="fas fa-check-circle"></i> {{ exito }}</div>
+  <div class="alert-error"   *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+
+  <!-- Stock bajo warning -->
+  <div class="alert-warning" *ngIf="stockBajoCount > 0">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ stockBajoCount }} producto(s) con stock bajo o agotado
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Buscar por nombre o código..." [(ngModel)]="busqueda" (input)="filtrar()" />
+    </div>
+    <select [(ngModel)]="filtroCategoria" (change)="filtrar()">
+      <option value="">Todas las categorías</option>
+      <option *ngFor="let c of categorias" [value]="c">{{ categoriaLabel(c) }}</option>
+    </select>
+    <select [(ngModel)]="filtroEstado" (change)="filtrar()">
+      <option value="">Todos los estados</option>
+      <option value="activo">Activo</option>
+      <option value="inactivo">Inactivo</option>
+    </select>
+  </div>
+
+  <!-- Cargando -->
+  <div class="cargando" *ngIf="cargando"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+
+  <!-- Tabla -->
+  <div class="tabla-card" *ngIf="!cargando">
+    <div class="tabla-wrap">
+      <table class="tabla" *ngIf="productosFiltrados.length > 0">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Código</th>
+            <th>Categoría</th>
+            <th>Talla</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of productosFiltrados">
+            <td>
+              <div class="producto-cell">
+                <div class="producto-cell__img">
+                  <img *ngIf="p.imagen" [src]="'http://localhost:3000/images/productos/' + p.imagen" />
+                  <i *ngIf="!p.imagen" class="fas fa-box"></i>
+                </div>
+                <span class="producto-cell__nombre">{{ p.nombre_producto }}</span>
+              </div>
+            </td>
+            <td><code class="codigo">{{ p.codigo_producto }}</code></td>
+            <td><span class="badge-cat badge-cat--{{ p.categoria }}">{{ categoriaLabel(p.categoria) }}</span></td>
+            <td>{{ p.talla || '—' }}</td>
+            <td class="val-green fw-bold">{{ formatCurrency(p.precio) }}</td>
+            <td>
+              <span class="stock-badge"
+                [class.stock-ok]="tieneStock(p)"
+                [class.stock-medio]="stockMedio(p)"
+                [class.stock-cero]="sinStock(p)">
+                {{ p.stock }} uds
+              </span>
+            </td>
+            <td>
+              <span class="badge" [class.badge-success]="p.estado === 'activo'" [class.badge-danger]="p.estado === 'inactivo'">
+                {{ p.estado }}
+              </span>
+            </td>
+            <td>
+              <div class="acciones">
+                <button class="btn-icon btn-icon--blue"   title="Editar"       (click)="abrirEditar(p)"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon btn-icon--green"  title="Movimiento"   (click)="abrirMovimiento(p)"><i class="fas fa-exchange-alt"></i></button>
+                <button class="btn-icon btn-icon--gray"   title="Historial"    (click)="abrirMovimientos(p)"><i class="fas fa-history"></i></button>
+                <button class="btn-icon btn-icon--red"    title="Eliminar"     (click)="eliminar(p)"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tabla-empty" *ngIf="productosFiltrados.length === 0">
+        <i class="fas fa-box-open"></i>
+        <p>No se encontraron productos</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODAL CREAR / EDITAR ── -->
+<div class="modal-overlay" *ngIf="modalVista === 'crear' || modalVista === 'editar'" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span>{{ modalVista === 'crear' ? 'Nuevo producto' : 'Editar producto' }}</span>
+      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="alert-error" *ngIf="error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Código *</label>
+          <input type="text" [(ngModel)]="form.codigo_producto" placeholder="Ej: PROD-001" />
+        </div>
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" [(ngModel)]="form.nombre_producto" placeholder="Nombre del producto" />
+        </div>
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select [(ngModel)]="form.categoria">
+            <option *ngFor="let c of categorias" [value]="c">{{ categoriaLabel(c) }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio (COP) *</label>
+          <input type="number" [(ngModel)]="form.precio" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Stock inicial</label>
+          <input type="number" [(ngModel)]="form.stock" min="0" />
+        </div>
+        <div class="form-group" *ngIf="form.categoria === 'ropa'">
+          <label>Talla</label>
+          <select [(ngModel)]="form.talla">
+            <option value="">Sin talla</option>
+            <option *ngFor="let t of tallas" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="form-group form-group--full">
+          <label>Descripción</label>
+          <textarea [(ngModel)]="form.descripcion" rows="3" placeholder="Descripción opcional..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="guardar()" [disabled]="guardando">
+        <i class="fas fa-spinner fa-spin" *ngIf="guardando"></i>
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL MOVIMIENTO ── -->
+<div class="modal-overlay" *ngIf="modalVista === 'movimiento'" (click)="cerrarModal()">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span>Registrar movimiento</span>
+      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="alert-error" *ngIf="error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+      <p class="modal__producto-nombre">{{ productoSeleccionado?.nombre_producto }}</p>
+      <p class="modal__stock-actual">Stock actual: <strong>{{ productoSeleccionado?.stock }} uds</strong></p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="movimientoForm.tipo_movimiento">
+            <option value="Entrada">Entrada</option>
+            <option value="Salida">Salida</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cantidad</label>
+          <input type="number" [(ngModel)]="movimientoForm.cantidad" min="1" />
+        </div>
+        <div class="form-group form-group--full">
+          <label>Motivo</label>
+          <input type="text" [(ngModel)]="movimientoForm.motivo" placeholder="Ej: Compra proveedor, venta directa..." />
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarMovimiento()" [disabled]="guardando">
+        {{ guardando ? 'Registrando...' : 'Registrar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL HISTORIAL ── -->
+<div class="modal-overlay" *ngIf="modalVista === 'movimientos'" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <span>Historial — {{ productoSeleccionado?.nombre_producto }}</span>
+      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="tabla-wrap">
+        <table class="tabla" *ngIf="movimientos.length > 0">
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Stock resultante</th><th>Motivo</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let m of movimientos">
+              <td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge" [class.badge-success]="m.tipo_movimiento==='Entrada'" [class.badge-danger]="m.tipo_movimiento==='Salida'">{{ m.tipo_movimiento }}</span></td>
+              <td>{{ m.cantidad }}</td>
+              <td>{{ m.stock_resultante }}</td>
+              <td>{{ m.motivo || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tabla-empty" *ngIf="movimientos.length === 0">
+          <i class="fas fa-history"></i><p>Sin movimientos registrados</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
