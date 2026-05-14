@@ -227,10 +227,21 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: () => {
         this.procesando = false;
         this.modalCompletar = false;
+
+        // ✅ Actualizar localmente sin esperar reload
+        const idx = this.citasHoy.findIndex(c => c.id_reserva === this.citaSeleccionada!.id_reserva);
+        if (idx !== -1) {
+          this.citasHoy[idx] = { ...this.citasHoy[idx], estado: 'completada' };
+          this.citasHoy = [...this.citasHoy]; // forzar detección de cambios
+        }
+
         this.citaSeleccionada = null;
-        this.cargarDatos();
+        this.cargarDatos(); // sigue cargando en segundo plano
       },
-      error: () => { this.procesando = false; this.error = 'Error al completar cita'; }
+      error: (err) => {
+        this.procesando = false;
+        this.error = err.error?.mensaje || 'Error al completar cita';
+      }
     });
   }
 
@@ -241,10 +252,21 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: () => {
         this.procesando = false;
         this.modalCancelar = false;
+
+        // ✅ Actualizar localmente sin esperar reload
+        const idx = this.citasHoy.findIndex(c => c.id_reserva === this.citaSeleccionada!.id_reserva);
+        if (idx !== -1) {
+          this.citasHoy[idx] = { ...this.citasHoy[idx], estado: 'cancelada' };
+          this.citasHoy = [...this.citasHoy];
+        }
+
         this.citaSeleccionada = null;
         this.cargarDatos();
       },
-      error: () => { this.procesando = false; this.error = 'Error al cancelar cita'; }
+      error: (err) => {
+        this.procesando = false;
+        this.error = err.error?.mensaje || 'Error al cancelar cita';
+      }
     });
   }
 

@@ -1,124 +1,116 @@
 <!-- ─── HERO ─────────────────────────────────────────────────── -->
 <section class="hero">
-    <video class="hero__video" autoplay muted loop playsinline>
-        <source src="assets/images/navbar/GaleVideo5.mp4" type="video/mp4">
-    </video>
-    <div class="hero__overlay"></div>
-    <div class="hero__content">
-        <p class="hero__eyebrow">Bienvenido a Blandlap</p>
-        <h1 class="hero__title">
-            El estilo que <span>mereces</span>,<br>
-            la precisión que <span>exiges</span>
-        </h1>
-        <p class="hero__subtitle">Cortes profesionales · Ambiente premium · Resultados perfectos</p>
-        <div class="hero__buttons">
-            <a (click)="scrollTo('servicios')" class="btn-primary">Ver servicios</a>
-            <a routerLink="/agendar" class="btn-reservar">RESERVAR AHORA</a>
-        </div>
+  <video class="hero__video" autoplay muted loop playsinline>
+    <source src="assets/images/navbar/GaleVideo5.mp4" type="video/mp4">
+  </video>
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <p class="hero__eyebrow">Bienvenido a Blendlap</p>
+    <h1 class="hero__title">
+      El estilo que <span>mereces</span>,<br>
+      la precisión que <span>exiges</span>
+    </h1>
+    <p class="hero__subtitle">Cortes profesionales · Ambiente premium · Resultados perfectos</p>
+    <div class="hero__buttons">
+      <a (click)="scrollTo('servicios')" class="btn-primary">Ver servicios</a>
+      <a routerLink="/agendar" class="btn-reservar">RESERVAR AHORA</a>
     </div>
-    <div class="hero__scroll">
-        <span></span>
-        <p>Desliza</p>
-    </div>
+  </div>
+  <div class="hero__scroll">
+    <span></span>
+    <p>Desliza</p>
+  </div>
 </section>
 
 <!-- ─── EQUIPO ───────────────────────────────────────────────── -->
 <section class="equipo" id="equipo">
-    <div class="container">
-        <p class="section-subtitle">Conoce a los profesionales</p>
-        <h2 class="section-title">Nuestro <span>Equipo</span></h2>
-        <div class="equipo__grid">
-            <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
-                style="cursor:pointer">
-                <div class="barbero-card__imagen">
-                    <img *ngIf="barbero.foto" [src]="'http://localhost:3000/images/barberos/' + barbero.foto"
-                        [alt]="barbero.nombre">
-                    <div *ngIf="!barbero.foto" class="barbero-card__foto--empty">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="barbero-card__exp" *ngIf="barbero.experiencia">
-                        <span>{{ barbero.experiencia }}</span>
-                        <small>años</small>
-                    </div>
-                    <div class="barbero-card__overlay">
-                        <i class="fas fa-search-plus"></i>
-                    </div>
-                </div>
-                <div class="barbero-card__body">
-                    <p class="barbero-card__cargo">{{ barbero.titulo || 'Barbero' }}</p>
-                    <h3>{{ barbero.nombre }} {{ barbero.apellido }}</h3>
-
-                    <!-- Rating — siempre ocupa espacio -->
-                    <div class="barbero-card__rating"
-                        [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
-                        (click)="barbero.promedio_estrellas > 0 && abrirModalResenas(barbero, $event)">
-                        <ng-container *ngIf="barbero.promedio_estrellas > 0">
-                            <div class="estrellas">
-                                <i class="fas fa-star" *ngFor="let s of getEstrellas(barbero.promedio_estrellas)"></i>
-                                <i class="fas fa-star-half-alt" *ngIf="barbero.promedio_estrellas % 1 >= 0.5"></i>
-                            </div>
-                            <span class="rating-num">{{ barbero.promedio_estrellas | number:'1.1-1' }}</span>
-                            <span class="rating-count">({{ barbero.total_resenas }} resenas)</span>
-                        </ng-container>
-                        <ng-container *ngIf="!barbero.promedio_estrellas || barbero.promedio_estrellas === 0">
-                            <div class="estrellas estrellas--vacias">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <span class="rating-count rating-count--vacio">Sin resenas</span>
-                        </ng-container>
-                    </div>
-
-                    <div class="barbero-card__specs" *ngIf="barbero.especialidades">
-                        <span *ngFor="let esp of barbero.especialidades.split(',')" class="spec-tag">{{ esp.trim()
-                            }}</span>
-                    </div>
-
-                    <div class="barbero-card__stats">
-                        <div class="stat">
-                            <i class="fas fa-calendar-check"></i>
-                            <div>
-                                <span class="stat-val">{{ barbero.total_agendamientos || 0 }}</span>
-                                <span class="stat-label">agendamientos</span>
-                            </div>
-                        </div>
-                        <div class="stat" *ngIf="barbero.experiencia">
-                            <i class="fas fa-medal"></i>
-                            <div>
-                                <span class="stat-val">{{ barbero.experiencia }} años</span>
-                                <span class="stat-label">experiencia</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="barbero-card__badge-movil" *ngIf="barbero.experiencia">
-                    <span>{{ barbero.experiencia }}</span>
-                    <small>años</small>
-                </div>
-            </div>
+  <div class="container">
+    <p class="section-subtitle">Conoce a los profesionales</p>
+    <h2 class="section-title">Nuestro <span>Equipo</span></h2>
+    <div class="equipo__grid">
+      <div class="barbero-card" *ngFor="let barbero of barberos"
+        (click)="abrirModalBarbero(barbero)" style="cursor:pointer">
+        <div class="barbero-card__imagen">
+          <img *ngIf="barbero.foto"
+            [src]="'http://localhost:3000/images/barberos/' + barbero.foto"
+            [alt]="barbero.nombre">
+          <div *ngIf="!barbero.foto" class="barbero-card__foto--empty">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div class="barbero-card__exp" *ngIf="barbero.experiencia">
+            <span>{{ barbero.experiencia }}</span>
+            <small>años</small>
+          </div>
+          <div class="barbero-card__overlay"><i class="fas fa-search-plus"></i></div>
         </div>
+        <div class="barbero-card__body">
+          <p class="barbero-card__cargo">{{ barbero.titulo || 'Barbero' }}</p>
+          <h3>{{ barbero.nombre }} {{ barbero.apellido }}</h3>
+          <div class="barbero-card__rating"
+            [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
+            (click)="barbero.promedio_estrellas > 0 && abrirModalResenas(barbero, $event)">
+            <ng-container *ngIf="barbero.promedio_estrellas > 0">
+              <div class="estrellas">
+                <i class="fas fa-star" *ngFor="let s of getEstrellas(barbero.promedio_estrellas)"></i>
+                <i class="fas fa-star-half-alt" *ngIf="barbero.promedio_estrellas % 1 >= 0.5"></i>
+              </div>
+              <span class="rating-num">{{ barbero.promedio_estrellas | number:'1.1-1' }}</span>
+              <span class="rating-count">({{ barbero.total_resenas }} reseñas)</span>
+            </ng-container>
+            <ng-container *ngIf="!barbero.promedio_estrellas || barbero.promedio_estrellas === 0">
+              <div class="estrellas estrellas--vacias">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-count rating-count--vacio">Sin reseñas</span>
+            </ng-container>
+          </div>
+          <div class="barbero-card__specs" *ngIf="barbero.especialidades">
+            <span *ngFor="let esp of barbero.especialidades.split(',')" class="spec-tag">
+              {{ esp.trim() }}
+            </span>
+          </div>
+          <div class="barbero-card__stats">
+            <div class="stat">
+              <i class="fas fa-calendar-check"></i>
+              <div>
+                <span class="stat-val">{{ barbero.total_agendamientos || 0 }}</span>
+                <span class="stat-label">agendamientos</span>
+              </div>
+            </div>
+            <div class="stat" *ngIf="barbero.experiencia">
+              <i class="fas fa-medal"></i>
+              <div>
+                <span class="stat-val">{{ barbero.experiencia }} años</span>
+                <span class="stat-label">experiencia</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="barbero-card__badge-movil" *ngIf="barbero.experiencia">
+          <span>{{ barbero.experiencia }}</span>
+          <small>años</small>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- ─── MODAL BARBERO ────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="barberoSeleccionado" (click)="cerrarModalBarbero()">
   <div class="modal modal--barbero" (click)="$event.stopPropagation()">
-
     <div class="modal__imagen">
       <button class="modal__cerrar" (click)="cerrarModalBarbero()">
         <i class="fas fa-times"></i>
       </button>
       <img *ngIf="barberoSeleccionado.foto"
         [src]="'http://localhost:3000/images/barberos/' + barberoSeleccionado.foto"
-        [alt]="barberoSeleccionado.nombre" />
+        [alt]="barberoSeleccionado.nombre"/>
       <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
         <i class="fas fa-user-tie"></i>
       </div>
     </div>
-
     <div class="modal__info">
       <p class="modal__titulo">{{ barberoSeleccionado.titulo || 'Barbero' }}</p>
       <h2>{{ barberoSeleccionado.nombre }} {{ barberoSeleccionado.apellido }}</h2>
@@ -127,7 +119,7 @@
         (click)="abrirModalResenas(barberoSeleccionado, $event)">
         <i class="fas fa-star" *ngFor="let s of getEstrellas(barberoSeleccionado.promedio_estrellas)"></i>
         <span>{{ barberoSeleccionado.promedio_estrellas | number:'1.1-1' }}</span>
-        <span class="modal__resenas">({{ barberoSeleccionado.total_resenas }} resenas)</span>
+        <span class="modal__resenas">({{ barberoSeleccionado.total_resenas }} reseñas)</span>
       </div>
       <div class="modal__specs" *ngIf="barberoSeleccionado.especialidades">
         <span *ngFor="let esp of barberoSeleccionado.especialidades.split(',')" class="spec-tag">
@@ -154,347 +146,358 @@
         <i class="fas fa-calendar-check"></i> Agendar
       </a>
     </div>
-
   </div>
 </div>
-<!-- Modal reseñas barbero -->
+
+<!-- ─── MODAL RESEÑAS ────────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="modalResenas" (click)="cerrarModalResenas()">
-    <div class="modal-resenas" (click)="$event.stopPropagation()">
-
-        <button class="modal-resenas__close" (click)="cerrarModalResenas()">
-            <i class="fas fa-times"></i>
-        </button>
-
-        <div class="modal-resenas__header">
-            <div class="modal-resenas__avatar">{{ barberoResenas?.nombre?.charAt(0) }}</div>
-            <div>
-                <h3>{{ barberoResenas?.nombre }} {{ barberoResenas?.apellido }}</h3>
-                <div class="modal-resenas__rating">
-                    <i class="fas fa-star"
-                        *ngFor="let s of getEstrellasArray(barberoResenas?.promedio_estrellas || 0)"></i>
-                    <span>{{ barberoResenas?.promedio_estrellas | number:'1.1-1' }}</span>
-                    <span class="modal-resenas__total">({{ barberoResenas?.total_resenas }} reseñas)</span>
-                </div>
-            </div>
+  <div class="modal-resenas" (click)="$event.stopPropagation()">
+    <button class="modal-resenas__close" (click)="cerrarModalResenas()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="modal-resenas__header">
+      <div class="modal-resenas__avatar">{{ barberoResenas?.nombre?.charAt(0) }}</div>
+      <div>
+        <h3>{{ barberoResenas?.nombre }} {{ barberoResenas?.apellido }}</h3>
+        <div class="modal-resenas__rating">
+          <i class="fas fa-star"
+            *ngFor="let s of getEstrellasArray(barberoResenas?.promedio_estrellas || 0)"></i>
+          <span>{{ barberoResenas?.promedio_estrellas | number:'1.1-1' }}</span>
+          <span class="modal-resenas__total">({{ barberoResenas?.total_resenas }} reseñas)</span>
         </div>
-
-        <div class="modal-resenas__body">
-
-            <div class="modal-resenas__cargando" *ngIf="cargandoResenas">
-                <i class="fas fa-spinner fa-spin"></i> Cargando reseñas...
-            </div>
-
-            <div class="modal-resenas__empty" *ngIf="!cargandoResenas && resenas.length === 0">
-                <i class="fas fa-comment-slash"></i>
-                <p>Sin reseñas aun</p>
-            </div>
-
-            <div class="resena-item" *ngFor="let r of resenas">
-                <div class="resena-item__top">
-                    <div class="resena-item__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
-                    <div class="resena-item__info">
-                        <span class="resena-item__nombre">{{ r.nombre_cliente }}</span>
-                        <div class="resena-item__estrellas">
-                            <i class="fas fa-star" *ngFor="let s of getEstrellasArray(r.calificacion)"></i>
-                        </div>
-                    </div>
-                    <span class="resena-item__fecha">{{ r.fecha | date:'dd MMM yyyy' }}</span>
-                </div>
-                <p class="resena-item__comentario" *ngIf="r.comentario">{{ r.comentario }}</p>
-            </div>
-
-        </div>
-
+      </div>
     </div>
+    <div class="modal-resenas__body">
+      <div class="modal-resenas__cargando" *ngIf="cargandoResenas">
+        <i class="fas fa-spinner fa-spin"></i> Cargando reseñas...
+      </div>
+      <div class="modal-resenas__empty" *ngIf="!cargandoResenas && resenas.length === 0">
+        <i class="fas fa-comment-slash"></i>
+        <p>Sin reseñas aún</p>
+      </div>
+      <div class="resena-item" *ngFor="let r of resenas">
+        <div class="resena-item__top">
+          <div class="resena-item__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
+          <div class="resena-item__info">
+            <span class="resena-item__nombre">{{ r.nombre_cliente }}</span>
+            <div class="resena-item__estrellas">
+              <i class="fas fa-star" *ngFor="let s of getEstrellasArray(r.calificacion)"></i>
+            </div>
+          </div>
+          <span class="resena-item__fecha">{{ r.fecha | date:'dd MMM yyyy' }}</span>
+        </div>
+        <p class="resena-item__comentario" *ngIf="r.comentario">{{ r.comentario }}</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ─── SERVICIOS ────────────────────────────────────────────── -->
 <section class="servicios" id="servicios">
-    <div class="container">
-        <p class="section-subtitle">Lo que ofrecemos</p>
-        <h2 class="section-title">Nuestros <span>Servicios</span></h2>
-
-        <div class="servicios__categorias">
-            <button *ngFor="let cat of categoriasServicio" class="servicios__cat-btn"
-                [class.active]="categoriaActivaServicio === cat.id" (click)="cambiarCategoriaServicio(cat.id)">
-                {{ cat.nombre }}
-            </button>
-        </div>
-
-        <ng-container *ngIf="!esMobil()">
-            <div class="servicios__grid">
-                <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
-                    <div class="servicio-card__imagen">
-                        <img [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
-                            [alt]="servicio.nombre_servicio">
-                        <div class="servicio-card__badge">
-                            <i class="fas fa-clock"></i>
-                            {{ servicio.duracion }} min
-                        </div>
-                    </div>
-                    <div class="servicio-card__body">
-                        <h3>{{ servicio.nombre_servicio }}</h3>
-                        <p>{{ servicio.descripcion }}</p>
-                        <div class="servicio-card__footer">
-                            <span class="servicio-card__precio">${{ servicio.precio | number:'1.0-0' }}</span>
-                            <a class="servicio-card__btn"
-                                (click)="agendarConServicio(servicio); $event.stopPropagation()">
-                                Reservar <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="carrusel__dots" *ngIf="serviciosEnGrupos.length > 1">
-                <button class="carrusel__dot" *ngFor="let g of serviciosEnGrupos; let i = index"
-                    [class.active]="grupoActual === i" (click)="irAGrupo(i)"></button>
-            </div>
-        </ng-container>
-
-        <ng-container *ngIf="esMobil()">
-            <div class="servicios__lista-movil">
-                <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
-                    <div class="servicio-item-movil__img">
-                        <img *ngIf="servicio.imagen" [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
-                            [alt]="servicio.nombre_servicio" />
-                        <div *ngIf="!servicio.imagen" class="servicio-item-movil__img--empty">
-                            <i class="fas fa-cut"></i>
-                        </div>
-                    </div>
-                    <div class="servicio-item-movil__info">
-                        <span class="servicio-item-movil__nombre">{{ servicio.nombre_servicio }}</span>
-                        <span class="servicio-item-movil__duracion">
-                            <i class="fas fa-clock"></i> {{ servicio.duracion }} min
-                        </span>
-                    </div>
-                    <div class="servicio-item-movil__right">
-                        <span class="servicio-item-movil__precio">${{ servicio.precio | number:'1.0-0' }}</span>
-                        <a class="servicio-item-movil__btn" (click)="agendarConServicio(servicio)">Reservar</a>
-                    </div>
-                </div>
-                <div class="servicios__lista-empty" *ngIf="serviciosPorCategoria.length === 0">
-                    <p>No hay servicios en esta categoría</p>
-                </div>
-            </div>
-        </ng-container>
-
+  <div class="container">
+    <p class="section-subtitle">Lo que ofrecemos</p>
+    <h2 class="section-title">Nuestros <span>Servicios</span></h2>
+    <div class="servicios__categorias">
+      <button *ngFor="let cat of categoriasServicio" class="servicios__cat-btn"
+        [class.active]="categoriaActivaServicio === cat.id"
+        (click)="cambiarCategoriaServicio(cat.id)">
+        {{ cat.nombre }}
+      </button>
     </div>
+    <ng-container *ngIf="!esMobil()">
+      <div class="servicios__grid">
+        <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
+          <div class="servicio-card__imagen">
+            <img [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
+              [alt]="servicio.nombre_servicio">
+            <div class="servicio-card__badge">
+              <i class="fas fa-clock"></i> {{ servicio.duracion }} min
+            </div>
+          </div>
+          <div class="servicio-card__body">
+            <h3>{{ servicio.nombre_servicio }}</h3>
+            <p>{{ servicio.descripcion }}</p>
+            <div class="servicio-card__footer">
+              <span class="servicio-card__precio">${{ servicio.precio | number:'1.0-0' }}</span>
+              <a class="servicio-card__btn"
+                (click)="agendarConServicio(servicio); $event.stopPropagation()">
+                Reservar <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carrusel__dots" *ngIf="serviciosEnGrupos.length > 1">
+        <button class="carrusel__dot" *ngFor="let g of serviciosEnGrupos; let i = index"
+          [class.active]="grupoActual === i" (click)="irAGrupo(i)"></button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="esMobil()">
+      <div class="servicios__lista-movil">
+        <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
+          <div class="servicio-item-movil__img">
+            <img *ngIf="servicio.imagen"
+              [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
+              [alt]="servicio.nombre_servicio"/>
+            <div *ngIf="!servicio.imagen" class="servicio-item-movil__img--empty">
+              <i class="fas fa-cut"></i>
+            </div>
+          </div>
+          <div class="servicio-item-movil__info">
+            <span class="servicio-item-movil__nombre">{{ servicio.nombre_servicio }}</span>
+            <span class="servicio-item-movil__duracion">
+              <i class="fas fa-clock"></i> {{ servicio.duracion }} min
+            </span>
+          </div>
+          <div class="servicio-item-movil__right">
+            <span class="servicio-item-movil__precio">${{ servicio.precio | number:'1.0-0' }}</span>
+            <a class="servicio-item-movil__btn" (click)="agendarConServicio(servicio)">Reservar</a>
+          </div>
+        </div>
+        <div class="servicios__lista-empty" *ngIf="serviciosPorCategoria.length === 0">
+          <p>No hay servicios en esta categoría</p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
 </section>
 
-<!-- ─── PRODUCTOS — solo desktop ─────────────────────────────── -->
+<!-- ─── PRODUCTOS ────────────────────────────────────────────── -->
 <section class="productos" id="productos">
-    <div class="container">
-        <p class="section-subtitle">Disponibles en tienda</p>
-        <h2 class="section-title">Nuestros <span>Productos</span></h2>
+  <div class="container">
+    <p class="section-subtitle">Disponibles en tienda</p>
+    <h2 class="section-title">Nuestros <span>Productos</span></h2>
 
-        <div class="productos__categorias">
-            <button *ngFor="let cat of categorias" class="productos__cat-btn"
-                [class.active]="categoriaActiva === cat.id" (click)="cambiarCategoria(cat.id)">
-                <i [class]="cat.icon"></i> {{ cat.nombre }}
-            </button>
-        </div>
-
-        <div class="productos__grid">
-            <div class="producto-card" *ngFor="let producto of productosMostrados" (click)="abrirModal(producto)">
-                <div class="producto-card__imagen">
-                    <img [src]="producto.imagen" [alt]="producto.nombre">
-                    <div class="producto-card__overlay">
-                        <i class="fas fa-search-plus"></i>
-                    </div>
-                </div>
-                <div class="producto-card__body">
-                    <h3>{{ producto.nombre }}</h3>
-                    <p>{{ producto.descripcion }}</p>
-                    <div class="producto-card__tallas" *ngIf="producto.tallas?.length > 0">
-                        <span class="tallas-label">Tallas:</span>
-                        <div class="tallas-lista">
-                            <span *ngFor="let talla of producto.tallas" class="talla-badge">{{ talla }}</span>
-                        </div>
-                    </div>
-                    <div class="producto-card__footer">
-                        <span class="producto-card__precio">{{ producto.precio }}</span>
-                        <button class="producto-card__btn">Ver más <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="productos__ver-mas">
-            <button class="productos__btn-ver-mas" *ngIf="hayMasProductos" (click)="verMasProductos()">
-                <i class="fas fa-plus"></i> Ver más productos
-            </button>
-            <button class="productos__btn-ver-mas productos__btn-ver-menos"
-                *ngIf="!hayMasProductos && estaExpandidoProductos" (click)="verMenosProductos()">
-                <i class="fas fa-chevron-up"></i> Ver menos
-            </button>
-        </div>
-
+    <div class="productos__categorias">
+      <button *ngFor="let cat of categorias" class="productos__cat-btn"
+        [class.active]="categoriaActiva === cat.id" (click)="cambiarCategoria(cat.id)">
+        <i [class]="cat.icon"></i> {{ cat.nombre }}
+      </button>
     </div>
+
+    <div class="productos__cargando" *ngIf="cargandoProductos">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+
+    <div class="productos__grid" *ngIf="!cargandoProductos">
+      <div class="producto-card" *ngFor="let producto of productosMostrados"
+        (click)="abrirModal(producto)">
+        <div class="producto-card__imagen">
+          <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto"/>
+          <div class="producto-card__overlay"><i class="fas fa-search-plus"></i></div>
+          <div class="producto-card__stock-cero" *ngIf="producto.stock === 0">Agotado</div>
+        </div>
+        <div class="producto-card__body">
+          <h3>{{ producto.nombre_producto }}</h3>
+          <p>{{ producto.descripcion }}</p>
+          <div class="producto-card__footer">
+            <span class="producto-card__precio">
+              {{ producto.precio | currency:'COP':'symbol':'1.0-0' }}
+            </span>
+            <button class="producto-card__btn">
+              Ver más <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="productos__empty" *ngIf="productosMostrados.length === 0">
+        <i class="fas fa-box-open"></i>
+        <p>No hay productos en esta categoría</p>
+      </div>
+    </div>
+
+    <div class="productos__ver-mas">
+      <button class="productos__btn-ver-mas" *ngIf="hayMasProductos"
+        (click)="verMasProductos()">
+        <i class="fas fa-plus"></i> Ver más productos
+      </button>
+      <button class="productos__btn-ver-mas productos__btn-ver-menos"
+        *ngIf="!hayMasProductos && estaExpandidoProductos"
+        (click)="verMenosProductos()">
+        <i class="fas fa-chevron-up"></i> Ver menos
+      </button>
+    </div>
+  </div>
 </section>
-<!-- ─── POR QUÉ — solo móvil, 2 items ───────────────────────── -->
+
+<!-- ─── POR QUÉ — solo móvil ─────────────────────────────────── -->
 <section class="porque porque--movil">
-    <div class="container">
-        <p class="section-subtitle">Nuestra diferencia</p>
-        <h2 class="section-title">¿Por qué <span>Blendlap</span>?</h2>
-        <div class="porque__grid">
-            <div class="porque__item">
-                <div class="porque__icon">
-                    <i [class]="razones[0].icon"></i>
-                </div>
-                <h3>{{ razones[0].titulo }}</h3>
-                <p>{{ razones[0].descripcion }}</p>
-            </div>
-            <div class="porque__item">
-                <div class="porque__icon">
-                    <i [class]="razones[3].icon"></i>
-                </div>
-                <h3>{{ razones[3].titulo }}</h3>
-                <p>{{ razones[3].descripcion }}</p>
-            </div>
-        </div>
+  <div class="container">
+    <p class="section-subtitle">Nuestra diferencia</p>
+    <h2 class="section-title">¿Por qué <span>Blendlap</span>?</h2>
+    <div class="porque__grid">
+      <div class="porque__item">
+        <div class="porque__icon"><i [class]="razones[0].icon"></i></div>
+        <h3>{{ razones[0].titulo }}</h3>
+        <p>{{ razones[0].descripcion }}</p>
+      </div>
+      <div class="porque__item">
+        <div class="porque__icon"><i [class]="razones[3].icon"></i></div>
+        <h3>{{ razones[3].titulo }}</h3>
+        <p>{{ razones[3].descripcion }}</p>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- ─── MODAL PRODUCTO ───────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="productoSeleccionado" (click)="cerrarModal()">
-    <div class="modal" (click)="$event.stopPropagation()">
-        <button class="modal__cerrar" (click)="cerrarModal()">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="modal__imagen">
-            <img [src]="productoSeleccionado.imagen" [alt]="productoSeleccionado.nombre">
-        </div>
-        <div class="modal__info">
-            <h2>{{ productoSeleccionado.nombre }}</h2>
-            <p>{{ productoSeleccionado.descripcion }}</p>
-            <div class="modal__tallas" *ngIf="productoSeleccionado.tallas?.length > 0">
-                <h4>Tallas disponibles</h4>
-                <div class="modal__tallas-grid">
-                    <span *ngFor="let talla of productoSeleccionado.tallas" class="talla-badge talla-badge--lg"
-                        [class.seleccionada]="tallaSeleccionada === talla" (click)="seleccionarTalla(talla)">
-                        {{ talla }}
-                    </span>
-                </div>
-            </div>
-            <div class="modal__precio">{{ productoSeleccionado.precio }}</div>
-            <a routerLink="/login" class="btn-primary modal__btn" (click)="cerrarModal()">
-                <i class="fas fa-shopping-bag"></i> Comprar ahora
-            </a>
-        </div>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="modal__cerrar" (click)="cerrarModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="modal__imagen">
+      <img [src]="getImagenProducto(productoSeleccionado)"
+        [alt]="productoSeleccionado.nombre_producto"/>
+      <div class="modal__agotado" *ngIf="productoSeleccionado.stock === 0">Agotado</div>
     </div>
+    <div class="modal__info">
+      <h2>{{ productoSeleccionado.nombre_producto }}</h2>
+      <p>{{ productoSeleccionado.descripcion }}</p>
+
+      <div class="modal__tallas" *ngIf="productoSeleccionado.talla">
+        <h4>Talla</h4>
+        <div class="modal__tallas-grid">
+          <span class="talla-badge talla-badge--lg seleccionada">
+            {{ productoSeleccionado.talla }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal__stock" *ngIf="productoSeleccionado.stock > 0">
+        <i class="fas fa-check-circle"></i> {{ productoSeleccionado.stock }} disponibles
+      </div>
+
+      <div class="modal__precio">
+        {{ productoSeleccionado.precio | currency:'COP':'symbol':'1.0-0' }}
+      </div>
+
+      <div class="modal__agregado" *ngIf="agregadoExito">
+        <i class="fas fa-check-circle"></i> ¡Agregado al carrito!
+      </div>
+
+      <button class="btn-primary modal__btn"
+        *ngIf="productoSeleccionado.stock > 0 && !agregadoExito"
+        (click)="agregarAlCarrito(productoSeleccionado)">
+        <i class="fas fa-shopping-basket"></i> Agregar al carrito
+      </button>
+
+      <button class="btn-primary modal__btn modal__btn--agotado"
+        *ngIf="productoSeleccionado.stock === 0" disabled>
+        <i class="fas fa-ban"></i> Agotado
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ─── GALERÍA ───────────────────────────────────────────────── -->
 <section class="galeria" id="galeria">
-    <div class="container">
-        <p class="section-subtitle">Nuestro trabajo</p>
-        <h2 class="section-title">Galería de <span>Estilos</span></h2>
-    </div>
-
-    <div class="galeria__wrapper">
-        <div class="galeria__track" #galeriaTrack>
-
-            <ng-container *ngIf="!esMobil()">
-                <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
-                    <div class="galeria__item" *ngFor="let item of col">
-                        <ng-container *ngIf="item.tipo === 'imagen'">
-                            <img [src]="item.src" [alt]="item.alt" draggable="false">
-                        </ng-container>
-                        <ng-container *ngIf="item.tipo === 'video'">
-                            <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)"
-                                (mouseleave)="pauseVideo($event)">
-                                <video [src]="item.src" loop muted playsinline preload="auto"></video>
-                                <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
-                            </div>
-                        </ng-container>
-                    </div>
-                </div>
+  <div class="container">
+    <p class="section-subtitle">Nuestro trabajo</p>
+    <h2 class="section-title">Galería de <span>Estilos</span></h2>
+  </div>
+  <div class="galeria__wrapper">
+    <div class="galeria__track" #galeriaTrack>
+      <ng-container *ngIf="!esMobil()">
+        <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
+          <div class="galeria__item" *ngFor="let item of col">
+            <ng-container *ngIf="item.tipo === 'imagen'">
+              <img [src]="item.src" [alt]="item.alt" draggable="false">
             </ng-container>
-
-            <ng-container *ngIf="esMobil()">
-                <div class="galeria__item" *ngFor="let item of galeriaItemsMostrados">
-                    <ng-container *ngIf="item.tipo === 'imagen'">
-                        <img [src]="item.src" [alt]="item.alt" draggable="false">
-                    </ng-container>
-                    <ng-container *ngIf="item.tipo === 'video'">
-                        <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)"
-                            (mouseleave)="pauseVideo($event)">
-                            <video [src]="item.src" loop muted playsinline preload="auto"></video>
-                            <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
-                        </div>
-                    </ng-container>
-                </div>
+            <ng-container *ngIf="item.tipo === 'video'">
+              <div class="galeria__video-wrapper"
+                (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
+                <video [src]="item.src" loop muted playsinline preload="auto"></video>
+                <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
+              </div>
             </ng-container>
-
+          </div>
         </div>
+      </ng-container>
+      <ng-container *ngIf="esMobil()">
+        <div class="galeria__item" *ngFor="let item of galeriaItemsMostrados">
+          <ng-container *ngIf="item.tipo === 'imagen'">
+            <img [src]="item.src" [alt]="item.alt" draggable="false">
+          </ng-container>
+          <ng-container *ngIf="item.tipo === 'video'">
+            <div class="galeria__video-wrapper"
+              (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
+              <video [src]="item.src" loop muted playsinline preload="auto"></video>
+              <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
     </div>
-
-    <div class="galeria__ver-mas">
-        <button class="galeria__btn-ver-mas" *ngIf="hayMasGaleria" (click)="verMasGaleria()">
-            <i class="fas fa-th"></i> Ver más
-        </button>
-        <button class="galeria__btn-ver-mas galeria__btn-ver-menos" *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
-            <i class="fas fa-chevron-up"></i> Ver menos
-        </button>
-    </div>
+  </div>
+  <div class="galeria__ver-mas">
+    <button class="galeria__btn-ver-mas" *ngIf="hayMasGaleria" (click)="verMasGaleria()">
+      <i class="fas fa-th"></i> Ver más
+    </button>
+    <button class="galeria__btn-ver-mas galeria__btn-ver-menos"
+      *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
+      <i class="fas fa-chevron-up"></i> Ver menos
+    </button>
+  </div>
 </section>
+
 <!-- ─── UBICACIÓN ─────────────────────────────────────────────── -->
 <section class="ubicacion" id="ubicacion">
-    <div class="container">
-        <p class="section-subtitle">Encuéntranos</p>
-        <h2 class="section-title">Nuestra <span>Ubicación</span></h2>
-    </div>
-    <div class="ubicacion__content container">
-        <div class="ubicacion__info">
-            <div class="info-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <div>
-                    <h4>Dirección</h4>
-                    <p>Cl. 48 # 19-55, Armenia, Quindío</p>
-                    <p>Antes del semáforo para salir a la calle 19</p>
-                </div>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-clock"></i>
-                <div>
-                    <h4>Horario</h4>
-                    <p>Martes - Domingo: 9:00am - 9:00pm</p>
-                </div>
-            </div>
-            <div class="info-item">
-                <i class="fab fa-whatsapp"></i>
-                <div>
-                    <h4>WhatsApp</h4>
-                    <p>+57 321 895 4895</p>
-                </div>
-            </div>
-            <a href="https://maps.google.com/?q=Cl.+48+%23+19-55,+Armenia,+Quindío" target="_blank" class="btn-primary">
-                <i class="fas fa-directions"></i> Cómo llegar
-            </a>
+  <div class="container">
+    <p class="section-subtitle">Encuéntranos</p>
+    <h2 class="section-title">Nuestra <span>Ubicación</span></h2>
+  </div>
+  <div class="ubicacion__content container">
+    <div class="ubicacion__info">
+      <div class="info-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>
+          <h4>Dirección</h4>
+          <p>Cl. 48 # 19-55, Armenia, Quindío</p>
+          <p>Antes del semáforo para salir a la calle 19</p>
         </div>
-        <div class="ubicacion__mapa">
-            <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3977.0!2d-75.6814!3d4.5339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e38f5a1c2b3d4e5%3A0x1234567890abcdef!2sCl.+48+%2319-55%2C+Armenia%2C+Quind%C3%ADo!5e0!3m2!1ses!2sco!4v1234567890"
-                width="100%" height="420" style="border:0;" allowfullscreen="" loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-clock"></i>
+        <div>
+          <h4>Horario</h4>
+          <p>Martes - Domingo: 9:00am - 9:00pm</p>
         </div>
+      </div>
+      <div class="info-item">
+        <i class="fab fa-whatsapp"></i>
+        <div>
+          <h4>WhatsApp</h4>
+          <p>+57 321 895 4895</p>
+        </div>
+      </div>
+      <a href="https://maps.google.com/?q=Cl.+48+%23+19-55,+Armenia,+Quindío"
+        target="_blank" class="btn-primary">
+        <i class="fas fa-directions"></i> Cómo llegar
+      </a>
     </div>
+    <div class="ubicacion__mapa">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3977.0!2d-75.6814!3d4.5339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e38f5a1c2b3d4e5%3A0x1234567890abcdef!2sCl.+48+%2319-55%2C+Armenia%2C+Quind%C3%ADo!5e0!3m2!1ses!2sco!4v1234567890"
+        width="100%" height="420" style="border:0;" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
 </section>
 
 <!-- ─── POR QUÉ NOSOTROS — solo desktop ──────────────────────── -->
 <section class="porque">
-    <div class="container">
-        <p class="section-subtitle">Nuestra diferencia</p>
-        <h2 class="section-title">¿Por qué <span>Blendlap</span>?</h2>
-        <div class="porque__grid">
-            <div class="porque__item" *ngFor="let item of razones">
-                <div class="porque__icon">
-                    <i [class]="item.icon"></i>
-                </div>
-                <h3>{{ item.titulo }}</h3>
-                <p>{{ item.descripcion }}</p>
-            </div>
-        </div>
+  <div class="container">
+    <p class="section-subtitle">Nuestra diferencia</p>
+    <h2 class="section-title">¿Por qué <span>Blendlap</span>?</h2>
+    <div class="porque__grid">
+      <div class="porque__item" *ngFor="let item de razones">
+        <div class="porque__icon"><i [class]="item.icon"></i></div>
+        <h3>{{ item.titulo }}</h3>
+        <p>{{ item.descripcion }}</p>
+      </div>
     </div>
+  </div>
 </section>

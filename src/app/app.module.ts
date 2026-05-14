@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,11 +16,13 @@ import { ClienteLayoutComponent } from './layouts/cliente-layout/cliente-layout.
 
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { CarritoDrawerComponent } from './shared/components/carrito-drawer/carrito-drawer.component';
 
 import { HomeComponent } from './pages/public/home/home.component';
 import { LoginComponent } from './pages/public/login/login.component';
 import { RegistroComponent } from './pages/public/registro/registro.component';
 import { AgendarComponent } from './pages/public/agendar/agendar.component';
+import { CarritoComponent } from './pages/public/carrito/carrito.component';
 
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
 import { ReservasComponent } from './pages/admin/reservas/reservas.component';
@@ -31,11 +34,13 @@ import { TurnosComponent } from './pages/admin/turnos/turnos.component';
 import { ReportesComponent } from './pages/admin/reportes/reportes.component';
 import { BarberosComponent } from './pages/admin/barberos/barberos.component';
 import { GastosComponent } from './pages/admin/gastos/gastos.component';
-import { ClienteModule } from './pages/cliente/cliente.module';
+import { CreditosComponent } from './pages/admin/creditos/creditos.component';
+
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 import { StatsComponent } from './pages/barbero/stats/stats.component';
 import { HorarioComponent } from './pages/barbero/horario/horario.component';
-import { DatePipe } from '@angular/common';
+
+import { ClienteModule } from './pages/cliente/cliente.module';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
@@ -43,6 +48,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     AppComponent,
     NavbarComponent,
     FooterComponent,
+    CarritoDrawerComponent,
     PublicLayoutComponent,
     AdminLayoutComponent,
     BarberoLayoutComponent,
@@ -51,6 +57,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     LoginComponent,
     RegistroComponent,
     AgendarComponent,
+    CarritoComponent,
     DashboardComponent,
     ReservasComponent,
     ClientesComponent,
@@ -61,31 +68,26 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     ReportesComponent,
     BarberosComponent,
     GastosComponent,
+    CreditosComponent,
     AgendaComponent,
-    StatsComponent,
-    HorarioComponent,
     StatsComponent,
     HorarioComponent,
   ],
   imports: [
     BrowserModule,
     CommonModule,
-    AppRoutingModule,
     FormsModule,
+    RouterModule,
     HttpClientModule,
+    AppRoutingModule,
     ClienteModule,
-    NgApexchartsModule
+    NgApexchartsModule,
   ],
   providers: [
     DatePipe,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
-
+    CurrencyPipe,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

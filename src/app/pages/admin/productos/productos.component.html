@@ -13,7 +13,7 @@
 
   <!-- Alertas -->
   <div class="alert-success" *ngIf="exito"><i class="fas fa-check-circle"></i> {{ exito }}</div>
-  <div class="alert-error"   *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+  <div class="alert-error" *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
 
   <!-- Stock bajo warning -->
   <div class="alert-warning" *ngIf="stockBajoCount > 0">
@@ -73,24 +73,27 @@
             <td>{{ p.talla || '—' }}</td>
             <td class="val-green fw-bold">{{ formatCurrency(p.precio) }}</td>
             <td>
-              <span class="stock-badge"
-                [class.stock-ok]="tieneStock(p)"
-                [class.stock-medio]="stockMedio(p)"
+              <span class="stock-badge" [class.stock-ok]="tieneStock(p)" [class.stock-medio]="stockMedio(p)"
                 [class.stock-cero]="sinStock(p)">
                 {{ p.stock }} uds
               </span>
             </td>
             <td>
-              <span class="badge" [class.badge-success]="p.estado === 'activo'" [class.badge-danger]="p.estado === 'inactivo'">
+              <span class="badge" [class.badge-success]="p.estado === 'activo'"
+                [class.badge-danger]="p.estado === 'inactivo'">
                 {{ p.estado }}
               </span>
             </td>
             <td>
               <div class="acciones">
-                <button class="btn-icon btn-icon--blue"   title="Editar"       (click)="abrirEditar(p)"><i class="fas fa-edit"></i></button>
-                <button class="btn-icon btn-icon--green"  title="Movimiento"   (click)="abrirMovimiento(p)"><i class="fas fa-exchange-alt"></i></button>
-                <button class="btn-icon btn-icon--gray"   title="Historial"    (click)="abrirMovimientos(p)"><i class="fas fa-history"></i></button>
-                <button class="btn-icon btn-icon--red"    title="Eliminar"     (click)="eliminar(p)"><i class="fas fa-trash"></i></button>
+                <button class="btn-icon btn-icon--blue" title="Editar" (click)="abrirEditar(p)"><i
+                    class="fas fa-edit"></i></button>
+                <button class="btn-icon btn-icon--green" title="Movimiento" (click)="abrirMovimiento(p)"><i
+                    class="fas fa-exchange-alt"></i></button>
+                <button class="btn-icon btn-icon--gray" title="Historial" (click)="abrirMovimientos(p)"><i
+                    class="fas fa-history"></i></button>
+                <button class="btn-icon btn-icon--red" title="Eliminar" (click)="eliminar(p)"><i
+                    class="fas fa-trash"></i></button>
               </div>
             </td>
           </tr>
@@ -137,17 +140,39 @@
           <label>Stock inicial</label>
           <input type="number" [(ngModel)]="form.stock" min="0" />
         </div>
-        <div class="form-group" *ngIf="form.categoria === 'ropa'">
-          <label>Talla</label>
-          <select [(ngModel)]="form.talla">
-            <option value="">Sin talla</option>
-            <option *ngFor="let t of tallas" [value]="t">{{ t }}</option>
-          </select>
+        <div class="form-group">
+          <label>Tallas <span class="optional">(opcional)</span></label>
+          <input type="text" [(ngModel)]="form.talla" class="input-field" placeholder="Ej: S, M, L, XL, XXL" />
+          <small class="input-hint">Separa las tallas con coma</small>
         </div>
         <div class="form-group form-group--full">
           <label>Descripción</label>
           <textarea [(ngModel)]="form.descripcion" rows="3" placeholder="Descripción opcional..."></textarea>
         </div>
+
+        <!-- ── IMAGEN ── -->
+        <div class="form-group form-group--full">
+          <label>Imagen del producto</label>
+          <div class="imagen-upload">
+            <div class="imagen-preview" *ngIf="imagenPreview">
+              <img [src]="imagenPreview" alt="Preview" />
+              <button class="imagen-preview__quitar" type="button" (click)="limpiarImagen()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="imagen-dropzone" *ngIf="!imagenPreview" (click)="fileInput.click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Clic para subir imagen</p>
+              <span>JPG, PNG, WEBP — máx. 5MB</span>
+            </div>
+            <input #fileInput type="file" accept="image/*" style="display:none"
+              (change)="onImagenSeleccionada($event)" />
+            <button class="btn-cambiar-img" type="button" *ngIf="imagenPreview" (click)="fileInput.click()">
+              <i class="fas fa-sync-alt"></i> Cambiar imagen
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
     <div class="modal__footer">
@@ -208,11 +233,20 @@
     <div class="modal__body">
       <div class="tabla-wrap">
         <table class="tabla" *ngIf="movimientos.length > 0">
-          <thead><tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Stock resultante</th><th>Motivo</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Stock resultante</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
           <tbody>
             <tr *ngFor="let m of movimientos">
               <td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td><span class="badge" [class.badge-success]="m.tipo_movimiento==='Entrada'" [class.badge-danger]="m.tipo_movimiento==='Salida'">{{ m.tipo_movimiento }}</span></td>
+              <td><span class="badge" [class.badge-success]="m.tipo_movimiento==='Entrada'"
+                  [class.badge-danger]="m.tipo_movimiento==='Salida'">{{ m.tipo_movimiento }}</span></td>
               <td>{{ m.cantidad }}</td>
               <td>{{ m.stock_resultante }}</td>
               <td>{{ m.motivo || '—' }}</td>
@@ -220,7 +254,8 @@
           </tbody>
         </table>
         <div class="tabla-empty" *ngIf="movimientos.length === 0">
-          <i class="fas fa-history"></i><p>Sin movimientos registrados</p>
+          <i class="fas fa-history"></i>
+          <p>Sin movimientos registrados</p>
         </div>
       </div>
     </div>

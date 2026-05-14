@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit {
     }
     switch (rol) {
       case 'admin': this.router.navigate(['/admin/dashboard']); break;
-      case 'barbero': this.router.navigate(['/barbero/dashboard']); break;
+      case 'barbero': this.router.navigate(['/barbero/agenda']); break;
       case 'cliente': this.router.navigate(['/']); break;
       default: this.router.navigate(['/']);
     }

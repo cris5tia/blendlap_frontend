@@ -1,0 +1,100 @@
+<div class="drawer-backdrop" *ngIf="abierto" (click)="cerrar()"></div>
+
+<div class="drawer" [class.drawer--abierto]="abierto">
+
+  <!-- Header -->
+  <div class="drawer__header">
+    <div class="drawer__titulo">
+      <i class="fas fa-shopping-basket"></i>
+      <span>Mi Carrito</span>
+      <span class="drawer__count" *ngIf="items.length > 0">{{ items.length }}</span>
+    </div>
+    <button class="drawer__cerrar" (click)="cerrar()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Éxito -->
+  <div class="drawer__exito" *ngIf="exito">
+    <i class="fas fa-check-circle"></i>
+    <p>¡Solicitud enviada! El admin revisará tu pedido.</p>
+  </div>
+
+  <!-- Vacío -->
+  <div class="drawer__vacio" *ngIf="!exito && items.length === 0">
+    <i class="fas fa-shopping-basket"></i>
+    <p>Tu carrito está vacío</p>
+    <span>Agrega productos desde la tienda</span>
+  </div>
+
+  <!-- Items -->
+  <div class="drawer__items" *ngIf="!exito && items.length > 0">
+    <div class="drawer-item" *ngFor="let item of items">
+      <img [src]="getImagen(item.producto.imagen)"
+        [alt]="item.producto.nombre_producto"/>
+      <div class="drawer-item__info">
+        <span class="drawer-item__nombre">{{ item.producto.nombre_producto }}</span>
+        <span class="drawer-item__precio">
+          {{ formatCurrency(item.producto.precio) }}
+        </span>
+        <div class="drawer-item__ctrl">
+          <button (click)="disminuir(item.producto.id_producto)">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span>{{ item.cantidad }}</span>
+          <button (click)="aumentar(item.producto.id_producto)"
+            [disabled]="item.cantidad >= item.producto.stock">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="drawer-item__right">
+        <span class="drawer-item__subtotal">
+          {{ formatCurrency(item.producto.precio * item.cantidad) }}
+        </span>
+        <button class="drawer-item__quitar"
+          (click)="quitar(item.producto.id_producto)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="drawer__footer" *ngIf="!exito && items.length > 0">
+
+    <div class="drawer__total">
+      <span>Total</span>
+      <strong>{{ formatCurrency(total) }}</strong>
+    </div>
+
+    <!-- Plazo -->
+    <div class="drawer__plazo">
+      <label>Plazo de pago</label>
+      <div class="plazos-grid">
+        <button *ngFor="let p of plazos" class="btn-plazo"
+          [class.activo]="plazoSeleccionado === p.id"
+          (click)="plazoSeleccionado = p.id">
+          <span>{{ p.label }}</span>
+          <small>{{ p.desc }}</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="drawer__error" *ngIf="error">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <button class="drawer__btn-solicitar" (click)="solicitar()"
+      [disabled]="enviando">
+      <span *ngIf="!enviando">
+        <i class="fas fa-paper-plane"></i> Solicitar crédito
+      </span>
+      <span *ngIf="enviando">
+        <i class="fas fa-spinner fa-spin"></i> Enviando...
+      </span>
+    </button>
+
+  </div>
+
+</div>

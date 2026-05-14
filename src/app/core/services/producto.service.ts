@@ -39,7 +39,7 @@ export class ProductoService {
 
   private url = `${environment.apiUrl}/productos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<{ ok: boolean; data: IProducto[] }> {
     return this.http.get<{ ok: boolean; data: IProducto[] }>(this.url);
@@ -71,5 +71,12 @@ export class ProductoService {
 
   getMovimientos(id: number): Observable<{ ok: boolean; data: any[] }> {
     return this.http.get<{ ok: boolean; data: any[] }>(`${this.url}/${id}/movimientos`);
+  }
+  createFormData(data: FormData): Observable<{ ok: boolean; data: IProducto }> {
+    return this.http.post<{ ok: boolean; data: IProducto }>(this.url, data);
+  }
+
+  updateFormData(id: number, data: FormData): Observable<{ ok: boolean; data: IProducto }> {
+    return this.http.put<{ ok: boolean; data: IProducto }>(`${this.url}/${id}`, data);
   }
 }

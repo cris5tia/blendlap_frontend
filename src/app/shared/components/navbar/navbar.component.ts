@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, IUsuario } from '../../../core/services/auth.service';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
+import { CarritoService } from '../../../core/services/carrito.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,19 +15,25 @@ export class NavbarComponent implements OnInit {
   menuOpen = false;
   usuario: IUsuario | null = null;
   reservas: IReserva[] = [];
+  cantidadCarrito = 0;
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private reservaService: ReservaService,
+    public carritoService: CarritoService
   ) { }
 
   ngOnInit(): void {
-  this.authService.usuario$.subscribe(u => {
-    this.usuario = u;
-    if (u?.rol === 'cliente') this.cargarReservas();
-  });
-}
+    this.authService.usuario$.subscribe(u => {
+      this.usuario = u;
+      if (u?.rol === 'cliente') this.cargarReservas();
+    });
+
+    this.carritoService.items$.subscribe(items => {
+      this.cantidadCarrito = items.reduce((sum, i) => sum + i.cantidad, 0);
+    });
+  }
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -43,28 +50,28 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  closeMenu(): void {
-    this.menuOpen = false;
-  }
+  toggleMenu(): void { this.menuOpen = !this.menuOpen; }
+  closeMenu(): void { this.menuOpen = false; }
 
   scrollTo(seccion: string): void {
     this.closeMenu();
     setTimeout(() => {
-      const elemento = document.getElementById(seccion);
-      if (elemento) {
-        const offset = 80;
-        const top = elemento.getBoundingClientRect().top + window.scrollY - offset;
+      const el = document.getElementById(seccion);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top, behavior: 'smooth' });
       }
     }, 100);
   }
 
+  irAlCarrito(): void {
+    this.closeMenu();
+    this.carritoService.abrirModal();
+  }
+
   logout(): void {
     this.authService.logout();
+    this.carritoService.limpiar();
     this.closeMenu();
   }
 
@@ -76,8 +83,13 @@ export class NavbarComponent implements OnInit {
       case 'cliente': this.router.navigate(['/cliente/dashboard']); break;
     }
   }
-  /* agenda cliente especial */
+
   irAgendarPresencial(): void {
     this.router.navigate(['/barbero/agenda'], { queryParams: { agendar: 'true' } });
+  }
+
+  // Carrito visible solo si no es admin ni barbero
+  get mostrarCarrito(): boolean {
+    return !this.usuario || this.usuario.rol === 'cliente';
   }
 }

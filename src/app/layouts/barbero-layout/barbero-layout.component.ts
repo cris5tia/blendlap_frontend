@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   styleUrl: './barbero-layout.component.scss'
 })
 export class BarberoLayoutComponent {
+  
 
 }

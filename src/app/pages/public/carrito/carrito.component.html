@@ -1,0 +1,165 @@
+<div class="carrito-page">
+
+  <!-- Éxito -->
+  <div class="carrito-exito" *ngIf="exito">
+    <div class="exito-card">
+      <div class="exito-icon"><i class="fas fa-check-circle"></i></div>
+      <h2>¡Solicitud enviada!</h2>
+      <p>Tu solicitud de crédito fue enviada al administrador. Te avisarán cuando sea aprobada y podrás pasar a recoger tus productos.</p>
+      <button class="btn-volver" (click)="irAlHome()">
+        <i class="fas fa-arrow-left"></i> Volver al inicio
+      </button>
+    </div>
+  </div>
+
+  <!-- Carrito vacío -->
+  <div class="carrito-vacio" *ngIf="!exito && items.length === 0">
+    <div class="vacio-card">
+      <i class="fas fa-shopping-basket"></i>
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega productos desde la tienda para solicitar un crédito.</p>
+      <button class="btn-volver" (click)="irAlHome()">
+        <i class="fas fa-arrow-left"></i> Ver productos
+      </button>
+    </div>
+  </div>
+
+  <!-- Carrito con items -->
+  <div class="carrito-contenido" *ngIf="!exito && items.length > 0">
+
+    <div class="carrito-header">
+      <div>
+        <h1>Mi Carrito</h1>
+        <p class="carrito-sub">{{ cantidad }} producto{{ cantidad !== 1 ? 's' : '' }} seleccionado{{ cantidad !== 1 ? 's' : '' }}</p>
+      </div>
+      <button class="btn-limpiar" (click)="limpiar()">
+        <i class="fas fa-trash"></i> Vaciar
+      </button>
+    </div>
+
+    <div class="carrito-layout">
+
+      <!-- Lista de productos -->
+      <div class="carrito-items">
+        <div class="carrito-item" *ngFor="let item of items">
+          <div class="item-img">
+            <img [src]="getImagen(item.producto.imagen)"
+              [alt]="item.producto.nombre_producto"/>
+          </div>
+          <div class="item-info">
+            <h3>{{ item.producto.nombre_producto }}</h3>
+            <p class="item-desc">{{ item.producto.descripcion }}</p>
+            <span class="item-codigo">{{ item.producto.codigo_producto }}</span>
+          </div>
+          <div class="item-controles">
+            <button class="btn-ctrl" (click)="disminuir(item.producto.id_producto)">
+              <i class="fas fa-minus"></i>
+            </button>
+            <span class="item-cantidad">{{ item.cantidad }}</span>
+            <button class="btn-ctrl" (click)="aumentar(item.producto.id_producto)"
+              [disabled]="item.cantidad >= item.producto.stock">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="item-precio">
+            <span class="precio-unit">
+              {{ formatCurrency(item.producto.precio) }} c/u
+            </span>
+            <span class="precio-total">
+              {{ formatCurrency(item.producto.precio * item.cantidad) }}
+            </span>
+          </div>
+          <button class="btn-quitar" (click)="quitar(item.producto.id_producto)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen -->
+      <div class="carrito-resumen">
+        <h2>Resumen</h2>
+
+        <div class="resumen-rows">
+          <div class="resumen-row" *ngFor="let item of items">
+            <span>{{ item.producto.nombre_producto }} x{{ item.cantidad }}</span>
+            <span>{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
+          </div>
+        </div>
+
+        <div class="resumen-total">
+          <span>Total</span>
+          <strong>{{ formatCurrency(total) }}</strong>
+        </div>
+
+        <!-- Plazo -->
+        <div class="resumen-plazo">
+          <label>Plazo de pago</label>
+          <div class="plazos-grid">
+            <button *ngFor="let p of plazos" class="btn-plazo"
+              [class.plazo-activo]="plazoSeleccionado === p.id"
+              (click)="plazoSeleccionado = p.id">
+              <span class="plazo-label">{{ p.label }}</span>
+              <span class="plazo-desc">{{ p.desc }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="resumen-nota">
+          <i class="fas fa-info-circle"></i>
+          El administrador revisará tu solicitud y aprobará el crédito. Luego podrás pasar a recoger tus productos.
+        </div>
+
+        <div class="alerta-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <button class="btn-solicitar" (click)="abrirConfirmar()">
+          <i class="fas fa-paper-plane"></i> Solicitar crédito
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ MODAL CONFIRMAR ══ -->
+  <div class="modal-overlay" *ngIf="modalConfirmar" (click)="modalConfirmar = false">
+    <div class="modal-confirm" (click)="$event.stopPropagation()">
+      <div class="modal-confirm__header">
+        <h2><i class="fas fa-paper-plane"></i> Confirmar solicitud</h2>
+        <button (click)="modalConfirmar = false"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-confirm__body">
+        <p>Vas a solicitar crédito por:</p>
+        <div class="confirm-resumen">
+          <div class="confirm-row" *ngFor="let item of items">
+            <span>{{ item.producto.nombre_producto }} x{{ item.cantidad }}</span>
+            <span>{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
+          </div>
+          <div class="confirm-total">
+            <span>Total</span>
+            <strong>{{ formatCurrency(total) }}</strong>
+          </div>
+          <div class="confirm-plazo">
+            <i class="fas fa-clock"></i>
+            Plazo: <strong>{{ plazoLabel(plazoSeleccionado) }}</strong>
+          </div>
+        </div>
+        <p class="confirm-nota">
+          <i class="fas fa-info-circle"></i>
+          Una vez aprobado por el admin podrás pasar a recoger los productos.
+        </p>
+        <div class="alerta-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+      </div>
+      <div class="modal-confirm__footer">
+        <button class="btn-cancel" (click)="modalConfirmar = false">Cancelar</button>
+        <button class="btn-confirmar" (click)="confirmarSolicitud()" [disabled]="enviando">
+          <span *ngIf="!enviando"><i class="fas fa-check"></i> Confirmar</span>
+          <span *ngIf="enviando"><i class="fas fa-spinner fa-spin"></i> Enviando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

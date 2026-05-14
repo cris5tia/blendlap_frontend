@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductoService, IProducto, ICrearProducto } from '../../../core/services/producto.service';
+import { environment } from '../../../../environments/environment';
 
 type VistaModal = 'crear' | 'editar' | 'movimiento' | 'movimientos' | null;
 
@@ -26,11 +27,21 @@ export class ProductosComponent implements OnInit {
   productoSeleccionado: IProducto | null = null;
   guardando = false;
 
+  // Imagen
+  imagenFile: File | null = null;
+  imagenPreview: string | null = null;
+  imagenUrl = `${environment.apiUrl.replace('/api', '')}/images/productos/`;
+
   categorias = ['barberia', 'ropa', 'accesorios', 'cuidado'];
-  tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40', '41', '42', '43', '44', 'Única'];
 
   form: ICrearProducto = this.formVacio();
-  movimientoForm = { id_producto: 0, tipo_movimiento: 'Entrada' as 'Entrada' | 'Salida', cantidad: 1, motivo: '' };
+  movimientoForm = {
+    id_producto: 0,
+    tipo_movimiento: 'Entrada' as 'Entrada' | 'Salida',
+    cantidad: 1,
+    motivo: ''
+  };
 
   constructor(private productoService: ProductoService) {}
 
@@ -58,12 +69,34 @@ export class ProductosComponent implements OnInit {
       );
     }
     if (this.filtroCategoria) lista = lista.filter(p => p.categoria === this.filtroCategoria);
-    if (this.filtroEstado)    lista = lista.filter(p => p.estado === this.filtroEstado);
+    if (this.filtroEstado)    lista = lista.filter(p => p.estado    === this.filtroEstado);
     this.productosFiltrados = lista;
   }
 
+  // ─── Imagen ───────────────────────────────────────────────
+  onImagenSeleccionada(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    this.imagenFile = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => this.imagenPreview = e.target?.result as string;
+    reader.readAsDataURL(this.imagenFile);
+  }
+
+  getImagenProducto(p: IProducto): string {
+    if (p.imagen) return `${this.imagenUrl}${p.imagen}`;
+    return 'assets/images/no-img.png';
+  }
+
+  limpiarImagen(): void {
+    this.imagenFile = null;
+    this.imagenPreview = null;
+  }
+
+  // ─── Modales ──────────────────────────────────────────────
   abrirCrear(): void {
     this.form = this.formVacio();
+    this.limpiarImagen();
     this.error = '';
     this.modalVista = 'crear';
   }
@@ -73,12 +106,15 @@ export class ProductosComponent implements OnInit {
     this.form = {
       codigo_producto: p.codigo_producto,
       nombre_producto: p.nombre_producto,
-      descripcion: p.descripcion || '',
-      precio: p.precio,
-      stock: p.stock,
-      categoria: p.categoria,
-      talla: p.talla || '',
+      descripcion:     p.descripcion || '',
+      precio:          p.precio,
+      stock:           p.stock,
+      categoria:       p.categoria,
+      talla:           p.talla || '',
     };
+    this.limpiarImagen();
+    // Mostrar imagen actual si tiene
+    this.imagenPreview = p.imagen ? `${this.imagenUrl}${p.imagen}` : null;
     this.error = '';
     this.modalVista = 'editar';
   }
@@ -100,14 +136,33 @@ export class ProductosComponent implements OnInit {
     });
   }
 
-  cerrarModal(): void { this.modalVista = null; this.productoSeleccionado = null; this.error = ''; }
+  cerrarModal(): void {
+    this.modalVista = null;
+    this.productoSeleccionado = null;
+    this.limpiarImagen();
+    this.error = '';
+  }
 
+  // ─── Guardar con FormData ─────────────────────────────────
   guardar(): void {
     this.guardando = true;
     this.error = '';
+
+    const formData = new FormData();
+    formData.append('codigo_producto', this.form.codigo_producto);
+    formData.append('nombre_producto', this.form.nombre_producto);
+    formData.append('descripcion',     this.form.descripcion || '');
+    formData.append('precio',          String(this.form.precio));
+    formData.append('stock',           String(this.form.stock));
+    formData.append('categoria',       this.form.categoria);
+    formData.append('talla',           this.form.talla || '');
+    if (this.imagenFile) {
+      formData.append('imagen', this.imagenFile);
+    }
+
     const op = this.modalVista === 'crear'
-      ? this.productoService.create(this.form)
-      : this.productoService.update(this.productoSeleccionado!.id_producto, this.form);
+      ? this.productoService.createFormData(formData)
+      : this.productoService.updateFormData(this.productoSeleccionado!.id_producto, formData);
 
     op.subscribe({
       next: () => {
@@ -117,7 +172,10 @@ export class ProductosComponent implements OnInit {
         this.guardando = false;
         setTimeout(() => this.exito = '', 3000);
       },
-      error: (err) => { this.error = err.error?.mensaje || 'Error al guardar'; this.guardando = false; }
+      error: (err) => {
+        this.error = err.error?.mensaje || 'Error al guardar';
+        this.guardando = false;
+      }
     });
   }
 
@@ -132,18 +190,26 @@ export class ProductosComponent implements OnInit {
         this.guardando = false;
         setTimeout(() => this.exito = '', 4000);
       },
-      error: (err) => { this.error = err.error?.mensaje || 'Error al registrar movimiento'; this.guardando = false; }
+      error: (err) => {
+        this.error = err.error?.mensaje || 'Error al registrar movimiento';
+        this.guardando = false;
+      }
     });
   }
 
   eliminar(p: IProducto): void {
     if (!confirm(`¿Eliminar "${p.nombre_producto}"?`)) return;
     this.productoService.delete(p.id_producto).subscribe({
-      next: () => { this.exito = 'Producto eliminado'; this.cargar(); setTimeout(() => this.exito = '', 3000); },
+      next: () => {
+        this.exito = 'Producto eliminado';
+        this.cargar();
+        setTimeout(() => this.exito = '', 3000);
+      },
       error: (err) => this.error = err.error?.mensaje || 'Error al eliminar'
     });
   }
 
+  // ─── Utils ────────────────────────────────────────────────
   get stockBajoCount(): number {
     return this.productos.filter(p => p.stock <= 5).length;
   }
@@ -158,10 +224,20 @@ export class ProductosComponent implements OnInit {
   sinStock(p: IProducto): boolean   { return p.stock === 0; }
 
   formVacio(): ICrearProducto {
-    return { codigo_producto: '', nombre_producto: '', descripcion: '', precio: 0, stock: 0, categoria: 'barberia', talla: '' };
+    return {
+      codigo_producto: '',
+      nombre_producto: '',
+      descripcion:     '',
+      precio:          0,
+      stock:           0,
+      categoria:       'barberia',
+      talla:           ''
+    };
   }
 
   formatCurrency(v: number): string {
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v || 0);
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency', currency: 'COP', minimumFractionDigits: 0
+    }).format(v || 0);
   }
 }

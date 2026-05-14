@@ -21,6 +21,9 @@ import { DashboardComponent as ClienteDashboardComponent } from './pages/cliente
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 import { StatsComponent } from './pages/barbero/stats/stats.component';
 import { HorarioComponent } from './pages/barbero/horario/horario.component';
+import { BarberoLayoutComponent } from './layouts/barbero-layout/barbero-layout.component';
+import { CreditosComponent } from './pages/admin/creditos/creditos.component';
+import { CarritoComponent } from './pages/public/carrito/carrito.component';
 
 const routes: Routes = [
   // Rutas públicas
@@ -34,6 +37,7 @@ const routes: Routes = [
   { path: 'agendar', component: AgendarComponent },
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
+  { path: 'carrito', component: CarritoComponent },
 
   // Admin
   {
@@ -53,21 +57,23 @@ const routes: Routes = [
       { path: 'reportes', component: ReportesComponent },
       { path: 'barberos', component: BarberosComponent },
       { path: 'gastos', component: GastosComponent },
+      { path: 'creditos', component: CreditosComponent }
     ]
   },
 
   // Barbero
   {
-  path: 'barbero',
-  canActivate: [authGuard],
-  data: { rol: 'barbero' },
-  children: [
-    { path: '', redirectTo: 'agenda', pathMatch: 'full' },
-    { path: 'agenda', component: AgendaComponent },
-    { path: 'stats', component: StatsComponent },
-    { path: 'horario', component: HorarioComponent },
-  ]
-},
+    path: 'barbero',
+    component: BarberoLayoutComponent,
+    canActivate: [authGuard],
+    data: { rol: 'barbero' },
+    children: [
+      { path: '', redirectTo: 'agenda', pathMatch: 'full' },
+      { path: 'agenda', component: AgendaComponent },
+      { path: 'stats', component: StatsComponent },
+      { path: 'horario', component: HorarioComponent },
+    ]
+  },
 
   // Cliente
   {

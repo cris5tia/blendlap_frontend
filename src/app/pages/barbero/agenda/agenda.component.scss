@@ -1,45 +1,12 @@
 .agenda-wrapper {
-  max-width: 580px;
+  max-width: 936px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.5rem 1rem 3rem;
+  padding: 1.5rem 2rem 3rem;
 
   @media (max-width: 480px) { padding: 1rem 0.75rem 3rem; }
-}
-
-// ─── Topbar ───────────────────────────────────────────────────
-.agenda-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-
-  &__user { display: flex; align-items: center; gap: 0.75rem; }
-
-  &__avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(251,196,71,0.15); color: #b8860b;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 800;
-    font-family: var(--font-primary); flex-shrink: 0;
-  }
-
-  &__nombre {
-    font-family: var(--font-primary);
-    font-size: 1rem; font-weight: 900;
-    color: var(--color-primary); line-height: 1.2;
-  }
-
-  &__fecha { font-size: 0.78rem; color: var(--color-gray); text-transform: capitalize; }
-
-  &__hora {
-    font-size: 0.88rem; font-weight: 800;
-    color: var(--color-primary);
-    font-family: var(--font-primary);
-    letter-spacing: 0.5px;
-  }
 }
 
 // ─── Alert / Cargando ────────────────────────────────────────
@@ -62,6 +29,7 @@
   border: 1px solid #e9ecef;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   overflow: hidden;
+  width: 100%;
 }
 
 .tabs {
@@ -109,7 +77,7 @@
 }
 
 // ─── Timeline ────────────────────────────────────────────────
-.timeline-wrap { padding: 1rem; }
+.timeline-wrap { padding: 1rem 1.5rem; }
 
 .timeline {
   position: relative;
@@ -338,7 +306,8 @@
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  z-index: 500; padding: 1rem; animation: fadeIn 0.2s ease;
+  z-index: 1001; // ← era 500, debe ser mayor que el navbar (1000)
+  padding: 1rem; animation: fadeIn 0.2s ease;
 }
 
 .modal-cita {
@@ -477,7 +446,8 @@
 .modal-presencial {
   background: var(--color-white);
   border-radius: 20px; width: 100%; max-width: 500px;
-  max-height: 90vh; overflow-y: auto;
+  max-height: calc(90vh - 80px); 
+  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   animation: slideUp 0.25s ease; position: relative;
 

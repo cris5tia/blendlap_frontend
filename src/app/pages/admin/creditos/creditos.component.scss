@@ -1,0 +1,748 @@
+// ─── Variables del proyecto ───────────────────────────────
+$primary:     #1a1a1a;
+$secondary:   #2d2d2d;
+$accent:      #FBC447;
+$accent-soft: #fdd278;
+$white:       #ffffff;
+$gray-light:  #f5f5f5;
+$gray:        #9e9e9e;
+$gray-dark:   #4a4a4a;
+$verde:       #22c55e;
+$rojo:        #ef4444;
+$azul:        #3b82f6;
+$borde:       #e5e7eb;
+
+// ─── Page ─────────────────────────────────────────────────
+.creditos-page {
+  padding: 1.5rem 1.5rem 3rem;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+// ─── Header ───────────────────────────────────────────────
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: $primary;
+    margin: 0 0 0.25rem;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .subtitle { color: $gray; font-size: 0.9rem; margin: 0; }
+
+  .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.3rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+
+  &.btn-producto {
+    background: $primary;
+    color: $white;
+    &:hover { background: $secondary; transform: translateY(-1px); }
+  }
+
+  &.btn-dinero {
+    background: $accent;
+    color: $primary;
+    &:hover { background: $accent-soft; transform: translateY(-1px); }
+  }
+}
+
+// ─── Stats ────────────────────────────────────────────────
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: $white;
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid $borde;
+
+  .stat-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: $gray;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &.stat-pendiente { border-color: $accent;  .stat-num { color: darken($accent, 15%); } }
+  &.stat-cobrar    { border-color: $primary; .stat-num { color: $primary; font-size: 1.1rem; } }
+  &.stat-vencido   { border-color: $rojo;    .stat-num { color: $rojo; } }
+  &.stat-total     { border-color: $borde; }
+}
+
+// ─── Alertas ──────────────────────────────────────────────
+.alerta-exito, .alerta-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.alerta-exito {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.alerta-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  justify-content: space-between;
+  button { background: none; border: none; cursor: pointer; color: #991b1b; font-size: 1rem; }
+}
+
+// ─── Filtros ──────────────────────────────────────────────
+.filtros {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+
+  .input-buscar {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.55rem 1rem;
+    border: 1.5px solid $borde;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    background: $white;
+    outline: none;
+    transition: border 0.2s;
+    &:focus { border-color: $primary; }
+  }
+
+  .select-filtro {
+    padding: 0.55rem 1rem;
+    border: 1.5px solid $borde;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    background: $white;
+    outline: none;
+    cursor: pointer;
+    &:focus { border-color: $primary; }
+  }
+
+  .btn-limpiar {
+    padding: 0.55rem 1rem;
+    background: none;
+    border: 1.5px solid $borde;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: $gray;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+    &:hover { border-color: $rojo; color: $rojo; }
+  }
+}
+
+// ─── Tabla ────────────────────────────────────────────────
+.tabla-wrap {
+  background: $white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow-x: auto;
+  width: 100%;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  min-width: 900px; // <-- fuerza scroll horizontal en lugar de cortar
+
+  th {
+    background: $gray-light;
+    padding: 0.75rem 0.75rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: $gray;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $borde;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+    &:hover { background: #fafafa; }
+    &:last-child td { border-bottom: none; }
+    &.fila-vencida { background: #fff5f5; }
+  }
+
+  .id-col        { color: $gray; font-size: 0.8rem; width: 40px; }
+  .monto-col     { font-weight: 600; white-space: nowrap; }
+  .saldo-col     { font-weight: 600; color: $rojo; &.saldo-cero { color: $verde; } }
+
+  .cliente-info {
+    display: flex; flex-direction: column; gap: 0.15rem;
+    .nombre   { font-weight: 600; color: $primary; }
+    .telefono { font-size: 0.75rem; color: $gray; }
+  }
+
+  .detalle-col {
+    max-width: 120px;
+    .detalle-productos {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 0.78rem;
+      color: $gray;
+    }
+    .detalle-dinero { font-size: 0.78rem; color: $gray; font-style: italic; }
+  }
+
+  .vencimiento-col {
+    display: flex; flex-direction: column; gap: 0.2rem;
+    white-space: nowrap;
+    .vencido-text { color: $rojo; font-weight: 600; }
+    .proximo-text { color: darken($accent, 20%); font-weight: 600; }
+    .dias-badge {
+      font-size: 0.7rem;
+      background: $gray-light;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      color: $gray;
+      width: fit-content;
+    }
+  }
+
+  .acciones-col {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    white-space: nowrap;
+    min-width: 90px;
+  }
+}
+
+// ─── Badges tipo ──────────────────────────────────────────
+.badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.tipo-producto { background: $primary; color: $white; }
+  &.tipo-dinero   { background: $accent;  color: $primary; }
+}
+
+// ─── Badges estado ────────────────────────────────────────
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.badge-warning { background: #fef9c3; color: #854d0e; }
+  &.badge-info    { background: #dbeafe; color: #1e40af; }
+  &.badge-success { background: #dcfce7; color: #166534; }
+  &.badge-danger  { background: #fee2e2; color: #991b1b; }
+  &.badge-default { background: $gray-light; color: $gray; }
+}
+
+// ─── Botones icono ────────────────────────────────────────
+.btn-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px; border: none; cursor: pointer;
+  font-size: 0.85rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+
+  &.btn-ver     { background: $gray-light; color: $gray-dark;
+                  &:hover { background: darken($gray-light, 5%); } }
+  &.btn-aprobar { background: #dcfce7; color: #166534;
+                  &:hover { background: #bbf7d0; } }
+  &.btn-abonar  { background: #fef9c3; color: #854d0e;
+                  &:hover { background: #fef08a; } }
+}
+
+// ─── Vacío / Loader ───────────────────────────────────────
+.estado-vacio {
+  text-align: center; padding: 4rem 2rem; color: $gray;
+  i { font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.3; }
+  p { font-size: 1rem; }
+}
+
+.loader-wrap { display: flex; justify-content: center; padding: 4rem; }
+
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid $borde;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ─── MODALES ──────────────────────────────────────────────
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1100; padding: 1rem;
+  backdrop-filter: blur(3px);
+}
+
+.modal-box {
+  background: $white;
+  border-radius: 16px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+
+  &.modal-crear   { max-width: 620px; }
+  &.modal-detalle { max-width: 720px; }
+  &.modal-confirm { max-width: 460px; }
+  &.modal-abonar  { max-width: 480px; }
+}
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $borde;
+
+  h2 {
+    font-size: 1.05rem; font-weight: 700; margin: 0;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  &.header-producto { background: $primary; h2 { color: $white; } }
+  &.header-dinero   { background: $accent;  h2 { color: $primary; } }
+  &.header-detalle  { background: $primary; h2 { color: $white; } }
+  &.header-aprobar  { background: $verde;   h2 { color: $white; } }
+  &.header-abonar   { background: $accent;  h2 { color: $primary; } }
+
+  .btn-close {
+    background: rgba(255,255,255,0.15);
+    border: none; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    &:hover { background: rgba(255,255,255,0.3); }
+
+    // ícono color según fondo
+    i { color: $white; }
+  }
+}
+
+// en header dorado el ícono va oscuro
+.header-dinero .btn-close i,
+.header-abonar .btn-close i { color: $primary; }
+
+.modal-body {
+  flex: 1; overflow-y: auto; padding: 1.5rem;
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-thumb { background: $borde; border-radius: 3px; }
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid $borde;
+  display: flex; justify-content: flex-end; gap: 0.75rem;
+}
+
+// ─── Secciones del form ───────────────────────────────────
+.seccion {
+  margin-bottom: 1.5rem;
+
+  .sec-titulo {
+    display: block;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: $gray; margin-bottom: 0.75rem;
+  }
+}
+
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.form-group {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  label { font-size: 0.82rem; font-weight: 600; color: $primary; }
+}
+
+.input-field {
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid $borde;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: $white;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%; box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+
+  &:focus { border-color: $accent; box-shadow: 0 0 0 3px rgba(251,196,71,0.15); }
+  &.input-monto { font-size: 1.3rem; font-weight: 700; text-align: right; }
+}
+
+textarea.input-field { resize: vertical; }
+
+// ─── Plazos ───────────────────────────────────────────────
+.plazos-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+  @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.btn-plazo {
+  padding: 0.65rem 0.5rem;
+  border: 2px solid $borde;
+  border-radius: 8px;
+  background: $white;
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; text-align: center;
+  color: $gray-dark; transition: all 0.2s;
+  font-family: 'Montserrat', sans-serif;
+
+  &:hover { border-color: $accent; color: $primary; }
+  &.plazo-activo { border-color: $accent; background: $accent; color: $primary; font-weight: 700; }
+}
+
+// ─── Búsqueda por código ──────────────────────────────────
+.buscar-codigo-row {
+  display: flex; gap: 0.5rem;
+  input { flex: 1; }
+}
+
+.btn-buscar-codigo {
+  padding: 0.6rem 1.1rem;
+  background: $primary; color: $white;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+  &:hover { background: $secondary; }
+}
+
+.producto-resultado {
+  display: flex; align-items: center; gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: $gray-light;
+  border: 2px solid $accent;
+  border-radius: 10px;
+
+  img {
+    width: 52px; height: 52px;
+    object-fit: cover; border-radius: 8px; flex-shrink: 0;
+  }
+
+  .prod-resultado-info {
+    flex: 1; display: flex; flex-direction: column; gap: 0.15rem;
+    .prod-codigo { font-size: 0.72rem; color: $gray; text-transform: uppercase; letter-spacing: 0.05em; }
+    .prod-nombre { font-size: 0.9rem; font-weight: 700; color: $primary; }
+    .prod-precio { font-size: 0.88rem; font-weight: 700; color: darken($accent, 20%); }
+    .prod-stock  { font-size: 0.75rem; color: $gray; }
+  }
+}
+
+.btn-agregar-prod {
+  padding: 0.55rem 1rem;
+  background: $accent; color: $primary;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; gap: 0.4rem;
+  transition: background 0.2s; white-space: nowrap;
+  &:hover { background: $accent-soft; }
+}
+
+.busqueda-error {
+  margin-top: 0.6rem;
+  font-size: 0.82rem; color: $rojo;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+// ─── Productos seleccionados ──────────────────────────────
+.seleccionados {
+  border: 1.5px solid $borde; border-radius: 10px; overflow: hidden;
+}
+
+.sel-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-of-type { border-bottom: none; }
+
+  img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+
+  .sel-data {
+    flex: 1; display: flex; flex-direction: column; gap: 0.1rem;
+    .sel-codigo { font-size: 0.7rem; color: $gray; text-transform: uppercase; }
+    .sel-nombre { font-size: 0.85rem; font-weight: 600; color: $primary; }
+  }
+
+  .sel-cantidad {
+    display: flex; align-items: center; gap: 0.4rem; font-weight: 700;
+    button {
+      width: 26px; height: 26px;
+      border: 1.5px solid $borde; border-radius: 6px;
+      background: $white; cursor: pointer; font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      &:hover { border-color: $accent; background: #fef9c3; }
+    }
+  }
+
+  .sel-subtotal {
+    font-size: 0.88rem; font-weight: 700;
+    color: darken($accent, 20%); min-width: 90px; text-align: right;
+  }
+
+  .btn-quitar {
+    background: none; border: none; color: $rojo;
+    cursor: pointer; font-size: 0.85rem; opacity: 0.5;
+    transition: opacity 0.2s; padding: 0.3rem;
+    &:hover { opacity: 1; }
+  }
+}
+
+.total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.85rem 1rem;
+  background: #fef9c3;
+  font-size: 0.95rem; color: $primary;
+  strong { font-size: 1.1rem; color: darken($accent, 20%); }
+}
+
+// ─── Cálculo interés ──────────────────────────────────────
+.calculo-interes {
+  margin-top: 1rem;
+  background: #fef9c3;
+  border: 2px solid $accent;
+  border-radius: 10px;
+  padding: 1rem;
+
+  .calculo-row {
+    display: flex; justify-content: space-between;
+    font-size: 0.88rem; padding: 0.35rem 0;
+    color: $primary;
+    border-bottom: 1px solid rgba(251,196,71,0.4);
+
+    &:last-child { border-bottom: none; }
+
+    &.calculo-total {
+      font-size: 1rem; font-weight: 700;
+      color: darken($accent, 25%);
+      padding-top: 0.6rem; margin-top: 0.25rem;
+    }
+  }
+}
+
+// ─── Error inline ─────────────────────────────────────────
+.error-inline {
+  padding: 0.7rem 1rem;
+  background: #fee2e2; border: 1px solid #fecaca;
+  border-radius: 8px; color: #991b1b;
+  font-size: 0.85rem; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+// ─── Botones footer ───────────────────────────────────────
+.btn-cancel {
+  padding: 0.6rem 1.2rem;
+  background: $gray-light; border: 1.5px solid $borde;
+  border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; color: $gray-dark; transition: all 0.2s;
+  &:hover { background: darken($gray-light, 5%); }
+}
+
+.btn-guardar {
+  padding: 0.6rem 1.4rem;
+  background: $accent; color: $primary;
+  border: none; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;
+  &:hover:not(:disabled) { background: $accent-soft; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-aprobar-accion {
+  padding: 0.6rem 1.4rem;
+  background: $verde; color: $white; border: none;
+  border-radius: 8px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;
+  &:hover:not(:disabled) { background: darken($verde, 8%); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-rechazar-accion {
+  padding: 0.6rem 1.2rem;
+  background: $rojo; color: $white; border: none;
+  border-radius: 8px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;
+  &:hover:not(:disabled) { background: darken($rojo, 8%); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ─── Modal detalle ────────────────────────────────────────
+.detalle-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  margin-bottom: 1.5rem;
+  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.detalle-item {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: $gray; font-weight: 600; }
+  strong { font-size: 0.95rem; color: $primary; }
+  .saldo-ok { color: $verde; }
+}
+
+.detalle-seccion {
+  margin-bottom: 1.5rem;
+  h3 {
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: $gray; margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid $borde;
+  }
+}
+
+.detalle-productos { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.det-prod {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: $gray-light; border-radius: 8px;
+  font-size: 0.85rem;
+
+  img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+  .det-codigo { font-size: 0.7rem; color: $gray; min-width: 70px; }
+  .det-nombre { flex: 1; font-weight: 600; color: $primary; }
+  .det-precio { font-weight: 700; color: darken($accent, 20%); }
+}
+
+.tabla-mini {
+  width: 100%; border-collapse: collapse; font-size: 0.82rem;
+
+  th {
+    background: $gray-light; padding: 0.5rem 0.75rem;
+    text-align: left; font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; color: $gray;
+    border-bottom: 1px solid $borde;
+  }
+
+  td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid #f3f4f6; color: $primary;
+  }
+
+  tbody tr:hover { background: $gray-light; }
+}
+
+.obs-text {
+  background: $gray-light; padding: 0.75rem 1rem;
+  border-radius: 8px; font-size: 0.88rem; color: $primary; margin: 0;
+}
+
+// ─── Modal abonar ─────────────────────────────────────────
+.saldo-info {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fef9c3; border: 2px solid $accent;
+  padding: 1rem 1.2rem; border-radius: 10px; margin-bottom: 1.25rem;
+  span  { font-size: 0.85rem; color: darken($accent, 25%); font-weight: 500; }
+  strong { font-size: 1.3rem; font-weight: 800; color: darken($accent, 25%); }
+}
+
+.metodos-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+  @media (max-width: 400px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.btn-metodo {
+  padding: 0.55rem 0.4rem;
+  border: 2px solid $borde; border-radius: 8px;
+  background: $white; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; color: $gray-dark;
+  font-family: 'Montserrat', sans-serif;
+
+  &:hover { border-color: $accent; color: $primary; }
+  &.metodo-activo { border-color: $accent; background: $accent; color: $primary; }
+}
+
+// ─── Confirm modal ────────────────────────────────────────
+.confirm-info {
+  background: $gray-light; border-radius: 10px; padding: 1rem; margin: 1rem 0;
+
+  .confirm-row {
+    display: flex; justify-content: space-between;
+    padding: 0.35rem 0; font-size: 0.88rem;
+    border-bottom: 1px solid $borde;
+    &:last-child { border-bottom: none; }
+    span { color: $gray; }
+    strong { color: $primary; }
+  }
+}
+
+.confirm-nota {
+  font-size: 0.82rem; color: darken($accent, 25%);
+  background: #fef9c3; padding: 0.6rem 0.9rem;
+  border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; margin: 0;
+}

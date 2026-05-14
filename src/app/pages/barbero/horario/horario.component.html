@@ -1,18 +1,5 @@
 <div class="horario-wrapper">
 
-  <div class="horario-topbar">
-    <div class="horario-topbar__user">
-      <div class="horario-topbar__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
-      <div>
-        <div class="horario-topbar__nombre">{{ usuario?.nombre }}</div>
-        <div class="horario-topbar__sub">Mi horario</div>
-      </div>
-    </div>
-    <a routerLink="/" class="btn-inicio">
-      <i class="fas fa-home"></i>
-    </a>
-  </div>
-
   <div class="alert-error" *ngIf="error">
     <i class="fas fa-exclamation-circle"></i> {{ error }}
   </div>

@@ -1,4 +1,4 @@
-<nav class="navbar" [class.scrolled]="isScrolled">
+<nav class="navbar" [class.scrolled]="isScrolled" [class.navbar--barbero]="usuario?.rol === 'barbero'">
   <div class="container navbar__container">
 
     <a routerLink="/" class="navbar__logo">
@@ -7,7 +7,7 @@
 
     <ul class="navbar__links" [class.active]="menuOpen">
 
-      <!-- Links publicos — solo si NO es barbero -->
+      <!-- Links públicos — solo si NO es barbero -->
       <ng-container *ngIf="!usuario || usuario.rol !== 'barbero'">
         <li><a (click)="scrollTo('equipo')">Equipo</a></li>
         <li><a (click)="scrollTo('productos')">Productos</a></li>
@@ -17,36 +17,64 @@
 
       <!-- Links barbero -->
       <ng-container *ngIf="usuario?.rol === 'barbero'">
-        <li><a routerLink="/barbero/agenda" routerLinkActive="nav-link-active" class="nav-link-barbero">
-            <i class="fas fa-calendar-day"></i> Mi Agenda
-          </a></li>
-        <li><a routerLink="/barbero/stats" routerLinkActive="nav-link-active" class="nav-link-barbero">
-            <i class="fas fa-chart-bar"></i> Stats
-          </a></li>
-        <li><a routerLink="/barbero/horario" routerLinkActive="nav-link-active" class="nav-link-barbero">
-            <i class="fas fa-clock"></i> Horario
-          </a></li>
         <li>
-          <button class="btn-nav btn-nav--citas" (click)="irAgendarPresencial()">
-            <i class="fas fa-plus"></i> Agendar cliente
-          </button>
+          <a routerLink="/barbero/agenda" routerLinkActive="nav-link-active" class="nav-link-barbero">
+            <i class="fas fa-calendar-day"></i> Mi Agenda
+          </a>
+        </li>
+        <li>
+          <a routerLink="/barbero/stats" routerLinkActive="nav-link-active" class="nav-link-barbero">
+            <i class="fas fa-chart-bar"></i> Stats
+          </a>
+        </li>
+        <li>
+          <a routerLink="/barbero/horario" routerLinkActive="nav-link-active" class="nav-link-barbero">
+            <i class="fas fa-clock"></i> Horario
+          </a>
+        </li>
+        <li>
+          <a routerLink="/" routerLinkActive="nav-link-active"
+            [routerLinkActiveOptions]="{exact: true}" class="nav-link-barbero">
+            <i class="fas fa-store"></i> Ver inicio
+          </a>
         </li>
       </ng-container>
 
+      <!-- Carrito — visible para clientes y no logueados -->
+      <li *ngIf="mostrarCarrito" class="navbar__carrito-item">
+        <button class="navbar__carrito" (click)="irAlCarrito()">
+          <i class="fas fa-shopping-basket"></i>
+          <span class="carrito-badge" *ngIf="cantidadCarrito > 0">
+            {{ cantidadCarrito }}
+          </span>
+        </button>
+      </li>
+
+      <!-- Sin sesión -->
       <li *ngIf="!usuario">
         <a routerLink="/login" class="btn-nav" (click)="closeMenu()">Iniciar Sesión</a>
       </li>
 
+      <!-- Con sesión -->
       <li *ngIf="usuario" class="navbar__usuario">
 
-        <a *ngIf="usuario.rol === 'admin'" routerLink="/admin/dashboard" class="btn-nav btn-nav--admin">
+        <a *ngIf="usuario.rol === 'admin'" routerLink="/admin/dashboard"
+          class="btn-nav btn-nav--admin">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
 
-        <a *ngIf="usuario.rol === 'cliente'" routerLink="/cliente/dashboard" class="btn-nav btn-nav--citas">
+        <a *ngIf="usuario.rol === 'cliente'" routerLink="/cliente/dashboard"
+          class="btn-nav btn-nav--citas">
           <i class="fas fa-calendar-check"></i> Mis citas
-          <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">{{ reservas.length }}</span>
+          <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">
+            {{ reservas.length }}
+          </span>
         </a>
+
+        <button *ngIf="usuario.rol === 'barbero'" class="btn-nav btn-nav--agendar"
+          (click)="irAgendarPresencial()">
+          <i class="fas fa-plus"></i> Agendar cliente
+        </button>
 
         <div class="navbar__avatar" (click)="irADashboard()">
           <i class="fas fa-user"></i>
@@ -57,7 +85,7 @@
           <span class="navbar__rol">{{ usuario.rol }}</span>
         </div>
 
-        <button class="navbar__logout" (click)="logout()" title="Cerrar sesion">
+        <button class="navbar__logout" (click)="logout()" title="Cerrar sesión">
           <i class="fas fa-sign-out-alt"></i>
         </button>
 
