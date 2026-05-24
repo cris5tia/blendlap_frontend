@@ -1,271 +1,396 @@
-<!-- nav de agendar -->
-<header class="agendar-nav-top">
-  <button class="agendar-nav-top__back" (click)="pasoIndex === 0 ? irAlHome() : pasoAnterior()"
-    *ngIf="!reservaConfirmada">
+<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<header class="ag-nav">
+  <button class="ag-nav__back" (click)="pasoIndex === 0 ? irAlHome() : pasoAnterior()">
     <i class="fas fa-arrow-left"></i>
     {{ pasoIndex === 0 ? 'Inicio' : 'Volver' }}
   </button>
-  <div *ngIf="reservaConfirmada" class="agendar-nav-top__back"></div>
 
-  <div class="agendar-nav-top__logo">
+  <div class="ag-nav__logo">
     <img src="assets/images/navbar/logo.png" alt="Blendlap" />
   </div>
 
-  <div class="agendar-nav-top__paso" *ngIf="!reservaConfirmada">
-    {{ pasoIndex + 1 }}/4
+  <div class="ag-nav__paso">
+    Paso {{ pasoIndex + 1 }} de {{ pasos.length }}
   </div>
-  <div *ngIf="reservaConfirmada" class="agendar-nav-top__paso"></div>
 </header>
 
-<div class="agendar-page">
+<!-- ── PÁGINA ─────────────────────────────────────────────────── -->
+<div class="ag-page">
 
-  <!-- Confirmación exitosa -->
-  <div class="confirmado" *ngIf="reservaConfirmada">
-    <div class="confirmado__icon"><i class="fas fa-check-circle"></i></div>
-    <h2>¡Reserva confirmada!</h2>
-    <p>Tu cita ha sido agendada exitosamente.</p>
-    <button class="btn-primary" (click)="irAlHome()">Volver al inicio</button>
+  <div class="ag-head">
+    <h1>Agenda tu cita</h1>
+    <p>Sigue los pasos para reservar tu servicio</p>
   </div>
 
-  <!-- Flujo de agendamiento -->
-  <ng-container *ngIf="!reservaConfirmada">
-
-    <div class="agendar-header">
-      <h1>Agenda tu cita</h1>
-      <p>Sigue los pasos para reservar tu servicio</p>
-    </div>
-
-    <div class="stepper">
-      <div class="stepper__item" *ngFor="let paso of pasos; let i = index" [class.active]="pasoActual === paso"
-        [class.completado]="pasoIndex > i">
-        <div class="stepper__circle">
-          <i class="fas fa-check" *ngIf="pasoIndex > i"></i>
-          <span *ngIf="pasoIndex <= i">{{ i + 1 }}</span>
-        </div>
-        <span class="stepper__label">
-          {{ paso === 'servicio' ? 'Servicio' : paso === 'barbero' ? 'Barbero' : paso === 'fecha' ? 'Fecha y hora' :
-          'Confirmar' }}
-        </span>
+  <!-- STEPPER -->
+  <div class="ag-stepper">
+    <div class="ag-stepper__track"></div>
+    <div class="ag-stepper__item"
+      *ngFor="let paso of pasos; let i = index"
+      [class.active]="pasoActual === paso"
+      [class.done]="pasoIndex > i"
+      (click)="pasoIndex > i && (pasoActual = paso)">
+      <div class="ag-stepper__bubble">
+        <i class="fas fa-check" *ngIf="pasoIndex > i"></i>
+        <span *ngIf="pasoIndex <= i">{{ i + 1 }}</span>
       </div>
+      <span class="ag-stepper__label">
+        {{ paso === 'servicio' ? 'Servicio' :
+           paso === 'barbero'  ? 'Barbero'  :
+           paso === 'fecha'    ? 'Fecha' : 'Confirmar' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="ag-error" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PASO 1 — SERVICIO
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ag-card" *ngIf="pasoActual === 'servicio'">
+    <div class="ag-card__head">
+      <h2>¿Qué servicio deseas?</h2>
+      <p>Toca el servicio para continuar</p>
     </div>
 
-    <div class="error-msg" *ngIf="error">
-      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    <!-- Cargando servicios -->
+    <div class="ag-loading" *ngIf="cargandoInicio">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando servicios...</span>
     </div>
 
-    <!-- PASO 1: Servicios -->
-    <div class="paso-content" *ngIf="pasoActual === 'servicio'">
-      <h2 class="paso-titulo">¿Qué servicio deseas?</h2>
-      <p class="paso-sub">Selecciona el servicio que deseas</p>
+    <div *ngFor="let grupo of serviciosPorCategoria" class="ag-grupo">
+      <div class="ag-grupo__titulo">
+        <i class="fas fa-crown" *ngIf="grupo.categoria === 'premium'"></i>
+        <i class="fas fa-cut"   *ngIf="grupo.categoria === 'clasicos'"></i>
+        <span>{{ grupo.label }}</span>
+      </div>
 
-      <div class="servicios-grid">
-        <div class="servicio-opcion" *ngFor="let s of servicios" [class.selected]="isServicioSeleccionado(s)"
-          [class.disabled]="serviciosSeleccionados.length >= 1 && !isServicioSeleccionado(s)"
-          (click)="toggleServicio(s)">
-          <div class="servicio-opcion__img">
-            <img *ngIf="s.imagen" [src]="'http://localhost:3000/images/servicios/' + s.imagen"
+      <div class="ag-servicios-grid" [class.ag-servicios-grid--premium]="grupo.categoria === 'premium'">
+        <div class="ag-servicio"
+          *ngFor="let s of grupo.items"
+          [class.selected]="isServicioSeleccionado(s)"
+          (click)="onServicioClick(s)">
+
+          <div class="ag-servicio__img">
+            <img *ngIf="s.imagen"
+              [src]="'http://localhost:3001/images/servicios/' + s.imagen"
               [alt]="s.nombre_servicio" />
-            <div *ngIf="!s.imagen" class="servicio-opcion__img--empty"><i class="fas fa-cut"></i></div>
+            <div *ngIf="!s.imagen" class="ag-servicio__img-empty">
+              <i class="fas fa-cut"></i>
+            </div>
+            <div class="ag-servicio__check"><i class="fas fa-check"></i></div>
           </div>
-          <div class="servicio-opcion__info">
+
+          <div class="ag-servicio__body">
             <h3>{{ s.nombre_servicio }}</h3>
             <p>{{ s.descripcion }}</p>
-            <div class="servicio-opcion__meta">
-              <span class="precio">${{ s.precio | number:'1.0-0' }}</span>
-              <span class="duracion"><i class="fas fa-clock"></i> {{ s.duracion }} min</span>
+            <div class="ag-servicio__meta">
+              <span class="ag-servicio__duracion"><i class="fas fa-clock"></i> {{ s.duracion }} min</span>
+              <span class="ag-servicio__precio">${{ s.precio | number:'1.0-0' }}</span>
             </div>
-          </div>
-          <div class="servicio-opcion__check">
-            <i class="fas fa-check"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="seleccion-resumen" *ngIf="serviciosSeleccionados.length > 0">
-        <span><strong>{{ serviciosSeleccionados.length }}</strong> servicio(s) — <strong>{{ duracionTotal }}
-            min</strong> — <strong>${{ precioTotal | number:'1.0-0' }}</strong></span>
-      </div>
-    </div>
-
-    <!-- PASO 2: Barbero -->
-    <div class="paso-content" *ngIf="pasoActual === 'barbero'">
-      <h2 class="paso-titulo">Elige tu barbero</h2>
-      <p class="paso-sub">Selecciona con quién quieres tu cita</p>
-
-      <div class="barberos-grid">
-        <div class="barbero-opcion" *ngFor="let b of barberos"
-          [class.selected]="barberoSeleccionado?.id_usuario === b.id_usuario" (click)="barberoSeleccionado = b">
-
-          <div class="barbero-opcion__foto">
-            <img *ngIf="b.foto" [src]="'http://localhost:3000/images/barberos/' + b.foto" [alt]="b.nombre" />
-            <div *ngIf="!b.foto" class="barbero-opcion__foto--empty">
-              <i class="fas fa-user-tie"></i>
-            </div>
-          </div>
-
-          <div class="barbero-opcion__info">
-            <span class="barbero-opcion__titulo">{{ b.titulo || 'Barbero' }}</span>
-            <h3>{{ b.nombre }} {{ b.apellido }}</h3>
-            <div class="barbero-opcion__stats">
-              <span><i class="fas fa-calendar-check"></i> {{ b.total_agendamientos || 0 }} citas</span>
-              <span *ngIf="b.experiencia"><i class="fas fa-medal"></i> {{ b.experiencia }} años</span>
-            </div>
-          </div>
-
-          <div class="barbero-opcion__check">
-            <i class="fas fa-check"></i>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- PASO 3: Fecha y hora -->
-    <div class="paso-content" *ngIf="pasoActual === 'fecha'">
-      <h2 class="paso-titulo">Selecciona fecha y hora</h2>
-      <p class="paso-sub">Elige el día y el horario disponible</p>
+  <!-- ═══════════════════════════════════════════════════════════
+       PASO 2 — BARBERO
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ag-card" *ngIf="pasoActual === 'barbero'">
+    <div class="ag-card__head">
+      <h2>Elige tu barbero</h2>
+      <p>Toca el barbero para continuar</p>
+    </div>
 
-      <div class="fecha-hora">
-        <div class="calendario">
-          <div class="calendario__nav">
-            <button (click)="mesAnterior()"><i class="fas fa-chevron-left"></i></button>
-            <span>{{ nombreMes }}</span>
-            <button (click)="mesSiguiente()"><i class="fas fa-chevron-right"></i></button>
+    <div class="ag-barberos-grid">
+      <div class="ag-barbero"
+        *ngFor="let b of barberos"
+        [class.selected]="barberoSeleccionado?.id_usuario === b.id_usuario"
+        (click)="onBarberoClick(b)">
+
+        <div class="ag-barbero__foto">
+          <img *ngIf="b.foto"
+            [src]="'http://localhost:3001/images/barberos/' + b.foto"
+            [alt]="b.nombre" />
+          <div *ngIf="!b.foto" class="ag-barbero__foto-empty">
+            <i class="fas fa-user-tie"></i>
           </div>
-          <div class="calendario__dias-header">
-            <span>Dom</span><span>Lun</span><span>Mar</span>
-            <span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-          </div>
-          <div class="calendario__grid">
-            <div *ngFor="let dia of diasCalendario" class="calendario__dia" [class.vacio]="!dia.fecha"
-              [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerrado(dia)"
-              [class.disponible]="dia.fecha && dia.disponible && !esDiaCerrado(dia)"
-              [class.cerrado]="dia.fecha && esDiaCerrado(dia)" [class.seleccionado]="esDiaSeleccionado(dia)"
-              (click)="seleccionarFecha(dia)">
-              {{ dia.fecha?.getDate() }}
-            </div>
-          </div>
+          <div class="ag-barbero__check"><i class="fas fa-check"></i></div>
         </div>
 
-        <div class="slots">
-          <div class="slots__empty" *ngIf="!fechaSeleccionada">
-            <i class="fas fa-calendar-alt"></i>
-            <p>Selecciona una fecha para ver horarios</p>
+        <div class="ag-barbero__body">
+          <span class="ag-barbero__rol">{{ b.titulo || 'Barbero Profesional' }}</span>
+          <h3>{{ b.nombre }} {{ b.apellido }}</h3>
+          <div class="ag-barbero__stats">
+            <span><i class="fas fa-calendar-check"></i> {{ b.total_agendamientos || 0 }} citas</span>
+            <span *ngIf="b.experiencia"><i class="fas fa-medal"></i> {{ b.experiencia }} años</span>
           </div>
-          <div class="slots__cargando" *ngIf="cargandoSlots">
-            <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
-          </div>
-          <div class="slots__no-disponible" *ngIf="!cargandoSlots && fechaSeleccionada && slots.length === 0">
-            <i class="fas fa-ban"></i>
-            <p>No hay horarios disponibles para este día</p>
-          </div>
-          <div class="slots__grid" *ngIf="!cargandoSlots && slots.length > 0">
-            <button class="slot" *ngFor="let slot of slots" [class.disponible]="slot.disponible"
-              [class.ocupado]="!slot.disponible" [class.seleccionado]="horaSeleccionada === slot.hora"
-              [disabled]="!slot.disponible" (click)="horaSeleccionada = slot.hora">
-              {{ formatearHora(slot.hora) }}
-            </button>
+          <div class="ag-barbero__rating" *ngIf="b.promedio_estrellas">
+            <i class="fas fa-star"></i>
+            <strong>{{ b.promedio_estrellas | number:'1.1-1' }}</strong>
+            <span>({{ b.total_resenas }})</span>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- PASO 4: Confirmación -->
-    <div class="paso-content confirmacion-paso" *ngIf="pasoActual === 'confirmacion'">
-      <div class="confirmacion-header">
-        <div class="confirmacion-header__icon">
-          <i class="fas fa-calendar-check"></i>
+  <!-- ═══════════════════════════════════════════════════════════
+       PASO 3 — FECHA Y HORA
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ag-card" *ngIf="pasoActual === 'fecha'">
+    <div class="ag-card__head">
+      <h2>Fecha y hora</h2>
+      <p>Selecciona el día y un horario disponible</p>
+    </div>
+
+    <div class="ag-fecha-layout">
+      <!-- Calendario -->
+      <div class="ag-cal">
+        <div class="ag-cal__nav">
+          <button (click)="mesAnterior()"><i class="fas fa-chevron-left"></i></button>
+          <span>{{ nombreMes }}</span>
+          <button (click)="mesSiguiente()"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <h2 class="paso-titulo">Confirma tu reserva</h2>
-        <p class="paso-sub">Revisa los detalles antes de confirmar</p>
+        <div class="ag-cal__header">
+          <span *ngFor="let d of ['Do','Lu','Ma','Mi','Ju','Vi','Sá']">{{ d }}</span>
+        </div>
+        <div class="ag-cal__grid">
+          <div *ngFor="let dia of diasCalendario" class="ag-cal__dia"
+            [class.vacio]="!dia.fecha"
+            [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerrado(dia)"
+            [class.cerrado]="dia.fecha && esDiaCerrado(dia)"
+            [class.disponible]="dia.fecha && dia.disponible"
+            [class.seleccionado]="esDiaSeleccionado(dia)"
+            (click)="seleccionarFecha(dia)">
+            {{ dia.fecha?.getDate() }}
+          </div>
+        </div>
       </div>
 
-      <div class="confirmacion-body">
-
-        <div class="confirm-card confirm-card--barbero">
-          <div class="confirm-card__avatar">
-            <img *ngIf="barberoSeleccionado?.foto"
-              [src]="'http://localhost:3000/images/barberos/' + barberoSeleccionado?.foto"
-              [alt]="barberoSeleccionado?.nombre" />
-            <i *ngIf="!barberoSeleccionado?.foto" class="fas fa-user-tie"></i>
-          </div>
-          <div class="confirm-card__info">
-            <span class="confirm-card__label">Tu barbero</span>
-            <span class="confirm-card__valor">{{ barberoSeleccionado?.nombre }} {{ barberoSeleccionado?.apellido
-              }}</span>
-            <span class="confirm-card__sub" *ngIf="barberoSeleccionado?.titulo">{{ barberoSeleccionado?.titulo }}</span>
-          </div>
+      <!-- Slots -->
+      <div class="ag-slots">
+        <div class="ag-slots__empty" *ngIf="!fechaSeleccionada">
+          <i class="fas fa-hand-pointer"></i>
+          <p>Selecciona una fecha</p>
         </div>
-
-        <div class="confirm-datetime">
-          <div class="confirm-datetime__item">
-            <i class="fas fa-calendar"></i>
-            <div>
-              <span class="confirm-datetime__label">Fecha</span>
-              <span class="confirm-datetime__valor">{{ formatearFecha(fechaSeleccionada) }}</span>
-            </div>
-          </div>
-          <div class="confirm-datetime__divider"></div>
-          <div class="confirm-datetime__item">
-            <i class="fas fa-clock"></i>
-            <div>
-              <span class="confirm-datetime__label">Hora inicio</span>
-              <span class="confirm-datetime__valor">{{ formatearHora(horaSeleccionada) }}</span>
-            </div>
-          </div>
-          <div class="confirm-datetime__divider"></div>
-          <div class="confirm-datetime__item">
-            <i class="fas fa-stopwatch"></i>
-            <div>
-              <span class="confirm-datetime__label">Duración</span>
-              <span class="confirm-datetime__valor">{{ duracionTotal }} min</span>
-            </div>
-          </div>
+        <div class="ag-slots__loading" *ngIf="cargandoSlots">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Cargando horarios...</p>
         </div>
-
-        <div class="confirm-servicios">
-          <div class="confirm-servicios__titulo">
-            <i class="fas fa-cut"></i> Servicio seleccionado
-          </div>
-          <div class="confirm-servicios__lista">
-            <div class="confirm-servicio-item" *ngFor="let s of serviciosSeleccionados">
-              <div class="confirm-servicio-item__img">
-                <img *ngIf="s.imagen" [src]="'http://localhost:3000/images/servicios/' + s.imagen"
-                  [alt]="s.nombre_servicio" />
-                <i *ngIf="!s.imagen" class="fas fa-cut"></i>
-              </div>
-              <div class="confirm-servicio-item__info">
-                <span class="confirm-servicio-item__nombre">{{ s.nombre_servicio }}</span>
-                <span class="confirm-servicio-item__duracion"><i class="fas fa-clock"></i> {{ s.duracion }} min</span>
-              </div>
-              <span class="confirm-servicio-item__precio">${{ s.precio | number:'1.0-0' }}</span>
-            </div>
-          </div>
+        <div class="ag-slots__none" *ngIf="!cargandoSlots && fechaSeleccionada && slots.length === 0">
+          <i class="fas fa-ban"></i>
+          <p>Sin horarios disponibles</p>
         </div>
-
-        <div class="confirm-total">
-          <span class="confirm-total__label">Total a pagar</span>
-          <span class="confirm-total__valor">${{ precioTotal | number:'1.0-0' }}</span>
+        <div class="ag-slots__grid" *ngIf="!cargandoSlots && slots.length > 0">
+          <button class="ag-slot"
+            *ngFor="let slot of slots"
+            [class.disponible]="slot.disponible"
+            [class.ocupado]="!slot.disponible"
+            [class.seleccionado]="horaSeleccionada === slot.hora"
+            [disabled]="!slot.disponible"
+            (click)="onSlotClick(slot.hora)">
+            {{ formatearHora(slot.hora) }}
+          </button>
         </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- ═══════════════════════════════════════════════════════════
+       PASO 4 — CONFIRMAR
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="ag-card ag-card--confirm" *ngIf="pasoActual === 'confirmacion'">
+    <div class="ag-card__head">
+      <div class="ag-confirm-icon"><i class="fas fa-calendar-check"></i></div>
+      <h2>Confirma tu cita</h2>
+      <p>Revisa los detalles antes de confirmar</p>
+    </div>
+
+    <div class="ag-confirm-list">
+
+      <!-- Barbero -->
+      <div class="ag-confirm-row ag-confirm-row--barbero">
+        <div class="ag-confirm-barbero-foto">
+          <img *ngIf="barberoSeleccionado?.foto"
+            [src]="'http://localhost:3001/images/barberos/' + barberoSeleccionado?.foto"
+            [alt]="barberoSeleccionado?.nombre" />
+          <i *ngIf="!barberoSeleccionado?.foto" class="fas fa-user-tie"></i>
+        </div>
+        <div class="ag-confirm-barbero-info">
+          <span class="ag-confirm-label">Tu barbero</span>
+          <strong>{{ barberoSeleccionado?.nombre }} {{ barberoSeleccionado?.apellido }}</strong>
+          <span class="ag-confirm-sub" *ngIf="barberoSeleccionado?.titulo">{{ barberoSeleccionado?.titulo }}</span>
+        </div>
+      </div>
+
+      <div class="ag-confirm-divider"></div>
+
+      <!-- Fecha y hora -->
+      <div class="ag-confirm-row">
+        <div class="ag-confirm-icon-sm"><i class="fas fa-calendar-alt"></i></div>
+        <div>
+          <span class="ag-confirm-label">Fecha</span>
+          <strong>{{ formatearFecha(fechaSeleccionada) }}</strong>
+        </div>
+      </div>
+
+      <div class="ag-confirm-row">
+        <div class="ag-confirm-icon-sm"><i class="fas fa-clock"></i></div>
+        <div>
+          <span class="ag-confirm-label">Hora de inicio</span>
+          <strong>{{ formatearHora(horaSeleccionada) }}</strong>
+        </div>
+      </div>
+
+      <div class="ag-confirm-row">
+        <div class="ag-confirm-icon-sm"><i class="fas fa-stopwatch"></i></div>
+        <div>
+          <span class="ag-confirm-label">Duración</span>
+          <strong>{{ duracionTotal }} min</strong>
+        </div>
+      </div>
+
+      <div class="ag-confirm-divider"></div>
+
+      <!-- Servicio -->
+      <div class="ag-confirm-row ag-confirm-row--servicio" *ngFor="let s of serviciosSeleccionados">
+        <div class="ag-confirm-servicio-img">
+          <img *ngIf="s.imagen"
+            [src]="'http://localhost:3001/images/servicios/' + s.imagen"
+            [alt]="s.nombre_servicio" />
+          <i *ngIf="!s.imagen" class="fas fa-cut"></i>
+        </div>
+        <div class="ag-confirm-servicio-info">
+          <span class="ag-confirm-label">Servicio</span>
+          <strong>{{ s.nombre_servicio }}</strong>
+          <span class="ag-confirm-sub"><i class="fas fa-clock"></i> {{ s.duracion }} min</span>
+        </div>
+        <span class="ag-confirm-precio">${{ s.precio | number:'1.0-0' }}</span>
+      </div>
+
+      <div class="ag-confirm-divider"></div>
+
+      <!-- Total -->
+      <div class="ag-confirm-total">
+        <span>Total a pagar</span>
+        <strong>${{ precioTotal | number:'1.0-0' }}</strong>
       </div>
     </div>
 
-    <!-- Navegación -->
-    <div class="agendar-nav">
-      <button class="btn-back" (click)="pasoAnterior()" *ngIf="pasoIndex > 0">
-        <i class="fas fa-arrow-left"></i> Atrás
+    <button class="ag-btn-confirmar" (click)="confirmarReserva()" [disabled]="cargando">
+      <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-check-circle'"></i>
+      {{ cargando ? 'Confirmando...' : 'Confirmar cita' }}
+    </button>
+  </div>
+
+</div>
+
+<!-- ── AUTO-MODAL ─────────────────────────────────────────────── -->
+<div class="am-overlay" *ngIf="autoModal" (click)="cerrarAutoModal()">
+  <div class="am-modal" (click)="$event.stopPropagation()">
+
+    <div class="am-modal__icon">
+      <i class="fas"
+        [ngClass]="autoModalTipo === 'servicio' ? 'fa-cut' :
+                   autoModalTipo === 'barbero'  ? 'fa-user-tie' : 'fa-calendar-check'"></i>
+    </div>
+
+    <div class="am-modal__texto">
+      <h3>{{ autoModalTitulo }}</h3>
+      <p>{{ autoModalSubtitulo }}</p>
+    </div>
+
+    <p class="am-modal__pregunta">¿Continuar al siguiente paso?</p>
+
+    <div class="am-modal__btns">
+      <button class="am-modal__cancel" (click)="cerrarAutoModal()">Cambiar</button>
+      <button class="am-modal__ok" (click)="confirmarAutoModal()">
+        Continuar <i class="fas fa-arrow-right"></i>
       </button>
-      <button class="btn-next" (click)="siguientePaso()" *ngIf="pasoActual !== 'confirmacion'"
-        [disabled]="!puedeAvanzar()">
-        Siguiente <i class="fas fa-arrow-right"></i>
-      </button>
-      <button class="btn-confirmar" (click)="confirmarReserva()" *ngIf="pasoActual === 'confirmacion'"
-        [disabled]="cargando">
-        <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-        {{ cargando ? 'Confirmando...' : 'Confirmar reserva' }}
-      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL PLANES ───────────────────────────────────────────── -->
+<div class="planes-overlay" *ngIf="modalPlanes" (click)="cerrarModalPlanes()"
+  [class.planes-overlay--visible]="mostrarModalPlanes">
+  <div class="modal-planes" (click)="$event.stopPropagation()"
+    [class.modal-planes--visible]="mostrarModalPlanes">
+
+    <button class="planes-close" (click)="cerrarModalPlanes()">✕</button>
+
+    <div class="planes-logo">
+      <span class="planes-logo__icon">✂</span>
+      <div>
+        <span class="planes-logo__nombre">BLENDLAP</span>
+        <span class="planes-logo__sub">NUESTROS SERVICIOS</span>
+      </div>
     </div>
 
-  </ng-container>
+    <div class="planes-header">
+      <h2>Elige tu <span>experiencia</span></h2>
+      <p>Planes diseñados para ti</p>
+    </div>
 
+    <div class="planes-lista">
+      <div class="plan-card plan-card--bronce">
+        <div class="plan-card__vip" style="background:#cd7f32">BRONCE</div>
+        <div class="plan-card__emoji"><i class="fas fa-cut"></i></div>
+        <div class="plan-card__titulo">BRONCE</div>
+        <div class="plan-card__subtitulo">SERVICIO SIMPLE</div>
+        <div class="plan-card__divider"><span></span><i class="fas fa-diamond"></i><span></span></div>
+        <ul class="plan-card__items">
+          <li><i class="fas fa-check-circle"></i> Corte de cabello desvanecido</li>
+        </ul>
+        <p class="plan-card__eslogan">Lo esencial, bien hecho.</p>
+      </div>
+
+      <div class="plan-card plan-card--plata">
+        <div class="plan-card__emoji"><i class="fas fa-spa"></i></div>
+        <div class="plan-card__titulo">PLATA</div>
+        <div class="plan-card__subtitulo">EXPERIENCIA COMPLETA</div>
+        <div class="plan-card__divider"><span></span><i class="fas fa-diamond"></i><span></span></div>
+        <ul class="plan-card__items">
+          <li><i class="fas fa-check-circle"></i> Corte de cabello</li>
+          <li><i class="fas fa-check-circle"></i> Manto facial</li>
+          <li><i class="fas fa-check-circle"></i> Masaje capilar</li>
+          <li><i class="fas fa-check-circle"></i> Masaje ocular</li>
+        </ul>
+        <p class="plan-card__eslogan">Relájate, te lo mereces.</p>
+      </div>
+
+      <div class="plan-card plan-card--oro">
+        <div class="plan-card__vip">VIP</div>
+        <div class="plan-card__emoji"><i class="fas fa-crown"></i></div>
+        <div class="plan-card__titulo">ORO</div>
+        <div class="plan-card__subtitulo">LA EXPERIENCIA VIP</div>
+        <div class="plan-card__divider"><span></span><i class="fas fa-diamond"></i><span></span></div>
+        <ul class="plan-card__items">
+          <li><i class="fas fa-check-circle"></i> Limpieza facial completa</li>
+          <li><i class="fas fa-check-circle"></i> Corte de cabello</li>
+          <li><i class="fas fa-check-circle"></i> Bebida de cortesía</li>
+        </ul>
+        <p class="plan-card__eslogan">Nuestro servicio más completo.<br>Porque tú lo vales.</p>
+      </div>
+    </div>
+
+    <div class="planes-features">
+      <div class="planes-feature"><i class="fas fa-shield-alt"></i><span>Profesionales<br>de confianza</span></div>
+      <div class="planes-feature"><i class="fas fa-leaf"></i><span>Productos<br>premium</span></div>
+      <div class="planes-feature"><i class="fas fa-calendar-check"></i><span>Reserva fácil<br>y rápida</span></div>
+    </div>
+
+    <button class="planes-btn-agendar" (click)="cerrarModalPlanes()">
+      <i class="fas fa-calendar-check"></i> COMENZAR RESERVA
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <p class="planes-footer">Gracias por elegir Blendlap 🖤</p>
+  </div>
 </div>

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { ResenaService, IResena } from '../../../core/services/resena.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { CreditoService, ICredito } from '../../../core/services/credito.service';
 import { Router } from '@angular/router';
+import { TabService } from '../../../core/services/tab.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +17,7 @@ export class DashboardComponent implements OnInit {
   cargando = false;
   error = '';
   usuario: any = null;
-  tabActual: 'actuales' | 'historial' = 'actuales';
+  tabActual: 'actuales' | 'historial' | 'creditos' = 'actuales';
   reservaExpandida: number | null = null;
 
   // Modal resena
@@ -46,13 +48,20 @@ export class DashboardComponent implements OnInit {
     private reservaService: ReservaService,
     private resenaService: ResenaService,
     private authService: AuthService,
-    private router: Router
-  ) {}
+    private creditoService: CreditoService,
+    private tabService: TabService,
+    private router: Router,
+
+  ) { }
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
     this.cargarReservas();
     this.cargarHorarioBarberia();
+    this.cargarCreditos();
+    this.tabService.tab$.subscribe(tab => {
+      this.tabActual = tab as 'actuales' | 'historial' | 'creditos';
+    });
   }
 
   cargarReservas(): void {
@@ -61,6 +70,38 @@ export class DashboardComponent implements OnInit {
       next: (res) => { this.reservas = res.data; this.cargando = false; },
       error: () => { this.error = 'Error al cargar tus reservas'; this.cargando = false; }
     });
+  }
+  /* ver estado de solicitud de credito */
+  creditos: ICredito[] = [];
+  cargandoCreditos = false;
+
+  cargarCreditos(): void {
+    this.cargandoCreditos = true;
+    this.creditoService.getMisCreditos().subscribe({
+      next: (res) => { this.creditos = res.data; this.cargandoCreditos = false; },
+      error: () => { this.cargandoCreditos = false; }
+    });
+  }
+
+  get creditosAprobados(): ICredito[] {
+    return this.creditos.filter(c => c.estado === 'activo');
+  }
+
+  get creditosPendientes(): ICredito[] {
+    return this.creditos.filter(c => c.estado === 'pendiente');
+  }
+
+  formatCurrency(v: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency', currency: 'COP', minimumFractionDigits: 0
+    }).format(v || 0);
+  }
+
+  formatFechaCorta2(fecha: string): string {
+    if (!fecha) return '';
+    const [y, m, d] = fecha.split('T')[0].split('-');
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${parseInt(d)} ${meses[parseInt(m) - 1]} ${y}`;
   }
 
   cargarHorarioBarberia(): void {
@@ -71,7 +112,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get reservasPendientes(): IReserva[] {
-    return this.reservas.filter(r => r.estado === 'pendiente');
+    return this.reservas.filter(r => r.estado === 'pendiente' || r.estado === 'confirmada');
   }
 
   get reservasHistorial(): IReserva[] {
@@ -210,6 +251,16 @@ export class DashboardComponent implements OnInit {
     return reserva.estado === 'completada' && !reserva.tiene_resena;
   }
 
+  estadoCitaLabel(estado: string): string {
+    const labels: Record<string, string> = {
+      pendiente: 'Pendiente',
+      confirmada: 'Confirmada',
+      completada: 'Completada',
+      cancelada: 'Cancelada'
+    };
+    return labels[estado] || estado;
+  }
+
   abrirModalResena(reserva: IReserva): void {
     this.reservaAResenar = reserva;
     this.formularioResena = this.resenaVacia();
@@ -263,15 +314,15 @@ export class DashboardComponent implements OnInit {
   formatFechaCompleta(fecha: string): string {
     if (!fecha) return '';
     const parts = fecha.split('T')[0].split('-');
-    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    return `${parseInt(parts[2])} de ${meses[parseInt(parts[1])-1]} de ${parts[0]}`;
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    return `${parseInt(parts[2])} de ${meses[parseInt(parts[1]) - 1]} de ${parts[0]}`;
   }
 
   formatFechaCorta(fecha: string): string {
     if (!fecha) return '';
     const parts = fecha.split('T')[0].split('-');
-    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    return `${parseInt(parts[2])} ${meses[parseInt(parts[1])-1]}`;
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${parseInt(parts[2])} ${meses[parseInt(parts[1]) - 1]}`;
   }
 
   esHoy(fecha: string): boolean {
@@ -310,28 +361,28 @@ export class DashboardComponent implements OnInit {
     return { id_barbero: 0, id_reserva: 0, calificacion: 0, comentario: '' };
   }
   modalCancelar = false;
-reservaACancelar: IReserva | null = null;
-cancelando = false;
+  reservaACancelar: IReserva | null = null;
+  cancelando = false;
 
-confirmarCancelar(reserva: IReserva): void {
-  this.reservaACancelar = reserva;
-  this.modalCancelar = true;
-}
+  confirmarCancelar(reserva: IReserva): void {
+    this.reservaACancelar = reserva;
+    this.modalCancelar = true;
+  }
 
-ejecutarCancelar(): void {
-  if (!this.reservaACancelar) return;
-  this.cancelando = true;
-  this.reservaService.cancelar(this.reservaACancelar.id_reserva).subscribe({
-    next: () => {
-      this.cancelando = false;
-      this.modalCancelar = false;
-      this.reservaACancelar = null;
-      this.cargarReservas();
-    },
-    error: () => {
-      this.cancelando = false;
-      this.error = 'Error al cancelar la reserva';
-    }
-  });
-}
+  ejecutarCancelar(): void {
+    if (!this.reservaACancelar) return;
+    this.cancelando = true;
+    this.reservaService.cancelar(this.reservaACancelar.id_reserva).subscribe({
+      next: () => {
+        this.cancelando = false;
+        this.modalCancelar = false;
+        this.reservaACancelar = null;
+        this.cargarReservas();
+      },
+      error: () => {
+        this.cancelando = false;
+        this.error = 'Error al cancelar la reserva';
+      }
+    });
+  }
 }

@@ -24,8 +24,16 @@ import { HorarioComponent } from './pages/barbero/horario/horario.component';
 import { BarberoLayoutComponent } from './layouts/barbero-layout/barbero-layout.component';
 import { CreditosComponent } from './pages/admin/creditos/creditos.component';
 import { CarritoComponent } from './pages/public/carrito/carrito.component';
+import { ClienteLayoutComponent } from './layouts/cliente-layout/cliente-layout.component';
+import { HistoriaComponent } from './pages/public/nosotros/historia/historia.component';
+import { RecuperarPasswordComponent } from './pages/public/recuperar-password/recuperar-password.component';
 
 const routes: Routes = [
+  { path: 'nosotros/historia', redirectTo: 'nosotros', pathMatch: 'full' },
+  { path: 'nosotros/mision', redirectTo: 'nosotros', pathMatch: 'full' },
+  { path: 'nosotros/valores', redirectTo: 'nosotros', pathMatch: 'full' },
+  { path: 'nosotros/trabaja', redirectTo: 'nosotros', pathMatch: 'full' },
+
   // Rutas públicas
   {
     path: '',
@@ -34,9 +42,11 @@ const routes: Routes = [
       { path: '', component: HomeComponent }
     ]
   },
+  { path: 'nosotros', component: HistoriaComponent },
   { path: 'agendar', component: AgendarComponent },
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
+  { path: 'recuperar-password', component: RecuperarPasswordComponent },
   { path: 'carrito', component: CarritoComponent },
 
   // Admin
@@ -48,16 +58,16 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'reservas', component: ReservasComponent },
-      { path: 'clientes', component: ClientesComponent },
+      { path: 'reservas',  component: ReservasComponent  },
+      { path: 'clientes',  component: ClientesComponent  },
       { path: 'servicios', component: ServiciosComponent },
       { path: 'productos', component: ProductosComponent },
-      { path: 'ventas', component: VentasComponent },
-      { path: 'turnos', component: TurnosComponent },
-      { path: 'reportes', component: ReportesComponent },
-      { path: 'barberos', component: BarberosComponent },
-      { path: 'gastos', component: GastosComponent },
-      { path: 'creditos', component: CreditosComponent }
+      { path: 'ventas',    component: VentasComponent    },
+      { path: 'turnos',    component: TurnosComponent    },
+      { path: 'reportes',  component: ReportesComponent  },
+      { path: 'barberos',  component: BarberosComponent  },
+      { path: 'gastos',    component: GastosComponent    },
+      { path: 'creditos',  component: CreditosComponent  }
     ]
   },
 
@@ -69,8 +79,8 @@ const routes: Routes = [
     data: { rol: 'barbero' },
     children: [
       { path: '', redirectTo: 'agenda', pathMatch: 'full' },
-      { path: 'agenda', component: AgendaComponent },
-      { path: 'stats', component: StatsComponent },
+      { path: 'agenda',  component: AgendaComponent  },
+      { path: 'stats',   component: StatsComponent   },
       { path: 'horario', component: HorarioComponent },
     ]
   },
@@ -78,11 +88,12 @@ const routes: Routes = [
   // Cliente
   {
     path: 'cliente',
+    component: ClienteLayoutComponent,
     canActivate: [authGuard],
     data: { rol: 'cliente' },
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: ClienteDashboardComponent }
+      { path: 'dashboard', component: ClienteDashboardComponent },
     ]
   },
 
@@ -90,7 +101,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' })],
+  imports: [RouterModule.forRoot(routes, {
+    scrollPositionRestoration: 'enabled',
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

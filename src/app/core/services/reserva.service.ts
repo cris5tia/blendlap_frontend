@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface IBarbero {
@@ -61,7 +62,7 @@ export class ReservaService {
   private urlUsuarios = `${environment.apiUrl}/usuarios`;
   private urlHorarios = `${environment.apiUrl}/horarios`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getBarberos(): Observable<{ ok: boolean; data: IBarbero[] }> {
     return this.http.get<{ ok: boolean; data: IBarbero[] }>(`${this.urlUsuarios}/barberos`);
@@ -78,16 +79,17 @@ export class ReservaService {
   }
 
   getHorarioBarberia(): Observable<{ ok: boolean; data: any[] }> {
-    return this.http.get<{ ok: boolean; data: any[] }>(this.urlHorarios);
+    return this.http.get<{ ok: boolean; data: any[] }>(this.urlHorarios)
+      .pipe(timeout(8000));
   }
 
   getAllAdmin(filtros?: { fecha?: string; id_barbero?: string; estado?: string }): Observable<{ ok: boolean; data: IReserva[] }> {
-  let params: any = {};
-  if (filtros?.fecha) params.fecha = filtros.fecha;
-  if (filtros?.id_barbero) params.id_barbero = filtros.id_barbero;
-  if (filtros?.estado) params.estado = filtros.estado;
-  return this.http.get<{ ok: boolean; data: IReserva[] }>(this.url, { params });
-}
+    let params: any = {};
+    if (filtros?.fecha) params.fecha = filtros.fecha;
+    if (filtros?.id_barbero) params.id_barbero = filtros.id_barbero;
+    if (filtros?.estado) params.estado = filtros.estado;
+    return this.http.get<{ ok: boolean; data: IReserva[] }>(this.url, { params });
+  }
 
   cambiarEstado(id: number, estado: string): Observable<{ ok: boolean }> {
     return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, { estado });
@@ -97,12 +99,13 @@ export class ReservaService {
     return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, { estado: 'cancelada' });
   }
   getMisReservas(): Observable<{ ok: boolean; data: IReserva[] }> {
-  return this.http.get<{ ok: boolean; data: IReserva[] }>(`${this.url}/mis-reservas`);
-}
-actualizar(id: number, data: { fecha: string; hora: string }): Observable<{ ok: boolean }> {
-  return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, data);
-}
-getServicios(): Observable<{ ok: boolean; data: any[] }> {
-  return this.http.get<{ ok: boolean; data: any[] }>(`${environment.apiUrl}/servicios`);
-}
+    return this.http.get<{ ok: boolean; data: IReserva[] }>(`${this.url}/mis-reservas`);
+  }
+  actualizar(id: number, data: { fecha: string; hora: string }): Observable<{ ok: boolean }> {
+    return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, data);
+  }
+  getServicios(): Observable<{ ok: boolean; data: any[] }> {
+    return this.http.get<{ ok: boolean; data: any[] }>(`${environment.apiUrl}/servicios`)
+      .pipe(timeout(8000));
+  }
 }

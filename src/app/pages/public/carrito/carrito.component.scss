@@ -14,7 +14,7 @@ $verde:       #22c55e;
   padding: 6rem 1.5rem 3rem;
 }
 
-// ─── Éxito / Vacío ────────────────────────────────────────
+// ─── Éxito / Vacío ─────────────────────────────────────────
 .carrito-exito,
 .carrito-vacio {
   display: flex;
@@ -26,19 +26,14 @@ $verde:       #22c55e;
 .exito-card,
 .vacio-card {
   background: $white;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 3rem 2.5rem;
   text-align: center;
-  max-width: 480px;
+  max-width: 520px;
   width: 100%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
 
-  i {
-    font-size: 3.5rem;
-    color: $accent;
-    display: block;
-    margin-bottom: 1rem;
-  }
+  i { font-size: 3.5rem; color: $accent; display: block; margin-bottom: 1rem; }
 
   h2 {
     font-family: 'Playfair Display', serif;
@@ -57,15 +52,53 @@ $verde:       #22c55e;
 
 .exito-icon i { color: $verde; }
 
+.exito-pasos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 1.5rem 0 2rem;
+}
+
+.exito-paso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+
+  &__num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: $accent;
+    color: $primary;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800;
+  }
+
+  span {
+    font-size: 0.7rem;
+    color: $gray;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__linea {
+    width: 40px;
+    height: 1.5px;
+    background: rgba(251,196,71,0.3);
+    margin-bottom: 1.2rem;
+  }
+}
+
 .btn-volver {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   background: $primary;
   color: $white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -74,7 +107,7 @@ $verde:       #22c55e;
   &:hover { background: #333; }
 }
 
-// ─── Header ───────────────────────────────────────────────
+// ─── Header ────────────────────────────────────────────────
 .carrito-header {
   display: flex;
   justify-content: space-between;
@@ -88,6 +121,10 @@ $verde:       #22c55e;
     font-weight: 700;
     color: $primary;
     margin: 0 0 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    i { color: $accent; font-size: 1.4rem; }
   }
 
   .carrito-sub { font-size: 0.88rem; color: $gray; margin: 0; }
@@ -110,20 +147,17 @@ $verde:       #22c55e;
   &:hover { border-color: $rojo; color: $rojo; }
 }
 
-// ─── Layout ───────────────────────────────────────────────
+// ─── Layout ────────────────────────────────────────────────
 .carrito-layout {
   display: grid;
   grid-template-columns: 1fr 360px;
   gap: 1.5rem;
   max-width: 1100px;
   margin: 0 auto;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
 }
 
-// ─── Items ────────────────────────────────────────────────
+// ─── Items ─────────────────────────────────────────────────
 .carrito-items {
   display: flex;
   flex-direction: column;
@@ -132,140 +166,117 @@ $verde:       #22c55e;
 
 .carrito-item {
   background: $white;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid transparent;
+  transition: border-color 0.2s;
 
-  @media (max-width: 600px) {
-    flex-wrap: wrap;
-  }
+  &:hover { border-color: rgba(251,196,71,0.3); }
+
+  @media (max-width: 600px) { flex-wrap: wrap; }
 }
 
 .item-img {
-  width: 70px;
-  height: 70px;
-  flex-shrink: 0;
+  width: 72px; height: 72px; flex-shrink: 0;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid $borde;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
+  img { width: 100%; height: 100%; object-fit: cover; }
 }
 
 .item-info {
-  flex: 1;
-  min-width: 0;
+  flex: 1; min-width: 0;
 
   h3 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: $primary;
-    margin: 0 0 0.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.95rem; font-weight: 700; color: $primary;
+    margin: 0 0 0.3rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+}
 
-  .item-desc {
-    font-size: 0.78rem;
-    color: $gray;
-    margin: 0 0 0.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.item-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
 
-  .item-codigo {
-    font-size: 0.7rem;
-    color: $gray;
-    background: $gray-light;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    font-family: monospace;
-  }
+.item-talla {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: darken($accent, 25%);
+  background: rgba(251,196,71,0.12);
+  border: 1px solid rgba(251,196,71,0.35);
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  i { font-size: 0.6rem; }
+}
+
+.item-categoria {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: $gray;
+  background: $gray-light;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.item-desc {
+  font-size: 0.75rem; color: $gray; margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .item-controles {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-
-  .item-cantidad {
-    font-size: 1rem;
-    font-weight: 700;
-    color: $primary;
-    min-width: 24px;
-    text-align: center;
-  }
+  display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+  .item-cantidad { font-size: 1rem; font-weight: 700; color: $primary; min-width: 24px; text-align: center; }
 }
 
 .btn-ctrl {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 1.5px solid $borde;
-  background: $white;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  color: $primary;
-
-  &:hover:not(:disabled) {
-    border-color: $accent;
-    background: #fef9c3;
-  }
-
+  width: 30px; height: 30px;
+  border-radius: 8px; border: 1.5px solid $borde;
+  background: $white; cursor: pointer; font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; color: $primary;
+  &:hover:not(:disabled) { border-color: $accent; background: rgba(251,196,71,0.1); }
   &:disabled { opacity: 0.3; cursor: not-allowed; }
 }
 
 .item-precio {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  flex-shrink: 0;
-  min-width: 100px;
-
-  .precio-unit  { font-size: 0.75rem; color: $gray; }
-  .precio-total { font-size: 1rem; font-weight: 700; color: $primary; }
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 0.15rem; flex-shrink: 0; min-width: 100px;
+  .precio-unit  { font-size: 0.72rem; color: $gray; }
+  .precio-total { font-size: 1rem; font-weight: 800; color: $primary; }
 }
 
 .btn-quitar {
-  background: none;
-  border: none;
-  color: $gray;
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0.3rem;
-  transition: color 0.2s;
-  flex-shrink: 0;
+  background: none; border: none; color: $gray;
+  cursor: pointer; font-size: 0.9rem; padding: 0.3rem;
+  transition: color 0.2s; flex-shrink: 0;
   &:hover { color: $rojo; }
 }
 
-// ─── Resumen ──────────────────────────────────────────────
+// ─── Resumen ───────────────────────────────────────────────
 .carrito-resumen {
   background: $white;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   height: fit-content;
   position: sticky;
   top: 90px;
 
   h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: $primary;
+    font-size: 1.1rem; font-weight: 700; color: $primary;
     margin: 0 0 1.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid $borde;
@@ -273,294 +284,217 @@ $verde:       #22c55e;
 }
 
 .resumen-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;
 }
 
 .resumen-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.82rem;
-  color: $gray;
-  gap: 0.5rem;
+  display: flex; justify-content: space-between;
+  font-size: 0.82rem; color: $gray; gap: 0.5rem;
+
+  em { font-style: normal; color: darken($accent, 20%); font-weight: 600; }
 
   span:first-child {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
   }
 }
 
 .resumen-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex; justify-content: space-between; align-items: center;
   padding: 0.85rem 0;
   border-top: 2px solid $primary;
   border-bottom: 1px solid $borde;
   margin-bottom: 1.25rem;
-
   span  { font-size: 0.95rem; font-weight: 600; color: $primary; }
-  strong { font-size: 1.2rem; font-weight: 800; color: $primary; }
+  strong { font-size: 1.25rem; font-weight: 800; color: $primary; }
 }
 
-// ─── Plazos ───────────────────────────────────────────────
+// ─── Plazos ────────────────────────────────────────────────
 .resumen-plazo {
   margin-bottom: 1.25rem;
-
   label {
-    display: block;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: $gray;
-    margin-bottom: 0.6rem;
+    display: block; font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: $gray; margin-bottom: 0.6rem;
   }
 }
 
 .plazos-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
 }
 
 .btn-plazo {
   padding: 0.6rem 0.5rem;
   border: 2px solid $borde;
-  border-radius: 8px;
+  border-radius: 10px;
   background: $white;
-  cursor: pointer;
-  text-align: center;
+  cursor: pointer; text-align: center;
   transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  display: flex; flex-direction: column; gap: 0.15rem;
   font-family: 'Montserrat', sans-serif;
 
-  .plazo-label {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: $primary;
-    display: block;
-  }
-
-  .plazo-desc {
-    font-size: 0.68rem;
-    color: $gray;
-    display: block;
-  }
+  .plazo-label { font-size: 0.82rem; font-weight: 700; color: $primary; display: block; }
+  .plazo-desc  { font-size: 0.65rem; color: $gray; display: block; }
 
   &:hover { border-color: $accent; }
 
   &.plazo-activo {
     border-color: $accent;
-    background: #fef9c3;
-    .plazo-label { color: darken($accent, 20%); }
+    background: rgba(251,196,71,0.08);
+    .plazo-label { color: darken($accent, 22%); }
   }
 }
 
-// ─── Nota ─────────────────────────────────────────────────
+// ─── Nota ──────────────────────────────────────────────────
 .resumen-nota {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  color: $gray;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
-  background: $gray-light;
-  padding: 0.75rem;
-  border-radius: 8px;
+  display: flex; gap: 0.75rem; margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, rgba(251,196,71,0.08) 0%, rgba(251,196,71,0.03) 100%);
+  border: 1px solid rgba(251,196,71,0.25);
+  padding: 1rem; border-radius: 12px;
 
-  i { color: $accent; flex-shrink: 0; margin-top: 0.15rem; }
+  .nota-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(251,196,71,0.15);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    i { color: $accent; font-size: 1rem; }
+  }
+
+  .nota-texto {
+    flex: 1;
+    strong { display: block; font-size: 0.82rem; font-weight: 700; color: $primary; margin-bottom: 0.25rem; }
+    p { font-size: 0.75rem; color: $gray; line-height: 1.5; margin: 0; }
+  }
 }
 
-// ─── Botón solicitar ──────────────────────────────────────
+// ─── Botón solicitar ───────────────────────────────────────
 .btn-solicitar {
-  width: 100%;
-  padding: 0.85rem;
-  background: $accent;
-  color: $primary;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 700;
+  width: 100%; padding: 0.9rem;
+  background: $accent; color: $primary;
+  border: none; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 700;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  transition: all 0.2s;
   font-family: 'Montserrat', sans-serif;
-
-  &:hover { background: $accent-soft; }
+  &:hover { background: $accent-soft; transform: translateY(-1px); }
 }
 
-// ─── Alertas ──────────────────────────────────────────────
+// ─── Alertas ───────────────────────────────────────────────
 .alerta-error {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: flex; align-items: center; gap: 0.5rem;
   padding: 0.7rem 0.9rem;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  color: #991b1b;
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+  background: #fee2e2; border: 1px solid #fecaca;
+  border-radius: 8px; color: #991b1b;
+  font-size: 0.82rem; margin-bottom: 1rem;
 }
 
-// ─── Modal confirmar ──────────────────────────────────────
+// ─── Modal confirmar ───────────────────────────────────────
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-  padding: 1rem;
-  backdrop-filter: blur(3px);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1100; padding: 1rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-confirm {
   background: $white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 460px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  border-radius: 20px;
+  width: 100%; max-width: 480px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
   overflow: hidden;
 
   &__header {
     background: $primary;
     padding: 1.25rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; align-items: center; gap: 1rem;
 
-    h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: $white;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    button {
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: $white;
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      &:hover { background: rgba(255,255,255,0.3); }
-    }
+    h2 { font-size: 1rem; font-weight: 700; color: $white; margin: 0; }
+    p  { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0; }
   }
 
-  &__body {
-    padding: 1.5rem;
-
-    p { font-size: 0.9rem; color: $primary; margin-bottom: 1rem; }
+  &__icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: rgba(251,196,71,0.2);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    i { color: $accent; font-size: 1rem; }
   }
+
+  &__close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1); border: none;
+    color: $white; width: 30px; height: 30px;
+    border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    &:hover { background: rgba(255,255,255,0.25); }
+  }
+
+  &__body { padding: 1.5rem; }
 
   &__footer {
     padding: 1rem 1.5rem;
     border-top: 1px solid $borde;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
+    display: flex; justify-content: flex-end; gap: 0.75rem;
   }
 }
 
 .confirm-resumen {
-  background: $gray-light;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  background: $gray-light; border-radius: 12px;
+  padding: 1rem; margin-bottom: 1rem;
 }
 
 .confirm-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: $primary;
-  padding: 0.3rem 0;
-  border-bottom: 1px solid $borde;
-
+  display: flex; justify-content: space-between;
+  font-size: 0.85rem; color: $primary;
+  padding: 0.35rem 0; border-bottom: 1px solid $borde;
   &:last-of-type { border-bottom: none; }
 }
 
+.confirm-talla {
+  font-size: 0.78rem; font-weight: 600;
+  color: darken($accent, 22%);
+}
+
 .confirm-total {
-  display: flex;
-  justify-content: space-between;
+  display: flex; justify-content: space-between;
   padding: 0.6rem 0 0.3rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: $primary;
-  border-top: 2px solid $primary;
-  margin-top: 0.5rem;
+  font-size: 0.95rem; font-weight: 700; color: $primary;
+  border-top: 2px solid $primary; margin-top: 0.5rem;
 }
 
 .confirm-plazo {
-  font-size: 0.82rem;
-  color: $gray;
+  font-size: 0.82rem; color: $gray;
   padding-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  display: flex; align-items: center; gap: 0.4rem;
   i { color: $accent; }
 }
 
 .confirm-nota {
-  font-size: 0.8rem;
-  color: $gray;
-  background: $gray-light;
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  i { color: $accent; margin-top: 0.1rem; }
+  font-size: 0.8rem; color: $gray;
+  background: $gray-light; padding: 0.75rem 1rem;
+  border-radius: 10px; margin-bottom: 0;
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  line-height: 1.5;
+  i { color: $accent; margin-top: 0.1rem; flex-shrink: 0; }
 }
 
 .btn-cancel {
-  padding: 0.6rem 1.2rem;
-  background: $gray-light;
-  border: 1.5px solid $borde;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: $gray;
-  transition: all 0.2s;
+  padding: 0.65rem 1.25rem;
+  background: $gray-light; border: 1.5px solid $borde;
+  border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; color: $gray; transition: all 0.2s;
   font-family: 'Montserrat', sans-serif;
-  &:hover { background: darken($gray-light, 5%); }
+  &:hover { background: darken($gray-light, 4%); }
 }
 
 .btn-confirmar {
-  padding: 0.6rem 1.4rem;
-  background: $accent;
-  color: $primary;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 700;
+  padding: 0.65rem 1.5rem;
+  background: $accent; color: $primary;
+  border: none; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 700;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s;
+  display: flex; align-items: center; gap: 0.5rem;
+  transition: all 0.2s;
   font-family: 'Montserrat', sans-serif;
-  &:hover:not(:disabled) { background: $accent-soft; }
+  &:hover:not(:disabled) { background: $accent-soft; transform: translateY(-1px); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }

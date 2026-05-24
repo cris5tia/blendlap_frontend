@@ -16,8 +16,9 @@ export interface IStatsBarbero {
   topServicio: string;
   experiencia: number;
   comision: number;
-  ultimos6Meses: { mes: string; citas: number; ingresos: number }[];
+  topClientes: { nombre_cliente: string; citas: number; ingresos: number }[];
   distribucionServicios: { nombre_servicio: string; total: number }[];
+  citasPorDiaMes: { dia: number; citas: number; ingresos: number }[];
 }
 
 @Injectable({ providedIn: 'root' })

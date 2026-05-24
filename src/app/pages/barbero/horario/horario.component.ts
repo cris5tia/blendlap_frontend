@@ -19,6 +19,8 @@ export class HorarioComponent implements OnInit {
   guardando = false;
   errorForm = '';
 
+  readonly diaHoy = new Date().getDay();
+
   nuevaExcepcion = {
     dia_semana: 1,
     hora_inicio: '',
@@ -27,13 +29,13 @@ export class HorarioComponent implements OnInit {
   };
 
   diasSemana = [
-    { id: 0, nombre: 'Domingo' },
-    { id: 1, nombre: 'Lunes' },
-    { id: 2, nombre: 'Martes' },
-    { id: 3, nombre: 'Miercoles' },
-    { id: 4, nombre: 'Jueves' },
-    { id: 5, nombre: 'Viernes' },
-    { id: 6, nombre: 'Sabado' }
+    { id: 0, nombre: 'Domingo',   abrev: 'Dom' },
+    { id: 1, nombre: 'Lunes',     abrev: 'Lun' },
+    { id: 2, nombre: 'Martes',    abrev: 'Mar' },
+    { id: 3, nombre: 'Miércoles', abrev: 'Mié' },
+    { id: 4, nombre: 'Jueves',    abrev: 'Jue' },
+    { id: 5, nombre: 'Viernes',   abrev: 'Vie' },
+    { id: 6, nombre: 'Sábado',    abrev: 'Sáb' }
   ];
 
   constructor(
@@ -65,8 +67,29 @@ export class HorarioComponent implements OnInit {
     });
   }
 
+  get diasActivos(): number {
+    return this.horarioBarberia.filter(d => d.activo).length;
+  }
+
+  get horasPorSemana(): number {
+    return this.horarioBarberia.reduce((acc, d) => {
+      if (!d.activo || !d.hora_inicio || !d.hora_fin) return acc;
+      const [hh1, mm1] = d.hora_inicio.split(':').map(Number);
+      const [hh2, mm2] = d.hora_fin.split(':').map(Number);
+      return acc + ((hh2 * 60 + mm2) - (hh1 * 60 + mm1)) / 60;
+    }, 0);
+  }
+
+  get horaDiaHoy(): IHorarioDia | undefined {
+    return this.horarioBarberia.find(d => d.dia_semana === this.diaHoy);
+  }
+
   getNombreDia(dia: number): string {
     return this.diasSemana.find(d => d.id === dia)?.nombre || '';
+  }
+
+  getAbrevDia(dia: number): string {
+    return this.diasSemana.find(d => d.id === dia)?.abrev || '';
   }
 
   formatHora(hora: string): string {
@@ -74,7 +97,17 @@ export class HorarioComponent implements OnInit {
     const [hh, mm] = hora.split(':').map(Number);
     const p = hh >= 12 ? 'PM' : 'AM';
     const h12 = hh % 12 || 12;
-    return `${h12}:${String(mm).padStart(2,'0')} ${p}`;
+    return `${h12}:${String(mm).padStart(2, '0')} ${p}`;
+  }
+
+  duracionHoras(inicio: string, fin: string): string {
+    if (!inicio || !fin) return '';
+    const [hh1, mm1] = inicio.split(':').map(Number);
+    const [hh2, mm2] = fin.split(':').map(Number);
+    const mins = (hh2 * 60 + mm2) - (hh1 * 60 + mm1);
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
   }
 
   abrirModalAgregar(): void {

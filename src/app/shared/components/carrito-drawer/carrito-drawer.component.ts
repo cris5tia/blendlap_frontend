@@ -20,13 +20,13 @@ export class CarritoDrawerComponent implements OnInit {
   plazoSeleccionado = '1_quincena';
 
   plazos = [
-    { id: '1_semana',    label: '1 Semana',    desc: '7 días'  },
-    { id: '1_quincena',  label: '1 Quincena',  desc: '15 días' },
-    { id: '2_quincenas', label: '2 Quincenas', desc: '30 días' },
-    { id: '1_mes',       label: '1 Mes',       desc: '1 mes'   }
+    { id: '1_semana',    label: '1 Sem',    desc: '7 días'  },
+    { id: '1_quincena',  label: '1 Quinc',  desc: '15 días' },
+    { id: '2_quincenas', label: '2 Quinc',  desc: '30 días' },
+    { id: '1_mes',       label: '1 Mes',    desc: '1 mes'   }
   ];
 
-  imagenUrl = 'http://localhost:3000/images/productos/';
+  imagenUrl = 'http://localhost:3001/images/productos/';
 
   constructor(
     private carritoService: CarritoService,
@@ -36,9 +36,7 @@ export class CarritoDrawerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.carritoService.modal$.subscribe(v => {
-      this.abierto = v;
-    });
+    this.carritoService.modal$.subscribe(v => this.abierto = v);
     this.carritoService.items$.subscribe(items => this.items = items);
   }
 
@@ -62,10 +60,6 @@ export class CarritoDrawerComponent implements OnInit {
     return imagen ? `${this.imagenUrl}${imagen}` : 'assets/images/no-img.png';
   }
 
-  plazoLabel(id: string): string {
-    return this.plazos.find(p => p.id === id)?.label || id;
-  }
-
   formatCurrency(v: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency', currency: 'COP', minimumFractionDigits: 0
@@ -79,7 +73,6 @@ export class CarritoDrawerComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-
     if (!this.items.length) return;
     this.enviando = true;
     this.error    = '';
@@ -89,6 +82,7 @@ export class CarritoDrawerComponent implements OnInit {
       productos: this.items.map(i => ({
         id_producto:     i.producto.id_producto,
         cantidad:        i.cantidad,
+        talla:           i.talla || null,
         precio_unitario: Number(i.producto.precio),
         subtotal:        Number(i.producto.precio) * i.cantidad
       }))
@@ -102,7 +96,7 @@ export class CarritoDrawerComponent implements OnInit {
         setTimeout(() => {
           this.exito = false;
           this.cerrar();
-        }, 3000);
+        }, 3500);
       },
       error: (err: any) => {
         this.error    = err.error?.mensaje || 'Error al enviar la solicitud';

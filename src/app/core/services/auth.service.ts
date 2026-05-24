@@ -22,7 +22,7 @@ export interface ILoginResponse {
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = 'http://localhost:3001/api/auth';
   private usuarioSubject = new BehaviorSubject<IUsuario | null>(null);
   usuario$ = this.usuarioSubject.asObservable();
 
@@ -92,6 +92,20 @@ export class AuthService {
   getRol(): string | null {
     return this.getUsuario()?.rol || null;
   }
+  solicitarRecuperacion(correo_electronico: string): Observable<{ ok: boolean; mensaje: string }> {
+    return this.http.post<{ ok: boolean; mensaje: string }>(
+      `${this.apiUrl}/solicitar-recuperacion`,
+      { correo_electronico }
+    );
+  }
+
+  resetearPassword(correo_electronico: string, codigo: string, nueva_contrasena: string): Observable<{ ok: boolean; mensaje: string }> {
+    return this.http.post<{ ok: boolean; mensaje: string }>(
+      `${this.apiUrl}/resetear-password`,
+      { correo_electronico, codigo, nueva_contrasena }
+    );
+  }
+
   // Google Login
 loginConGoogle(token: string): Observable<ILoginResponse> {
   return this.http.post<ILoginResponse>(`${this.apiUrl}/google`, { token }).pipe(

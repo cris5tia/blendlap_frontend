@@ -1,12 +1,15 @@
-<footer class="footer">
+<footer class="footer" id="footer">
 
   <div class="footer__top">
     <div class="container footer__top-content">
       <div class="footer__cta">
-        <h3>¿Listo para un nuevo look?</h3>
+        <h3>&iquest;Listo para un nuevo look?</h3>
         <p>Agenda tu cita ahora y vive la experiencia Blendlap</p>
       </div>
       <a routerLink="/agendar" class="btn-reservar">RESERVAR AHORA</a>
+    </div>
+    <div class="footer__top-img-bg">
+      <img src="assets/images/galeria/Galeria.jpg" alt="" />
     </div>
   </div>
 
@@ -16,10 +19,10 @@
       <div class="footer__col footer__col--brand">
         <div class="footer__logo">
           <span class="footer__logo-nombre">BLENDLAP</span>
-          <span class="footer__logo-sub">B A R B E R Í A</span>
+          <span class="footer__logo-sub">B A R B E R &Iacute; A</span>
         </div>
         <p class="footer__descripcion">
-          Más que un corte, una experiencia.<br>Barbería premium en el corazón de Armenia, Quindío.
+          M&aacute;s que un corte, una experiencia.<br>Barber&iacute;a premium en el coraz&oacute;n de Armenia, Quind&iacute;o.
         </p>
         <div class="footer__redes">
           <a href="https://www.instagram.com/blendlap/" target="_blank" class="red-icon instagram" aria-label="Instagram">
@@ -34,39 +37,22 @@
         </div>
       </div>
 
-      <!-- Desktop: Nosotros | Móvil: oculto -->
-      <div class="footer__col footer__col--nosotros">
-        <h4 class="footer__col-title">Nosotros</h4>
-        <ul class="footer__links">
-          <li><a href="#">Nuestra historia</a></li>
-          <li><a href="#">Misión y visión</a></li>
-          <li><a href="#">Nuestro equipo</a></li>
-          <li><a href="#">Valores</a></li>
-          <li><a href="#">Trabaja con nosotros</a></li>
-          <li><a href="#">Blog</a></li>
-        </ul>
-      </div>
-
-      <!-- Desktop: Legal | Móvil: oculto -->
       <div class="footer__col footer__col--legal">
         <h4 class="footer__col-title">Legal</h4>
         <ul class="footer__links">
-          <li><a href="#">Términos y condiciones</a></li>
-          <li><a href="#">Política de privacidad</a></li>
-          <li><a href="#">Política de cookies</a></li>
-          <li><a href="#">Tratamiento de datos</a></li>
-          <li><a href="#">Aviso legal</a></li>
-          <li><a href="#">Derechos del usuario</a></li>
+          <li><a routerLink="/legal/terminos">T&eacute;rminos y condiciones</a></li>
+          <li><a routerLink="/legal/privacidad">Pol&iacute;tica de privacidad</a></li>
+          <li><a routerLink="/legal/datos">Tratamiento de datos</a></li>
+          <li><a routerLink="/legal/derechos">Derechos del usuario</a></li>
         </ul>
       </div>
 
-      <!-- Contacto: siempre visible -->
       <div class="footer__col footer__col--contacto">
         <h4 class="footer__col-title">Contacto</h4>
         <ul class="footer__contacto">
           <li>
             <i class="fas fa-map-marker-alt"></i>
-            <span>Cl. 48 # 19-55, Armenia, Quindío</span>
+            <span>Cl. 48 # 19-55, Armenia, Quind&iacute;o</span>
           </li>
           <li>
             <i class="fas fa-clock"></i>
@@ -85,14 +71,14 @@
 
     </div>
 
-    <!-- Móvil: fila extra con Nosotros y Contacto -->
     <div class="container footer__grid-movil">
       <div class="footer__col">
-        <h4 class="footer__col-title">Nosotros</h4>
+        <h4 class="footer__col-title">Legal</h4>
         <ul class="footer__links">
-          <li><a href="#">Nuestra historia</a></li>
-          <li><a href="#">Nuestro equipo</a></li>
-          <li><a href="#">Trabaja con nosotros</a></li>
+          <li><a routerLink="/legal/terminos">T&eacute;rminos y condiciones</a></li>
+          <li><a routerLink="/legal/privacidad">Pol&iacute;tica de privacidad</a></li>
+          <li><a routerLink="/legal/datos">Tratamiento de datos</a></li>
+          <li><a routerLink="/legal/derechos">Derechos del usuario</a></li>
         </ul>
       </div>
       <div class="footer__col">
@@ -114,7 +100,7 @@
 
   <div class="footer__bottom">
     <div class="container footer__bottom-content">
-      <p>© {{ anio }} <strong>Blendlap Barbería</strong>. Todos los derechos reservados.</p>
+      <p>&copy; {{ anio }} <strong>Blendlap Barber&iacute;a</strong>. Todos los derechos reservados.</p>
     </div>
   </div>
 

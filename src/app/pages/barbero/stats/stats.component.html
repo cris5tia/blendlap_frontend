@@ -1,121 +1,145 @@
 <div class="stats-wrapper">
 
-    <div class="alert-error" *ngIf="error">
-        <i class="fas fa-exclamation-circle"></i> {{ error }}
+  <div class="alert-error" *ngIf="error">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <div class="st-cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando estadísticas...
+  </div>
+
+  <ng-container *ngIf="!cargando && stats">
+
+    <!-- HEADER -->
+    <div class="st-header">
+      <div class="st-header__left">
+        <span class="st-header__tag">Tus estadísticas</span>
+        <h1 class="st-header__nombre">{{ usuario?.nombre }} {{ usuario?.apellido }}</h1>
+        <span class="st-header__titulo">{{ stats.experiencia }} años de experiencia</span>
+      </div>
+      <div class="st-header__rating" *ngIf="+stats.promedio_estrellas > 0">
+        <i class="fas fa-star"></i>
+        <strong>{{ stats.promedio_estrellas }}</strong>
+        <span>/ 5 · {{ stats.total_resenas }} reseñas</span>
+      </div>
     </div>
 
-    <div class="cargando" *ngIf="cargando">
-        <i class="fas fa-spinner fa-spin"></i> Cargando estadisticas...
+    <!-- KPIs — todos blancos -->
+    <div class="kpis-grid">
+
+      <div class="kpi">
+        <div class="kpi__icon kpi__icon--gold"><i class="fas fa-calendar-check"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Citas este mes</span>
+          <span class="kpi__valor">{{ stats.citasMes }}</span>
+          <span class="kpi__sub">{{ stats.cancelacionesMes }} canceladas</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-dollar-sign"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Ingresos mes</span>
+          <span class="kpi__valor kpi__valor--md">{{ formatPeso(stats.ingresosMes) }}</span>
+          <span class="kpi__sub">generados</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Comisión</span>
+          <span class="kpi__valor kpi__valor--md">{{ formatPeso(stats.comisionMes) }}</span>
+          <span class="kpi__sub">{{ stats.comision }}% acordado</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-users"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Clientes atendidos</span>
+          <span class="kpi__valor">{{ stats.clientesAtendidos }}</span>
+          <span class="kpi__sub">{{ stats.clientesRecurrentes }} recurrentes</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi__icon"><i class="fas fa-cut"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Total histórico</span>
+          <span class="kpi__valor">{{ stats.citasTotal }}</span>
+          <span class="kpi__sub">cortes realizados</span>
+        </div>
+      </div>
+
+      <div class="kpi kpi--accent">
+        <div class="kpi__icon kpi__icon--fire"><i class="fas fa-fire"></i></div>
+        <div class="kpi__content">
+          <span class="kpi__label">Más solicitado</span>
+          <span class="kpi__servicio">{{ stats.topServicio }}</span>
+          <span class="kpi__sub">servicio estrella</span>
+        </div>
+      </div>
+
     </div>
 
-    <ng-container *ngIf="!cargando && stats">
-
-        <!-- KPIs principales -->
-        <div class="kpis-grid">
-            <div class="kpi-card kpi-card--accent">
-                <div class="kpi-card__icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Citas este mes</span>
-                    <span class="kpi-card__valor">{{ stats.citasMes }}</span>
-                    <span class="kpi-card__sub">{{ stats.cancelacionesMes }} canceladas</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-card__icon"><i class="fas fa-dollar-sign"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Ingresos este mes</span>
-                    <span class="kpi-card__valor">{{ formatPeso(stats.ingresosMes) }}</span>
-                    <span class="kpi-card__sub">generados</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-card__icon"><i class="fas fa-hand-holding-usd"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Comision este mes</span>
-                    <span class="kpi-card__valor">{{ formatPeso(stats.comisionMes) }}</span>
-                    <span class="kpi-card__sub">{{ stats.comision }}% de comision</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-card__icon"><i class="fas fa-star"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Calificacion</span>
-                    <span class="kpi-card__valor">{{ stats.promedio_estrellas }}</span>
-                    <span class="kpi-card__sub">{{ stats.total_resenas }} resenas</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-card__icon"><i class="fas fa-users"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Clientes atendidos</span>
-                    <span class="kpi-card__valor">{{ stats.clientesAtendidos }}</span>
-                    <span class="kpi-card__sub">{{ stats.clientesRecurrentes }} recurrentes</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-card__icon"><i class="fas fa-cut"></i></div>
-                <div class="kpi-card__info">
-                    <span class="kpi-card__label">Total cortes</span>
-                    <span class="kpi-card__valor">{{ stats.citasTotal }}</span>
-                    <span class="kpi-card__sub">historico</span>
-                </div>
-            </div>
+    <!-- GRÁFICA DIARIA — este mes -->
+    <div class="chart-card">
+      <div class="chart-card__head">
+        <div class="chart-card__title">
+          <i class="fas fa-chart-line"></i>
+          <span>Actividad diaria</span>
         </div>
+        <span class="chart-badge">{{ mesActualLabel }}</span>
+      </div>
+      <div class="chart-card__body chart-card__body--lg" *ngIf="stats.citasPorDiaMes && stats.citasPorDiaMes.length > 0">
+        <canvas #chartDiario></canvas>
+      </div>
+      <div class="chart-empty" *ngIf="!stats.citasPorDiaMes || stats.citasPorDiaMes.length === 0">
+        <i class="fas fa-calendar-times"></i>
+        <p>Sin actividad completada este mes</p>
+      </div>
+    </div>
 
-        <!-- Info extra -->
-        <div class="info-cards">
-            <div class="info-card">
-                <i class="fas fa-fire"></i>
-                <div>
-                    <span class="info-card__label">Servicio mas solicitado</span>
-                    <span class="info-card__valor">{{ stats.topServicio }}</span>
-                </div>
-            </div>
-            <div class="info-card">
-                <i class="fas fa-medal"></i>
-                <div>
-                    <span class="info-card__label">Años de experiencia</span>
-                    <span class="info-card__valor">{{ stats.experiencia }} años</span>
-                </div>
-            </div>
+    <!-- FILA: top clientes + distribución servicios mes -->
+    <div class="charts-row">
+
+      <div class="chart-card">
+        <div class="chart-card__head">
+          <div class="chart-card__title">
+            <i class="fas fa-trophy"></i>
+            <span>Top clientes</span>
+          </div>
+          <span class="chart-badge">histórico</span>
         </div>
-
-        <!-- Graficas -->
-        <div class="graficas-grid">
-
-            <div class="grafica-card">
-                <div class="grafica-card__titulo">
-                    <i class="fas fa-chart-bar"></i> Citas e ingresos — ultimos 6 meses
-                </div>
-                <div class="grafica-card__body" *ngIf="stats.ultimos6Meses.length > 0">
-                    <canvas #chartBarras></canvas>
-                </div>
-                <div class="grafica-empty" *ngIf="stats.ultimos6Meses.length === 0">
-                    <i class="fas fa-chart-bar"></i>
-                    <p>Sin datos suficientes</p>
-                </div>
-            </div>
-
-            <div class="grafica-card">
-                <div class="grafica-card__titulo">
-                    <i class="fas fa-chart-pie"></i> Distribucion de servicios
-                </div>
-                <div class="grafica-card__body grafica-card__body--pie" *ngIf="stats.distribucionServicios.length > 0">
-                    <canvas #chartPie></canvas>
-                </div>
-                <div class="grafica-empty" *ngIf="stats.distribucionServicios.length === 0">
-                    <i class="fas fa-chart-pie"></i>
-                    <p>Sin datos suficientes</p>
-                </div>
-            </div>
-
+        <div class="chart-card__body" *ngIf="stats.topClientes && stats.topClientes.length > 0">
+          <canvas #chartClientes></canvas>
         </div>
+        <div class="chart-empty" *ngIf="!stats.topClientes || stats.topClientes.length === 0">
+          <i class="fas fa-users"></i>
+          <p>Sin clientes registrados</p>
+        </div>
+      </div>
 
-    </ng-container>
+      <div class="chart-card">
+        <div class="chart-card__head">
+          <div class="chart-card__title">
+            <i class="fas fa-chart-pie"></i>
+            <span>Servicios</span>
+          </div>
+          <span class="chart-badge">{{ mesActualLabel }}</span>
+        </div>
+        <div class="chart-card__body chart-card__body--pie" *ngIf="stats.distribucionServicios.length > 0">
+          <canvas #chartPie></canvas>
+        </div>
+        <div class="chart-empty" *ngIf="stats.distribucionServicios.length === 0">
+          <i class="fas fa-chart-pie"></i>
+          <p>Sin datos este mes</p>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
 
 </div>

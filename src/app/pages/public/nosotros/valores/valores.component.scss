@@ -1,0 +1,132 @@
+$primary: #1a1a1a;
+$accent: #FBC447;
+$white: #ffffff;
+$bg: #f8f9fa;
+
+.valores-page {
+  min-height: 100vh;
+  background: $bg;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.valores-hero {
+  position: relative;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: url('../../../../../assets/images/galeria/Galeria11.jpg') center/cover no-repeat;
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.78));
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    padding: 0 1.25rem;
+
+    span {
+      display: block;
+      margin-bottom: 0.8rem;
+      color: $accent;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      margin: 0 0 0.75rem;
+      color: $white;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+      strong { color: $accent; }
+    }
+
+    p {
+      margin: 0;
+      color: rgba(255,255,255,0.68);
+      font-size: 0.92rem;
+    }
+  }
+}
+
+.valores-back {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.55);
+  color: $white;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+
+  i { color: $accent; }
+}
+
+.valores-grid {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 4rem 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.valor-card {
+  min-height: 210px;
+  padding: 1.6rem;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  background: $white;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+
+  i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background: rgba(251,196,71,0.14);
+    color: $accent;
+    font-size: 1rem;
+  }
+
+  h2 {
+    margin: 0 0 0.7rem;
+    color: $primary;
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+}
+
+@media (max-width: 900px) {
+  .valores-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .valores-hero { height: 330px; }
+  .valores-grid {
+    grid-template-columns: 1fr;
+    padding: 3rem 0;
+  }
+}

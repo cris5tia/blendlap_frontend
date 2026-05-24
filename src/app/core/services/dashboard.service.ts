@@ -13,4 +13,12 @@ export class DashboardService {
   getResumenAdmin(): Observable<any> {
     return this.http.get(`${this.url}/admin`);
   }
+
+  getSparklines(): Observable<any> {
+    return this.http.get(`${this.url}/sparklines`);
+  }
+
+  getAgendaHoy(): Observable<any> {
+    return this.http.get(`${this.url}/agenda-hoy`);
+  }
 }

@@ -3,7 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BarberoAgendaService, ICitaBarbero } from '../../../core/services/barbero-agenda.service';
 import { ReservaService } from '../../../core/services/reserva.service';
-import { interval, Subscription } from 'rxjs';
+import { timer, Subject, forkJoin } from 'rxjs';
+import { exhaustMap, takeUntil, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-agenda',
@@ -15,11 +16,16 @@ export class AgendaComponent implements OnInit, OnDestroy {
   usuario: any = null;
   citasHoy: ICitaBarbero[] = [];
   proximas: ICitaBarbero[] = [];
-  cargando = false;
+  cargando = true;
   error = '';
   horaActual: Date = new Date();
   horarioBarberia: any[] = [];
   navActual: 'agenda' | 'proximas' = 'agenda';
+
+  readonly PX_POR_MINUTO = 2.0;
+  horasTimeline: number[] = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  alturaTimeline = this.horasTimeline.length * 60 * this.PX_POR_MINUTO;
+  marcasMinutos: { top: number; label: string; esPrincipal: boolean }[] = [];
 
   modalCita = false;
   citaSeleccionada: ICitaBarbero | null = null;
@@ -40,7 +46,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
   presencialDiasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
   presencialHoy: Date = new Date();
 
-  private timerSub!: Subscription;
+  private destroy$ = new Subject<void>();
+  private clockInterval: any;
 
   constructor(
     private authService: AuthService,
@@ -52,49 +59,66 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
-    this.cargarDatos();
     this.cargarServicios();
     this.cargarHorarioBarberia();
+    this.recalcularTimeline();
 
-    this.route.queryParams.subscribe((params: any) => {
+    timer(0, 30000).pipe(
+      exhaustMap(() => forkJoin({
+        hoy: this.agendaService.getCitasHoy(),
+        proximas: this.agendaService.getProximas()
+      })),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: ({ hoy, proximas }) => {
+        this.citasHoy = hoy.data;
+        this.proximas = proximas.data;
+        this.recalcularTimeline();
+        this.cargando = false;
+      },
+      error: () => { this.error = 'Error al cargar agenda'; this.cargando = false; }
+    });
+
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: any) => {
       if (params['agendar'] === 'true') {
         setTimeout(() => this.abrirModalPresencial(), 300);
       }
     });
 
-    this.timerSub = interval(30000).subscribe(() => {
-      this.horaActual = new Date();
-      this.cargarDatos();
-    });
-
-    setInterval(() => this.horaActual = new Date(), 1000);
+    this.clockInterval = setInterval(() => this.horaActual = new Date(), 1000);
   }
 
   ngOnDestroy(): void {
-    this.timerSub?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
+    clearInterval(this.clockInterval);
   }
 
   cargarDatos(): void {
     this.cargando = true;
-    this.agendaService.getCitasHoy().subscribe({
-      next: (res) => { this.citasHoy = res.data; this.cargando = false; },
+    forkJoin({
+      hoy: this.agendaService.getCitasHoy(),
+      proximas: this.agendaService.getProximas()
+    }).pipe(take(1)).subscribe({
+      next: ({ hoy, proximas }) => {
+        this.citasHoy = hoy.data;
+        this.proximas = proximas.data;
+        this.recalcularTimeline();
+        this.cargando = false;
+      },
       error: () => { this.error = 'Error al cargar agenda'; this.cargando = false; }
-    });
-    this.agendaService.getProximas().subscribe({
-      next: (res) => this.proximas = res.data,
-      error: () => { }
     });
   }
 
   cargarServicios(): void {
-    this.reservaService.getServicios().subscribe({
+    this.reservaService.getServicios().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => this.servicios = res.data,
       error: () => { }
     });
   }
 
   cargarHorarioBarberia(): void {
-    this.reservaService.getHorarioBarberia().subscribe({
+    this.reservaService.getHorarioBarberia().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.horarioBarberia = res.data;
         this.generarCalendarioPresencial();
@@ -104,20 +128,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   // ─── Timeline ─────────────────────────────────────────────
-  readonly PX_POR_MINUTO = 1.2;
-
-  get horasTimeline(): number[] {
-    if (this.citasHoy.length === 0) return [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    const horas = this.citasHoy.map(c => parseInt(c.hora.split(':')[0]));
-    const min = Math.max(Math.min(...horas) - 1, 7);
-    const max = Math.min(Math.max(...horas) + 2, 22);
-    const result = [];
-    for (let h = min; h <= max; h++) result.push(h);
-    return result;
-  }
-
-  get alturaTimeline(): number {
-    return this.horasTimeline.length * 60 * this.PX_POR_MINUTO;
+  recalcularTimeline(): void {
+    this.horasTimeline = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+    this.alturaTimeline = this.horasTimeline.length * 60 * this.PX_POR_MINUTO;
+    this.marcasMinutos = this.generarMarcasMinutos();
   }
 
   horaAPixels(hora: string): number {
@@ -127,9 +141,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
     return (minutos - inicioMin) * this.PX_POR_MINUTO;
   }
 
-  duracionAPixels(duracion: number): number {
-    const px = Number(duracion) * this.PX_POR_MINUTO;
-    return Math.max(px, 80);
+  duracionAPixels(_duracion: number): number {
+    return 90;
   }
 
   get lineaAhora(): number {
@@ -146,22 +159,28 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   getEstadoCita(cita: ICitaBarbero): 'completada' | 'en-curso' | 'proxima' {
-    if (cita.estado === 'completada') return 'completada';
     const [hh, mm] = cita.hora.split(':').map(Number);
     const inicioMin = hh * 60 + mm;
     const finMin = inicioMin + (cita.duracion_total || 30);
     const ahoraMin = this.horaActual.getHours() * 60 + this.horaActual.getMinutes();
-    if (ahoraMin >= inicioMin && ahoraMin < finMin) return 'en-curso';
-    if (ahoraMin >= finMin) return 'completada';
-    return 'proxima';
+
+    // Citas que no han empezado → siempre gris, sin importar el estado en BD
+    if (ahoraMin < inicioMin) return 'proxima';
+
+    // Ya empezó: respeta si el barbero la marcó como completada
+    if (cita.estado === 'completada') return 'completada';
+
+    // En progreso o la hora ya pasó → verde automático
+    if (ahoraMin < finMin) return 'en-curso';
+    return 'completada';
   }
 
-  get marcasMinutos(): { top: number; label: string; esPrincipal: boolean }[] {
+  generarMarcasMinutos(): { top: number; label: string; esPrincipal: boolean }[] {
     const marcas: { top: number; label: string; esPrincipal: boolean }[] = [];
+    const inicioMin = this.horasTimeline[0] * 60;
     for (const h of this.horasTimeline) {
       [0, 15, 30, 45].forEach(m => {
         const minTotal = h * 60 + m;
-        const inicioMin = this.horasTimeline[0] * 60;
         const top = (minTotal - inicioMin) * this.PX_POR_MINUTO;
         const hh = Math.floor(minTotal / 60);
         const mm = minTotal % 60;
@@ -227,16 +246,13 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: () => {
         this.procesando = false;
         this.modalCompletar = false;
-
-        // ✅ Actualizar localmente sin esperar reload
         const idx = this.citasHoy.findIndex(c => c.id_reserva === this.citaSeleccionada!.id_reserva);
         if (idx !== -1) {
           this.citasHoy[idx] = { ...this.citasHoy[idx], estado: 'completada' };
-          this.citasHoy = [...this.citasHoy]; // forzar detección de cambios
+          this.citasHoy = [...this.citasHoy];
         }
-
         this.citaSeleccionada = null;
-        this.cargarDatos(); // sigue cargando en segundo plano
+        this.cargarDatos();
       },
       error: (err) => {
         this.procesando = false;
@@ -252,14 +268,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: () => {
         this.procesando = false;
         this.modalCancelar = false;
-
-        // ✅ Actualizar localmente sin esperar reload
         const idx = this.citasHoy.findIndex(c => c.id_reserva === this.citaSeleccionada!.id_reserva);
         if (idx !== -1) {
           this.citasHoy[idx] = { ...this.citasHoy[idx], estado: 'cancelada' };
           this.citasHoy = [...this.citasHoy];
         }
-
         this.citaSeleccionada = null;
         this.cargarDatos();
       },

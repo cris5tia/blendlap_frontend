@@ -40,25 +40,21 @@
 
   <!-- Pestañas -->
   <div class="tabs">
-    <button class="tab" [class.tab-activa]="tabActiva === 'pendientes'"
-      (click)="tabActiva = 'pendientes'">
+    <button class="tab" [class.tab-activa]="tabActiva === 'pendientes'" (click)="tabActiva = 'pendientes'">
       <i class="fas fa-clock"></i> Solicitudes
       <span class="tab-badge" *ngIf="contadorPendientes > 0">{{ contadorPendientes }}</span>
     </button>
-    <button class="tab" [class.tab-activa]="tabActiva === 'activos'"
-      (click)="tabActiva = 'activos'">
+    <button class="tab" [class.tab-activa]="tabActiva === 'activos'" (click)="tabActiva = 'activos'">
       <i class="fas fa-box"></i> Activos
     </button>
-    <button class="tab" [class.tab-activa]="tabActiva === 'pagados'"
-      (click)="tabActiva = 'pagados'">
+    <button class="tab" [class.tab-activa]="tabActiva === 'pagados'" (click)="tabActiva = 'pagados'">
       <i class="fas fa-check-circle"></i> Pagados
     </button>
   </div>
 
   <!-- Buscador -->
   <div class="subtoolbar">
-    <input type="text" placeholder="Buscar por nombre o teléfono..."
-      [(ngModel)]="busqueda" class="input-buscar"/>
+    <input type="text" placeholder="Buscar por nombre o teléfono..." [(ngModel)]="busqueda" class="input-buscar" />
   </div>
 
   <!-- ══ SOLICITUDES PENDIENTES ══ -->
@@ -67,8 +63,13 @@
       <table class="tabla" *ngIf="creditosPendientes.length; else vacioPendientes">
         <thead>
           <tr>
-            <th>#</th><th>Cliente</th><th>Productos</th>
-            <th>Monto</th><th>Plazo</th><th>Vencería</th><th>Acciones</th>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Monto</th>
+            <th>Plazo</th>
+            <th>Vencería</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -85,12 +86,10 @@
             <td>{{ plazoLabel(c.plazo) }}</td>
             <td>{{ c.fecha_vencimiento | date:'dd/MM/yyyy' }}</td>
             <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle"
-                (click)="verDetalle(c.id_credito)">
+              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="btn-icon btn-aprobar" title="Aprobar / Rechazar"
-                (click)="abrirAprobar(c)">
+              <button class="btn-icon btn-aprobar" title="Aprobar / Rechazar" (click)="abrirAprobar(c)">
                 <i class="fas fa-check-double"></i>
               </button>
             </td>
@@ -112,14 +111,19 @@
       <table class="tabla" *ngIf="creditosActivos.length; else vacioActivos">
         <thead>
           <tr>
-            <th>#</th><th>Cliente</th><th>Productos</th>
-            <th>Monto</th><th>Saldo</th><th>Plazo</th>
-            <th>Vencimiento</th><th>Estado</th><th>Acciones</th>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Monto</th>
+            <th>Saldo</th>
+            <th>Plazo</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of creditosActivos"
-            [class.fila-vencida]="c.estado === 'vencido'">
+          <tr *ngFor="let c of creditosActivos" [class.fila-vencida]="c.estado === 'vencido'">
             <td class="id-col">{{ c.id_credito }}</td>
             <td>
               <div class="cliente-info">
@@ -153,12 +157,10 @@
               </span>
             </td>
             <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle"
-                (click)="verDetalle(c.id_credito)">
+              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="btn-icon btn-abonar" title="Registrar abono"
-                (click)="abrirAbonar(c)">
+              <button class="btn-icon btn-abonar" title="Registrar abono" (click)="abrirAbonar(c)">
                 <i class="fas fa-hand-holding-usd"></i>
               </button>
             </td>
@@ -180,8 +182,13 @@
       <table class="tabla" *ngIf="creditosPagados.length; else vacioPagados">
         <thead>
           <tr>
-            <th>#</th><th>Cliente</th><th>Productos</th>
-            <th>Monto</th><th>Plazo</th><th>Fecha</th><th>Acciones</th>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Monto</th>
+            <th>Plazo</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -198,8 +205,7 @@
             <td>{{ plazoLabel(c.plazo) }}</td>
             <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
             <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle"
-                (click)="verDetalle(c.id_credito)">
+              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
                 <i class="fas fa-eye"></i>
               </button>
             </td>
@@ -216,7 +222,9 @@
   </div>
 
   <ng-template #loader>
-    <div class="loader-wrap"><div class="spinner"></div></div>
+    <div class="loader-wrap">
+      <div class="spinner"></div>
+    </div>
   </ng-template>
 
 
@@ -240,13 +248,12 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre completo *</label>
-              <input type="text" [(ngModel)]="form.nombre_cliente"
-                class="input-field" placeholder="Nombre y apellido"/>
+              <input type="text" [(ngModel)]="form.nombre_cliente" class="input-field"
+                placeholder="Nombre y apellido" />
             </div>
             <div class="form-group">
               <label>Teléfono *</label>
-              <input type="text" [(ngModel)]="form.telefono_cliente"
-                class="input-field" placeholder="300 000 0000"/>
+              <input type="text" [(ngModel)]="form.telefono_cliente" class="input-field" placeholder="300 000 0000" />
             </div>
           </div>
         </div>
@@ -255,8 +262,7 @@
         <div class="seccion">
           <label class="sec-titulo">Plazo de pago</label>
           <div class="plazos-grid">
-            <button *ngFor="let p of plazos" class="btn-plazo"
-              [class.plazo-activo]="form.plazo === p.id"
+            <button *ngFor="let p of plazos" class="btn-plazo" [class.plazo-activo]="form.plazo === p.id"
               (click)="form.plazo = p.id">
               {{ p.label }}
             </button>
@@ -267,18 +273,16 @@
         <div class="seccion">
           <label class="sec-titulo">Buscar producto por código</label>
           <div class="buscar-codigo-row">
-            <input type="text" [(ngModel)]="busquedaCodigo"
-              class="input-field" placeholder="Ej: PRD-001"
-              (keyup.enter)="buscarPorCodigo()"/>
+            <input type="text" [(ngModel)]="busquedaCodigo" class="input-field" placeholder="Ej: PRD-001"
+              (keyup.enter)="buscarPorCodigo()" />
             <button class="btn-buscar-codigo" (click)="buscarPorCodigo()">
               <i class="fas fa-search"></i> Buscar
             </button>
           </div>
           <div class="producto-resultado" *ngIf="productoEncontrado">
             <img [src]="productoEncontrado.imagen
-              ? 'http://localhost:3000/images/productos/' + productoEncontrado.imagen
-              : 'assets/images/no-img.png'"
-              [alt]="productoEncontrado.nombre_producto"/>
+              ? 'http://localhost:3001/images/productos/' + productoEncontrado.imagen
+              : 'assets/images/no-img.png'" [alt]="productoEncontrado.nombre_producto" />
             <div class="prod-resultado-info">
               <span class="prod-codigo">{{ productoEncontrado.codigo_producto }}</span>
               <span class="prod-nombre">{{ productoEncontrado.nombre_producto }}</span>
@@ -300,9 +304,8 @@
           <div class="seleccionados">
             <div class="sel-item" *ngFor="let s of productosSeleccionados">
               <img [src]="s.producto.imagen
-                ? 'http://localhost:3000/images/productos/' + s.producto.imagen
-                : 'assets/images/no-img.png'"
-                [alt]="s.producto.nombre_producto"/>
+                ? 'http://localhost:3001/images/productos/' + s.producto.imagen
+                : 'assets/images/no-img.png'" [alt]="s.producto.nombre_producto" />
               <div class="sel-data">
                 <span class="sel-codigo">{{ s.producto.codigo_producto }}</span>
                 <span class="sel-nombre">{{ s.producto.nombre_producto }}</span>
@@ -319,8 +322,7 @@
               <span class="sel-subtotal">
                 {{ formatCurrency(s.producto.precio * s.cantidad) }}
               </span>
-              <button class="btn-quitar"
-                (click)="quitarProducto(s.producto.id_producto)">
+              <button class="btn-quitar" (click)="quitarProducto(s.producto.id_producto)">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -334,8 +336,8 @@
         <!-- Observaciones -->
         <div class="seccion">
           <label class="sec-titulo">Observaciones</label>
-          <textarea [(ngModel)]="form.observaciones" class="input-field"
-            rows="2" placeholder="Notas adicionales..."></textarea>
+          <textarea [(ngModel)]="form.observaciones" class="input-field" rows="2"
+            placeholder="Notas adicionales..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -399,8 +401,8 @@
           <div class="detalle-productos">
             <div class="det-prod" *ngFor="let p of creditoDetalle.productos">
               <img [src]="p.imagen
-                ? 'http://localhost:3000/images/productos/' + p.imagen
-                : 'assets/images/no-img.png'" [alt]="p.nombre_producto"/>
+                ? 'http://localhost:3001/images/productos/' + p.imagen
+                : 'assets/images/no-img.png'" [alt]="p.nombre_producto" />
               <span class="det-nombre">{{ p.nombre_producto }}</span>
               <span>x{{ p.cantidad }}</span>
               <span class="det-precio">{{ formatCurrency(p.subtotal) }}</span>
@@ -413,8 +415,11 @@
           <table class="tabla-mini">
             <thead>
               <tr>
-                <th>Fecha</th><th>Monto</th>
-                <th>Método</th><th>Admin</th><th>Nota</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Admin</th>
+                <th>Nota</th>
               </tr>
             </thead>
             <tbody>
@@ -435,61 +440,99 @@
         </div>
       </div>
       <ng-template #cargandoDetalle>
-        <div class="loader-wrap"><div class="spinner"></div></div>
+        <div class="loader-wrap">
+          <div class="spinner"></div>
+        </div>
       </ng-template>
     </div>
   </div>
 
-
   <!-- ══════════ MODAL APROBAR/RECHAZAR ══════════ -->
   <div class="modal-overlay" *ngIf="modalAprobar" (click)="modalAprobar = false">
     <div class="modal-box modal-confirm" (click)="$event.stopPropagation()">
+
       <div class="modal-header header-aprobar">
-        <h2><i class="fas fa-check-double"></i> Aprobar solicitud</h2>
+        <h2><i class="fas fa-shield-alt"></i> Aprobar solicitud</h2>
         <button class="btn-close" (click)="modalAprobar = false">
           <i class="fas fa-times"></i>
         </button>
       </div>
+
       <div class="modal-body" *ngIf="creditoPendiente">
-        <p>¿Aprobar el crédito de
-          <strong>{{ creditoPendiente.nombre_cliente }}</strong>?
-        </p>
-        <div class="confirm-info">
-          <div class="confirm-row">
-            <span>Productos</span>
-            <strong>{{ creditoPendiente.productos_nombres }}</strong>
+
+        <!-- Cliente -->
+        <div class="confirm-cliente">
+          <div class="confirm-avatar">
+            {{ creditoPendiente.nombre_cliente.charAt(0) }}
           </div>
-          <div class="confirm-row">
-            <span>Monto</span>
-            <strong>{{ formatCurrency(creditoPendiente.monto_total) }}</strong>
+          <div class="confirm-cliente-info">
+            <span class="confirm-nombre">{{ creditoPendiente.nombre_cliente }}</span>
+            <span class="confirm-telefono">
+              <i class="fas fa-phone"></i> {{ creditoPendiente.telefono_cliente }}
+            </span>
           </div>
-          <div class="confirm-row">
-            <span>Plazo</span>
-            <strong>{{ plazoLabel(creditoPendiente.plazo) }}</strong>
-          </div>
-          <div class="confirm-row">
-            <span>Vence</span>
-            <strong>
-              {{ creditoPendiente.fecha_vencimiento | date:'dd/MM/yyyy' }}
-            </strong>
+          <div class="confirm-estado-badge">
+            <i class="fas fa-clock"></i> Pendiente
           </div>
         </div>
+
+        <!-- Productos -->
+        <div class="confirm-productos-label">
+          <i class="fas fa-box"></i> Productos solicitados
+        </div>
+        <div class="confirm-productos-text">
+          {{ creditoPendiente.productos_nombres }}
+        </div>
+
+        <!-- Resumen financiero -->
+        <div class="confirm-resumen">
+          <div class="confirm-resumen-item">
+            <div class="confirm-resumen-icon accent">
+              <i class="fas fa-coins"></i>
+            </div>
+            <div class="confirm-resumen-data">
+              <span>Monto total</span>
+              <strong>{{ formatCurrency(creditoPendiente.monto_total) }}</strong>
+            </div>
+          </div>
+          <div class="confirm-resumen-item">
+            <div class="confirm-resumen-icon dark">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="confirm-resumen-data">
+              <span>Plazo</span>
+              <strong>{{ plazoLabel(creditoPendiente.plazo) }}</strong>
+            </div>
+          </div>
+          <div class="confirm-resumen-item">
+            <div class="confirm-resumen-icon red">
+              <i class="fas fa-calendar-times"></i>
+            </div>
+            <div class="confirm-resumen-data">
+              <span>Fecha límite</span>
+              <strong>{{ creditoPendiente.fecha_vencimiento | date:'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nota -->
         <p class="confirm-nota">
           <i class="fas fa-info-circle"></i>
-          Al aprobar se descuenta el stock automáticamente.
+          Al aprobar se descuenta el stock y el crédito queda activo inmediatamente.
         </p>
+
       </div>
-      <div class="modal-footer">
+
+      <div class="modal-footer confirm-footer">
         <button class="btn-rechazar-accion" (click)="rechazar()" [disabled]="procesando">
           <i class="fas fa-times"></i> Rechazar
         </button>
         <button class="btn-aprobar-accion" (click)="aprobar()" [disabled]="procesando">
-          <span *ngIf="!procesando"><i class="fas fa-check"></i> Aprobar</span>
-          <span *ngIf="procesando">
-            <i class="fas fa-spinner fa-spin"></i> Procesando...
-          </span>
+          <span *ngIf="!procesando"><i class="fas fa-check"></i> Aprobar crédito</span>
+          <span *ngIf="procesando"><i class="fas fa-spinner fa-spin"></i> Procesando...</span>
         </button>
       </div>
+
     </div>
   </div>
 
@@ -516,19 +559,15 @@
         </div>
         <div class="form-group">
           <label>Monto del abono *</label>
-          <input type="number" [(ngModel)]="abonoForm.monto"
-            class="input-field input-monto" placeholder="0"
-            [max]="creditoAbonar.saldo_pendiente"/>
+          <input type="number" [(ngModel)]="abonoForm.monto" class="input-field input-monto" placeholder="0"
+            [max]="creditoAbonar.saldo_pendiente" />
         </div>
         <div class="form-group" style="margin-top:1rem">
           <label>Método de pago</label>
           <div class="metodos-grid">
             <button *ngFor="let m of metodosAbono" class="btn-metodo"
-              [class.metodo-activo]="abonoForm.metodo_pago === m"
-              (click)="setMetodoPago(m)">
-              <i class="fas"
-                [class.fa-money-bill]="m === 'efectivo'"
-                [class.fa-mobile-alt]="m === 'nequi'"
+              [class.metodo-activo]="abonoForm.metodo_pago === m" (click)="setMetodoPago(m)">
+              <i class="fas" [class.fa-money-bill]="m === 'efectivo'" [class.fa-mobile-alt]="m === 'nequi'"
                 [class.fa-ellipsis-h]="m === 'otro'"></i>
               {{ m | titlecase }}
             </button>
@@ -536,8 +575,7 @@
         </div>
         <div class="form-group" style="margin-top:1rem">
           <label>Observación</label>
-          <input type="text" [(ngModel)]="abonoForm.observacion"
-            class="input-field" placeholder="Nota opcional..."/>
+          <input type="text" [(ngModel)]="abonoForm.observacion" class="input-field" placeholder="Nota opcional..." />
         </div>
       </div>
       <div class="modal-footer">

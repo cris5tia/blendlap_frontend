@@ -110,4 +110,7 @@ export class CreditoService {
   abonar(data: IRegistrarAbono): Observable<{ ok: boolean; data: ICredito }> {
     return this.http.post<{ ok: boolean; data: ICredito }>(`${this.url}/abonar`, data);
   }
+  getMisCreditos(): Observable<{ ok: boolean; data: ICredito[] }> {
+  return this.http.get<{ ok: boolean; data: ICredito[] }>(`${this.url}/mis-creditos`);
+}
 }

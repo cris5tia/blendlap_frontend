@@ -28,7 +28,7 @@ export class ServiciosComponent implements OnInit {
   archivoSeleccionado: File | null = null;
   previewImagen: string = '';
 
-  constructor(private servicioService: ServicioService) {}
+  constructor(private servicioService: ServicioService) { }
 
   ngOnInit(): void {
     this.cargarServicios();
@@ -51,20 +51,20 @@ export class ServiciosComponent implements OnInit {
   }
 
   filtrar(): void {
-  const q = this.busqueda.toLowerCase().trim();
-  this.serviciosFiltrados = q
-    ? this.servicios.filter(s =>
+    const q = this.busqueda.toLowerCase().trim();
+    this.serviciosFiltrados = q
+      ? this.servicios.filter(s =>
         s.nombre_servicio.toLowerCase().includes(q)
       )
-    : [...this.servicios];
-}
+      : [...this.servicios];
+  }
 
   abrirModal(servicio?: IServicio): void {
     this.editando = !!servicio;
     this.formulario = servicio ? { ...servicio } : this.formularioVacio();
     this.archivoSeleccionado = null;
     this.previewImagen = servicio?.imagen
-      ? `http://localhost:3000/images/servicios/${servicio.imagen}`
+      ? `http://localhost:3001/images/servicios/${servicio.imagen}`
       : '';
     this.modalVisible = true;
   }
@@ -173,6 +173,33 @@ export class ServiciosComponent implements OnInit {
   }
 
   private formularioVacio(): IServicio {
-    return { nombre_servicio: '', descripcion: '', precio: 0, duracion: 30, imagen: '' };
+    return { nombre_servicio: '', descripcion: '', precio: 0, duracion: 30, imagen: '', categoria: '' };
   }
+  /* ACTIVO/INACTIVO SERVICIOS  */
+  modalEstado = false;
+  servicioEstado: IServicio | null = null;
+  cambiandoEstado = false;
+
+  confirmarCambioEstado(servicio: IServicio): void {
+    this.servicioEstado = servicio;
+    this.modalEstado = true;
+  }
+
+  cambiarEstado(): void {
+    if (!this.servicioEstado?.id_servicio) return;
+    this.cambiandoEstado = true;
+    const nuevoEstado = this.servicioEstado.estado === 'activo' ? 'inactivo' : 'activo';
+    this.servicioService.cambiarEstado(Number(this.servicioEstado.id_servicio), nuevoEstado).subscribe({
+      next: () => {
+        const idx = this.servicios.findIndex(s => s.id_servicio === this.servicioEstado!.id_servicio);
+        if (idx !== -1) this.servicios[idx] = { ...this.servicios[idx], estado: nuevoEstado };
+        this.filtrar();
+        this.cambiandoEstado = false;
+        this.modalEstado = false;
+        this.servicioEstado = null;
+      },
+      error: () => { this.cambiandoEstado = false; }
+    });
+  }
+  
 }

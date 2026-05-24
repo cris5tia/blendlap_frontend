@@ -11,6 +11,7 @@ export interface IServicio {
   duracion: number;
   imagen?: string;
   categoria?: string;
+  estado?: 'activo' | 'inactivo';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,29 +19,34 @@ export class ServicioService {
 
   private url = `${environment.apiUrl}/servicios`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getAll(): Observable<{ ok: boolean; data: IServicio[] }> {
-    return this.http.get<{ ok: boolean; data: IServicio[] }>(this.url);
-  }
+  getAll(params?: { activos?: boolean }): Observable<{ ok: boolean; data: IServicio[] }> {
+  const httpParams: any = {};
+  if (params?.activos) httpParams.activos = 'true';
+  return this.http.get<{ ok: boolean; data: IServicio[] }>(this.url, { params: httpParams });
+}
 
   create(data: Omit<IServicio, 'id_servicio'>): Observable<{ ok: boolean; data: IServicio }> {
     return this.http.post<{ ok: boolean; data: IServicio }>(this.url, data);
   }
 
   delete(id: number): Observable<{ ok: boolean; mensaje: string }> {
-  return this.http.delete<{ ok: boolean; mensaje: string }>(`${this.url}/${Number(id)}`);
-}
+    return this.http.delete<{ ok: boolean; mensaje: string }>(`${this.url}/${Number(id)}`);
+  }
 
-update(id: number, data: Partial<IServicio>): Observable<{ ok: boolean; data: IServicio }> {
-  return this.http.put<{ ok: boolean; data: IServicio }>(`${this.url}/${Number(id)}`, data);
-}
-uploadImagen(file: File): Observable<{ ok: boolean; nombreArchivo: string }> {
-  const formData = new FormData();
-  formData.append('imagen', file);
-  return this.http.post<{ ok: boolean; nombreArchivo: string }>(`${this.url}/upload-imagen`, formData);
-}
-getImagenesDisponibles(): Observable<string[]> {
-  return this.http.get<string[]>('assets/images/servicios/imagenes.json');
-}
+  update(id: number, data: Partial<IServicio>): Observable<{ ok: boolean; data: IServicio }> {
+    return this.http.put<{ ok: boolean; data: IServicio }>(`${this.url}/${Number(id)}`, data);
+  }
+  uploadImagen(file: File): Observable<{ ok: boolean; nombreArchivo: string }> {
+    const formData = new FormData();
+    formData.append('imagen', file);
+    return this.http.post<{ ok: boolean; nombreArchivo: string }>(`${this.url}/upload-imagen`, formData);
+  }
+  getImagenesDisponibles(): Observable<string[]> {
+    return this.http.get<string[]>('assets/images/servicios/imagenes.json');
+  }
+  cambiarEstado(id: number, estado: 'activo' | 'inactivo'): Observable<any> {
+    return this.http.put(`${this.url}/${id}`, { estado });
+  }
 }

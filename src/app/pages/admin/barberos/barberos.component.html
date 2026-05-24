@@ -31,7 +31,7 @@
         <div class="barbero-card" *ngFor="let b of barberosFiltrados">
 
             <div class="barbero-card__foto">
-                <img *ngIf="b.foto" [src]="'http://localhost:3000/images/barberos/' + b.foto" [alt]="b.nombre" />
+                <img *ngIf="b.foto" [src]="'http://localhost:3001/images/barberos/' + b.foto" [alt]="b.nombre" />
                 <div *ngIf="!b.foto" class="barbero-card__foto--empty">
                     <i class="fas fa-user-tie"></i>
                 </div>

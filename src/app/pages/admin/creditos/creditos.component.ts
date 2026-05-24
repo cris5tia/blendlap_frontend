@@ -10,7 +10,7 @@ import { ProductoService, IProducto } from '../../../core/services/producto.serv
 export class CreditosComponent implements OnInit {
 
   // ─── Pestañas ─────────────────────────────────────────────
-  tabActiva: 'pendientes' | 'activos' | 'pagados' = 'pendientes';
+  tabActiva: 'pendientes' | 'activos' | 'pagados' = 'activos';
 
   // ─── Datos ────────────────────────────────────────────────
   todosLosCreditos: ICredito[] = [];

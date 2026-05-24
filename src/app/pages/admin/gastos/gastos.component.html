@@ -4,57 +4,37 @@
   <div class="page-header">
     <div>
       <h1 class="page-header__title">Gastos</h1>
-      <p class="page-header__sub">Gestiona los gastos del negocio</p>
+      <p class="page-header__sub">Control y análisis de gastos del negocio</p>
     </div>
-    <button class="btn-nuevo" (click)="abrirModal()">
-      <i class="fas fa-plus"></i> Nuevo gasto
-    </button>
-  </div>
-
-  <!-- Resumen -->
-  <div class="gastos-resumen">
-    <div class="resumen-card resumen-card--total">
-      <div class="resumen-card__icon">
-        <i class="fas fa-receipt"></i>
+    <div class="header-actions">
+      <div class="vista-toggle">
+        <button [class.activo]="vistaActiva === 'dashboard'"
+          (click)="vistaActiva = 'dashboard'">
+          <i class="fas fa-chart-pie"></i> Dashboard
+        </button>
+        <button [class.activo]="vistaActiva === 'lista'"
+          (click)="vistaActiva = 'lista'">
+          <i class="fas fa-list"></i> Lista
+        </button>
       </div>
-      <div>
-        <span class="resumen-card__label">Total gastos</span>
-        <span class="resumen-card__valor">{{ formatCurrency(totalGastos) }}</span>
-      </div>
-    </div>
-
-    <div class="resumen-card" *ngFor="let cat of gastosPorCategoria.slice(0, 3)">
-      <div class="resumen-card__icon resumen-card__icon--sm">
-        <i class="fas fa-tag"></i>
-      </div>
-      <div>
-        <span class="resumen-card__label">{{ cat.categoria }}</span>
-        <span class="resumen-card__valor resumen-card__valor--sm">{{ formatCurrency(cat.total) }}</span>
-      </div>
+      <button class="btn-nuevo" (click)="abrirModal()">
+        <i class="fas fa-plus"></i> Nuevo gasto
+      </button>
     </div>
   </div>
 
-  <!-- Filtros -->
-  <div class="filtros-bar">
-    <div class="filtro-group">
-      <label>Desde</label>
-      <input type="date" [(ngModel)]="filtros.desde" />
+  <!-- Filtros de fecha -->
+  <div class="fecha-toolbar">
+    <div class="fecha-item">
+      <span class="fecha-label">Desde</span>
+      <input type="date" [(ngModel)]="filtros.desde" (change)="aplicarFiltros()"/>
     </div>
-    <div class="filtro-group">
-      <label>Hasta</label>
-      <input type="date" [(ngModel)]="filtros.hasta" />
+    <div class="fecha-item">
+      <span class="fecha-label">Hasta</span>
+      <input type="date" [(ngModel)]="filtros.hasta" (change)="aplicarFiltros()"/>
     </div>
-    <div class="filtro-group">
-      <label>Categoría</label>
-      <select [(ngModel)]="filtros.categoria">
-        <option value="">Todas</option>
-        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
-      </select>
-    </div>
-    <button class="btn-filtrar" (click)="aplicarFiltros()">
-      <i class="fas fa-search"></i> Filtrar
-    </button>
-    <button class="btn-limpiar" (click)="limpiarFiltros()">
+    <button class="btn-limpiar-fecha" (click)="limpiarFiltros()"
+      *ngIf="filtros.desde || filtros.hasta">
       <i class="fas fa-times"></i> Limpiar
     </button>
   </div>
@@ -64,59 +44,195 @@
     <i class="fas fa-exclamation-circle"></i> {{ error }}
   </div>
 
-  <!-- Cargando -->
-  <div class="cargando" *ngIf="cargando">
-    <i class="fas fa-spinner fa-spin"></i> Cargando gastos...
+  <!-- ══ DASHBOARD ══ -->
+  <!-- ══ DASHBOARD ══ -->
+<div *ngIf="vistaActiva === 'dashboard'">
+
+  <div class="cargando-wrap" *ngIf="cargandoStats">
+    <div class="spinner"></div>
   </div>
 
-  <!-- Tabla -->
-  <div class="tabla-card" *ngIf="!cargando">
-    <div class="tabla-card__body">
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Monto</th>
-            <th>Fecha</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let g of gastos">
-            <td><strong>{{ g.nombre }}</strong></td>
-            <td><span class="badge-categoria">{{ g.categoria }}</span></td>
-            <td class="monto">{{ formatCurrency(g.monto) }}</td>
-            <td>{{ g.fecha | date:'dd/MM/yyyy' }}</td>
-            <td class="descripcion">{{ g.descripcion || '—' }}</td>
-            <td>
-              <div class="acciones">
-                <button class="btn-accion btn-accion--editar" (click)="abrirModal(g)">
-                  <i class="fas fa-pen"></i>
-                </button>
-                <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(g)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <ng-container *ngIf="!cargandoStats && stats">
 
-      <div class="tabla-empty" *ngIf="gastos.length === 0">
-        <i class="fas fa-receipt"></i>
-        <p>No hay gastos registrados</p>
+    <!-- KPIs -->
+    <div class="kpis-grid">
+      <div class="kpi-card kpi-card--total">
+        <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
+        <div class="kpi-data">
+          <span class="kpi-label">Gasto total</span>
+          <span class="kpi-valor">{{ formatCurrency(stats.total) }}</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon--blue"><i class="fas fa-receipt"></i></div>
+        <div class="kpi-data">
+          <span class="kpi-label">Número de gastos</span>
+          <span class="kpi-valor">{{ stats.cantidad }}</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon--green"><i class="fas fa-calculator"></i></div>
+        <div class="kpi-data">
+          <span class="kpi-label">Promedio por gasto</span>
+          <span class="kpi-valor">{{ formatCurrency(stats.promedio) }}</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon--red"><i class="fas fa-arrow-up"></i></div>
+        <div class="kpi-data">
+          <span class="kpi-label">Gasto más alto</span>
+          <span class="kpi-valor">{{ formatCurrency(stats.gasto_mas_alto?.monto || 0) }}</span>
+          <span class="kpi-sub">{{ stats.gasto_mas_alto?.nombre || '—' }}</span>
+        </div>
       </div>
     </div>
+
+    <!-- Gráficas -->
+    <div class="graficas-grid">
+
+      <!-- Donut -->
+      <div class="dash-card">
+        <h3 class="dash-card__titulo">
+          <i class="fas fa-chart-pie"></i> Gastos por categoría
+        </h3>
+        <div *ngIf="donutListo">
+          <apx-chart
+            [series]="donutOptions.series!"
+            [chart]="donutOptions.chart!"
+            [labels]="donutOptions.labels!"
+            [colors]="donutOptions.colors!"
+            [legend]="donutOptions.legend!"
+            [dataLabels]="donutOptions.dataLabels!"
+            [tooltip]="donutOptions.tooltip!"
+            [plotOptions]="donutOptions.plotOptions!"
+            [stroke]="donutOptions.stroke!"
+            [fill]="donutOptions.fill!">
+          </apx-chart>
+        </div>
+        <div class="dash-empty" *ngIf="!donutListo">
+          <i class="fas fa-chart-pie"></i><p>Sin datos suficientes</p>
+        </div>
+      </div>
+
+      <!-- Barras -->
+      <div class="dash-card">
+        <h3 class="dash-card__titulo">
+          <i class="fas fa-chart-bar"></i> Evolución de gastos
+        </h3>
+        <div *ngIf="barListo">
+          <apx-chart
+            [series]="barOptions.series!"
+            [chart]="barOptions.chart!"
+            [xaxis]="barOptions.xaxis!"
+            [yaxis]="barOptions.yaxis!"
+            [colors]="barOptions.colors!"
+            [grid]="barOptions.grid!"
+            [dataLabels]="barOptions.dataLabels!"
+            [tooltip]="barOptions.tooltip!"
+            [plotOptions]="barOptions.plotOptions!"
+            [fill]="barOptions.fill!"
+            [stroke]="barOptions.stroke!">
+          </apx-chart>
+        </div>
+        <div class="dash-empty" *ngIf="!barListo">
+          <i class="fas fa-chart-bar"></i><p>Sin datos suficientes</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recientes -->
+    <div class="dash-card dash-card--recientes">
+      <div class="dash-card__header">
+        <h3 class="dash-card__titulo">
+          <i class="fas fa-clock"></i> Gastos recientes
+        </h3>
+        <button class="btn-ver-todos" (click)="vistaActiva = 'lista'">
+          Ver todos <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      <div class="recientes-lista">
+        <div class="reciente-item" *ngFor="let g of stats.recientes">
+          <div class="reciente-dot" [style.background]="getColor(g.categoria)"></div>
+          <div class="reciente-info">
+            <span class="reciente-nombre">{{ g.nombre }}</span>
+            <span class="reciente-cat">{{ g.categoria }}</span>
+          </div>
+          <div class="reciente-right">
+            <span class="reciente-monto">{{ formatCurrency(g.monto) }}</span>
+            <span class="reciente-fecha">{{ g.fecha | date:'dd MMM' }}</span>
+          </div>
+        </div>
+        <div class="dash-empty" *ngIf="stats.recientes.length === 0">
+          <i class="fas fa-receipt"></i><p>Sin gastos recientes</p>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <div class="dash-empty-total" *ngIf="!cargandoStats && !stats">
+    <i class="fas fa-chart-pie"></i>
+    <p>No hay datos disponibles</p>
   </div>
 
 </div>
 
-<!-- Modal Crear / Editar -->
+  <!-- ══ LISTA ══ -->
+  <div *ngIf="vistaActiva === 'lista'">
+
+    <div class="lista-toolbar">
+      <select [(ngModel)]="filtros.categoria" (change)="aplicarFiltros()">
+        <option value="">Todas las categorías</option>
+        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div class="cargando-wrap" *ngIf="cargando">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="gastos-lista" *ngIf="!cargando">
+      <div class="gasto-item" *ngFor="let g of gastos">
+        <div class="gasto-item__dot" [style.background]="getColor(g.categoria)"></div>
+        <div class="gasto-item__info">
+          <span class="gasto-item__nombre">{{ g.nombre }}</span>
+          <span class="gasto-item__desc" *ngIf="g.descripcion">{{ g.descripcion }}</span>
+        </div>
+        <span class="gasto-item__categoria"
+          [style.background]="getColor(g.categoria) + '22'"
+          [style.color]="getColor(g.categoria)"
+          [style.border-color]="getColor(g.categoria) + '44'">
+          {{ g.categoria }}
+        </span>
+        <span class="gasto-item__fecha">{{ g.fecha | date:'dd MMM yyyy' }}</span>
+        <span class="gasto-item__monto">{{ formatCurrency(g.monto) }}</span>
+        <div class="gasto-item__acciones">
+          <button class="btn-accion btn-accion--editar" (click)="abrirModal(g)">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(g)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="gastos-empty" *ngIf="gastos.length === 0">
+        <i class="fas fa-receipt"></i>
+        <p>No hay gastos registrados</p>
+        <button class="btn-nuevo" (click)="abrirModal()">
+          <i class="fas fa-plus"></i> Registrar primer gasto
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══ MODAL CREAR / EDITAR ══ -->
 <div class="modal-overlay" *ngIf="modalVisible" (click)="cerrarModal()">
   <div class="modal" (click)="$event.stopPropagation()">
-
     <div class="modal__header">
       <h2 class="modal__title">
         <i class="fas fa-receipt"></i>
@@ -126,16 +242,14 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-
     <div class="modal__body">
       <div class="error-msg" *ngIf="error">
         <i class="fas fa-exclamation-circle"></i> {{ error }}
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Nombre <span class="required">*</span></label>
-          <input type="text" [(ngModel)]="formulario.nombre" placeholder="Ej: Pago arriendo" />
+          <input type="text" [(ngModel)]="formulario.nombre" placeholder="Ej: Pago arriendo"/>
         </div>
         <div class="form-group">
           <label>Categoría <span class="required">*</span></label>
@@ -145,23 +259,21 @@
           </select>
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Monto <span class="required">*</span></label>
-          <input type="number" [(ngModel)]="formulario.monto" placeholder="Ej: 50000" min="0" />
+          <input type="number" [(ngModel)]="formulario.monto" placeholder="0" min="0"/>
         </div>
         <div class="form-group">
           <label>Fecha <span class="required">*</span></label>
-          <input type="date" [(ngModel)]="formulario.fecha" />
+          <input type="date" [(ngModel)]="formulario.fecha"/>
         </div>
       </div>
-
       <div class="form-group">
         <label>Descripción</label>
-        <textarea [(ngModel)]="formulario.descripcion" rows="3" placeholder="Descripción opcional..."></textarea>
+        <textarea [(ngModel)]="formulario.descripcion" rows="3"
+          placeholder="Descripción opcional..."></textarea>
       </div>
-
       <div class="modal__footer">
         <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
         <button class="btn-guardar" (click)="guardar()" [disabled]="guardando">
@@ -170,11 +282,10 @@
         </button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- Modal Eliminar -->
+<!-- ══ MODAL ELIMINAR ══ -->
 <div class="modal-overlay" *ngIf="modalEliminar" (click)="modalEliminar = false">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
     <div class="modal__header modal__header--danger">
@@ -184,16 +295,16 @@
     </div>
     <div class="modal__body">
       <p class="modal__confirm-text">
-        ¿Estás seguro de eliminar <strong>{{ gastoAEliminar?.nombre }}</strong>?
+        ¿Eliminar <strong>{{ gastoAEliminar?.nombre }}</strong>?
         Esta acción no se puede deshacer.
       </p>
-    </div>
-    <div class="modal__footer">
-      <button class="btn-cancelar" (click)="modalEliminar = false">Cancelar</button>
-      <button class="btn-eliminar" (click)="eliminar()" [disabled]="eliminando">
-        <i class="fas" [ngClass]="eliminando ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-        {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
-      </button>
+      <div class="modal__footer">
+        <button class="btn-cancelar" (click)="modalEliminar = false">Cancelar</button>
+        <button class="btn-eliminar" (click)="eliminar()" [disabled]="eliminando">
+          <i class="fas" [ngClass]="eliminando ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+          {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

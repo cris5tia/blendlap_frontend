@@ -1,4 +1,15 @@
-<nav class="navbar" [class.scrolled]="isScrolled" [class.navbar--barbero]="usuario?.rol === 'barbero'">
+<nav class="navbar" [class.scrolled]="isScrolled" [class.navbar--barbero]="usuario?.rol === 'barbero'"
+  [class.navbar--fijo]="!esHome">
+
+  <!-- Topbar integrado -->
+  <div class="navbar__topbar" *ngIf="esHome && !isScrolled">
+    <i class="fas fa-map-marker-alt"></i>
+    <span>Cl. 48 # 19-55, Armenia, Quindío</span>
+    <span class="navbar__topbar-sep">·</span>
+    <i class="fas fa-clock"></i>
+    <span>Mar - Dom: 9:00am - 9:00pm</span>
+  </div>
+
   <div class="container navbar__container">
 
     <a routerLink="/" class="navbar__logo">
@@ -7,46 +18,63 @@
 
     <ul class="navbar__links" [class.active]="menuOpen">
 
-      <!-- Links públicos — solo si NO es barbero -->
-      <ng-container *ngIf="!usuario || usuario.rol !== 'barbero'">
-        <li><a (click)="scrollTo('equipo')">Equipo</a></li>
-        <li><a (click)="scrollTo('productos')">Productos</a></li>
-        <li><a (click)="scrollTo('galeria')">Galería</a></li>
-        <li><a (click)="scrollTo('ubicacion')">Ubicación</a></li>
+      <!-- Links cliente en dashboard -->
+      <ng-container *ngIf="usuario?.rol === 'cliente' && esDashboardCliente">
+        <li><a class="nav-link-cliente" (click)="tabCliente('actuales')"><i class="fas fa-calendar-check"></i>
+            Actuales</a></li>
+        <li><a class="nav-link-cliente" (click)="tabCliente('historial')"><i class="fas fa-history"></i> Historial</a>
+        </li>
+        <li><a class="nav-link-cliente" (click)="tabCliente('creditos')"><i class="fas fa-hand-holding-usd"></i>
+            Créditos</a></li>
+      </ng-container>
+
+      <!-- Links públicos -->
+      <ng-container *ngIf="!usuario || (usuario.rol !== 'barbero' && !esDashboardCliente)">
+        <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'equipo'"
+            (click)="scrollTo('equipo')">Equipo</a></li>
+        <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'servicios'"
+            (click)="scrollTo('servicios')">Servicios</a></li>
+        <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'productos'"
+            (click)="scrollTo('productos')">Shop</a></li>
+        <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'galeria'"
+            (click)="scrollTo('galeria')">Galería</a></li>
+        <li><a routerLink="/nosotros" routerLinkActive="nav-link-active" class="nav-link-section"
+            (click)="closeMenu()">Nosotros</a></li>
       </ng-container>
 
       <!-- Links barbero -->
       <ng-container *ngIf="usuario?.rol === 'barbero'">
         <li>
-          <a routerLink="/barbero/agenda" routerLinkActive="nav-link-active" class="nav-link-barbero">
+          <a routerLink="/barbero/agenda" routerLinkActive="nav-link-active" class="nav-link-barbero"
+            (click)="closeMenu()">
             <i class="fas fa-calendar-day"></i> Mi Agenda
           </a>
         </li>
         <li>
-          <a routerLink="/barbero/stats" routerLinkActive="nav-link-active" class="nav-link-barbero">
+          <a routerLink="/barbero/stats" routerLinkActive="nav-link-active" class="nav-link-barbero"
+            (click)="closeMenu()">
             <i class="fas fa-chart-bar"></i> Stats
           </a>
         </li>
         <li>
-          <a routerLink="/barbero/horario" routerLinkActive="nav-link-active" class="nav-link-barbero">
+          <a routerLink="/barbero/horario" routerLinkActive="nav-link-active" class="nav-link-barbero"
+            (click)="closeMenu()">
             <i class="fas fa-clock"></i> Horario
           </a>
         </li>
         <li>
-          <a routerLink="/" routerLinkActive="nav-link-active"
-            [routerLinkActiveOptions]="{exact: true}" class="nav-link-barbero">
+          <a routerLink="/" routerLinkActive="nav-link-active" [routerLinkActiveOptions]="{exact: true}"
+            class="nav-link-barbero" (click)="closeMenu()">
             <i class="fas fa-store"></i> Ver inicio
           </a>
         </li>
       </ng-container>
 
-      <!-- Carrito — visible para clientes y no logueados -->
+      <!-- Carrito -->
       <li *ngIf="mostrarCarrito" class="navbar__carrito-item">
         <button class="navbar__carrito" (click)="irAlCarrito()">
           <i class="fas fa-shopping-basket"></i>
-          <span class="carrito-badge" *ngIf="cantidadCarrito > 0">
-            {{ cantidadCarrito }}
-          </span>
+          <span class="carrito-badge" *ngIf="cantidadCarrito > 0">{{ cantidadCarrito }}</span>
         </button>
       </li>
 
@@ -58,21 +86,30 @@
       <!-- Con sesión -->
       <li *ngIf="usuario" class="navbar__usuario">
 
-        <a *ngIf="usuario.rol === 'admin'" routerLink="/admin/dashboard"
-          class="btn-nav btn-nav--admin">
+        <a *ngIf="usuario.rol === 'admin'" routerLink="/admin/dashboard" class="btn-nav btn-nav--admin"
+          (click)="closeMenu()">
           <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
 
-        <a *ngIf="usuario.rol === 'cliente'" routerLink="/cliente/dashboard"
-          class="btn-nav btn-nav--citas">
-          <i class="fas fa-calendar-check"></i> Mis citas
-          <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">
-            {{ reservas.length }}
-          </span>
+        <a *ngIf="usuario.rol === 'cliente' && esDashboardCliente" routerLink="/" class="btn-nav btn-nav--citas"
+          (click)="closeMenu()">
+          <i class="fas fa-home"></i> Inicio
         </a>
 
-        <button *ngIf="usuario.rol === 'barbero'" class="btn-nav btn-nav--agendar"
-          (click)="irAgendarPresencial()">
+        <a *ngIf="usuario.rol === 'cliente' && !esDashboardCliente" routerLink="/cliente/dashboard"
+          class="btn-nav btn-nav--citas" (click)="closeMenu()">
+          <i class="fas fa-calendar-check"></i> Mis citas
+          <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">{{ reservas.length }}</span>
+        </a>
+
+        <div class="navbar__credito-badge"
+          *ngIf="usuario.rol === 'cliente' && creditosAprobados > 0 && !esDashboardCliente"
+          routerLink="/cliente/dashboard" (click)="closeMenu()" title="Tienes créditos aprobados — pasa a recoger">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ creditosAprobados }} aprobado{{ creditosAprobados !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <button *ngIf="usuario.rol === 'barbero'" class="btn-nav btn-nav--agendar" (click)="irAgendarPresencial()">
           <i class="fas fa-plus"></i> Agendar cliente
         </button>
 
@@ -93,9 +130,7 @@
     </ul>
 
     <button class="navbar__hamburger" (click)="toggleMenu()" [class.active]="menuOpen">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
 
   </div>

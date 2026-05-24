@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface ICitaBarbero {
@@ -20,20 +21,25 @@ export interface ICitaBarbero {
 export class BarberoAgendaService {
 
   private url = `${environment.apiUrl}/reservas`;
+  private readonly TIMEOUT = 8000;
 
   constructor(private http: HttpClient) { }
 
   getCitasHoy(): Observable<{ ok: boolean; data: ICitaBarbero[] }> {
-    return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/hoy`);
+    return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/hoy`)
+      .pipe(timeout(this.TIMEOUT));
   }
 
   getProximas(): Observable<{ ok: boolean; data: ICitaBarbero[] }> {
-    return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/proximas`);
+    return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/proximas`)
+      .pipe(timeout(this.TIMEOUT));
   }
 
   cambiarEstado(id: number, estado: string): Observable<{ ok: boolean }> {
-    return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, { estado });
+    return this.http.put<{ ok: boolean }>(`${this.url}/${id}`, { estado })
+      .pipe(timeout(this.TIMEOUT));
   }
+
   registrarPresencial(data: {
     nombre: string;
     apellido: string;
@@ -43,6 +49,6 @@ export class BarberoAgendaService {
   }): Observable<{ ok: boolean; mensaje: string }> {
     return this.http.post<{ ok: boolean; mensaje: string }>(
       `${this.url}/barbero/registrar-presencial`, data
-    );
+    ).pipe(timeout(this.TIMEOUT));
   }
 }

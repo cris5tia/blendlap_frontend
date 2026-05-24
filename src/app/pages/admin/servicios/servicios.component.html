@@ -20,43 +20,50 @@
   </div>
 
   <div class="tabla-wrapper">
-  <div class="servicios-grid">
-    <div class="servicio-card" *ngFor="let s of serviciosFiltrados">
+    <div class="servicios-grid">
+      <div class="servicio-card" *ngFor="let s of serviciosFiltrados">
 
-      <div class="servicio-card__img">
-        <img *ngIf="s.imagen" [src]="'http://localhost:3000/images/servicios/' + s.imagen" [alt]="s.nombre_servicio" />
-        <div *ngIf="!s.imagen" class="servicio-card__img--empty">
-          <i class="fas fa-cut"></i>
+        <div class="servicio-card__img">
+          <img *ngIf="s.imagen" [src]="'http://localhost:3001/images/servicios/' + s.imagen"
+            [alt]="s.nombre_servicio" />
+          <div *ngIf="!s.imagen" class="servicio-card__img--empty">
+            <i class="fas fa-cut"></i>
+          </div>
+          <span class="servicio-card__duracion">
+            <i class="fas fa-clock"></i> {{ s.duracion }} min
+          </span>
         </div>
-        <span class="servicio-card__duracion">
-          <i class="fas fa-clock"></i> {{ s.duracion }} min
-        </span>
-      </div>
 
-      <div class="servicio-card__body">
-        <h3 class="servicio-card__nombre">{{ s.nombre_servicio }}</h3>
-        <p class="servicio-card__desc">{{ s.descripcion || 'Sin descripción' }}</p>
-        <div class="servicio-card__footer">
-          <span class="servicio-card__precio">${{ s.precio | number:'1.0-0' }}</span>
-          <div class="servicio-card__acciones">
-            <button class="btn-accion btn-accion--editar" (click)="abrirModal(s)" title="Editar">
-              <i class="fas fa-pen"></i>
-            </button>
-            <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(s)" title="Eliminar">
-              <i class="fas fa-trash"></i>
-            </button>
+        <div class="servicio-card__body">
+          <h3 class="servicio-card__nombre">{{ s.nombre_servicio }}</h3>
+          <p class="servicio-card__desc">{{ s.descripcion || 'Sin descripción' }}</p>
+          <div class="servicio-card__footer">
+            <span class="servicio-card__precio">${{ s.precio | number:'1.0-0' }}</span>
+            <div class="servicio-card__acciones">
+              <button class="btn-accion btn-accion--editar" (click)="abrirModal(s)" title="Editar">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="btn-accion" [class.btn-accion--inactivar]="s.estado === 'activo'"
+                [class.btn-accion--activar]="s.estado === 'inactivo'" (click)="confirmarCambioEstado(s)"
+                [title]="s.estado === 'activo' ? 'Inactivar' : 'Activar'">
+                <i class="fas" [class.fa-eye-slash]="s.estado === 'activo'"
+                  [class.fa-eye]="s.estado === 'inactivo'"></i>
+              </button>
+              <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(s)" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </div>
         </div>
+
       </div>
 
-    </div>
-
-    <div class="servicios-grid__empty" *ngIf="serviciosFiltrados.length === 0">
-      <i class="fas fa-scissors"></i>
-      <p>No se encontraron servicios</p>
+      <div class="servicios-grid__empty" *ngIf="serviciosFiltrados.length === 0">
+        <i class="fas fa-scissors"></i>
+        <p>No se encontraron servicios</p>
+      </div>
     </div>
   </div>
-</div>
 
 </div>
 
@@ -79,27 +86,38 @@
 
         <div class="form-group">
           <label>Nombre <span class="required">*</span></label>
-          <input type="text" [(ngModel)]="formulario.nombre_servicio" name="nombre" required maxlength="150" placeholder="Ej: Corte clásico" />
+          <input type="text" [(ngModel)]="formulario.nombre_servicio" name="nombre" required maxlength="150"
+            placeholder="Ej: Corte clásico" />
         </div>
 
         <div class="form-group">
           <label>Descripción</label>
-          <textarea [(ngModel)]="formulario.descripcion" name="descripcion" rows="3" placeholder="Describe el servicio..."></textarea>
+          <textarea [(ngModel)]="formulario.descripcion" name="descripcion" rows="3"
+            placeholder="Describe el servicio..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Categoría <span class="required">*</span></label>
+          <select [(ngModel)]="formulario.categoria" name="categoria" required>
+            <option value="">Seleccionar...</option>
+            <option value="clasicos">Clásicos</option>
+            <option value="premium">Premium</option>
+          </select>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" style="min-width:0">
             <label>Precio (COP) <span class="required">*</span></label>
             <div class="input-prefix">
               <span>$</span>
               <input type="number" [(ngModel)]="formulario.precio" name="precio" required min="0" placeholder="0" />
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="min-width:0">
             <label>Duración (min) <span class="required">*</span></label>
             <div class="input-prefix">
               <span><i class="fas fa-clock"></i></span>
-              <input type="number" [(ngModel)]="formulario.duracion" name="duracion" required min="1" placeholder="30" />
+              <input type="number" [(ngModel)]="formulario.duracion" name="duracion" required min="1"
+                placeholder="30" />
             </div>
           </div>
         </div>
@@ -108,14 +126,16 @@
           <label>Imagen</label>
           <div class="imagen-preview" *ngIf="previewImagen">
             <img [src]="previewImagen" [alt]="formulario.nombre_servicio" />
-            <button type="button" class="imagen-preview__remove" (click)="previewImagen = ''; archivoSeleccionado = null; formulario.imagen = ''">
+            <button type="button" class="imagen-preview__remove"
+              (click)="previewImagen = ''; archivoSeleccionado = null; formulario.imagen = ''">
               <i class="fas fa-times"></i>
             </button>
           </div>
           <div class="file-input" (click)="seleccionarImagen()">
             <i class="fas fa-cloud-upload-alt"></i>
             <span>{{ previewImagen ? 'Cambiar imagen' : 'Seleccionar imagen' }}</span>
-            <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)" hidden />
+            <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)"
+              hidden />
           </div>
         </div>
 
@@ -153,6 +173,35 @@
       <button class="btn-eliminar" (click)="eliminar()" [disabled]="eliminando">
         <i class="fas" [ngClass]="eliminando ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
         {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Modal Cambiar Estado -->
+<div class="modal-overlay" *ngIf="modalEstado" (click)="modalEstado = false">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header" [class.modal__header--danger]="servicioEstado?.estado === 'activo'"
+      [class.modal__header--success]="servicioEstado?.estado === 'inactivo'">
+      <h2 class="modal__title">
+        <i class="fas" [class.fa-eye-slash]="servicioEstado?.estado === 'activo'"
+          [class.fa-eye]="servicioEstado?.estado === 'inactivo'"></i>
+        {{ servicioEstado?.estado === 'activo' ? 'Inactivar servicio' : 'Activar servicio' }}
+      </h2>
+    </div>
+    <div class="modal__body">
+      <p class="modal__confirm-text">
+        ¿{{ servicioEstado?.estado === 'activo' ? 'Inactivar' : 'Activar' }}
+        <strong>{{ servicioEstado?.nombre_servicio }}</strong>?
+        {{ servicioEstado?.estado === 'activo'
+        ? 'El servicio no aparecerá en el home ni para agendar.'
+        : 'El servicio volverá a estar disponible.' }}
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancelar" (click)="modalEstado = false">Cancelar</button>
+      <button class="btn-guardar" (click)="cambiarEstado()" [disabled]="cambiandoEstado">
+        <i class="fas" [ngClass]="cambiandoEstado ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ cambiandoEstado ? 'Procesando...' : 'Confirmar' }}
       </button>
     </div>
   </div>

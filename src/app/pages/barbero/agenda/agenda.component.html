@@ -23,60 +23,77 @@
     <!-- HOY -->
     <ng-container *ngIf="navActual === 'agenda'">
 
-      <div class="empty-state" *ngIf="citasHoy.length === 0">
-        <div class="empty-state__icon"><i class="fas fa-calendar-times"></i></div>
-        <h3>No tienes citas para hoy</h3>
-        <p>Disfruta tu dia libre</p>
+      <!-- Resumen del día -->
+      <div class="citas-resumen" *ngIf="citasHoy.length > 0">
+        <div class="citas-resumen__fecha">
+          <i class="fas fa-calendar-day"></i>
+          <span>{{ formatFechaHoy() }}</span>
+        </div>
+        <div class="citas-resumen__stats">
+          <span class="citas-resumen__stat citas-resumen__stat--total">
+            <i class="fas fa-calendar-check"></i>
+            {{ citasHoy.length }} cita{{ citasHoy.length !== 1 ? 's' : '' }}
+          </span>
+          <span class="citas-resumen__stat citas-resumen__stat--ok" *ngIf="citasCompletadas > 0">
+            <i class="fas fa-check-circle"></i>
+            {{ citasCompletadas }} lista{{ citasCompletadas !== 1 ? 's' : '' }}
+          </span>
+          <span class="citas-resumen__stat citas-resumen__stat--now" *ngIf="mostrarLineaAhora">
+            <i class="fas fa-circle"></i>
+            {{ horaActualStr }}
+          </span>
+        </div>
       </div>
 
-      <div class="timeline-wrap" *ngIf="citasHoy.length > 0">
-        <div class="timeline" [style.height.px]="alturaTimeline + 80">
+      <!-- Timeline 8AM–10PM -->
+      <div class="tl-scroll">
+        <div class="tl-wrap" [style.height.px]="alturaTimeline">
 
-          <div class="timeline__hours">
-            <div class="timeline__mark"
-              *ngFor="let marca of marcasMinutos"
-              [style.top.px]="marca.top"
-              [class.timeline__mark--principal]="marca.esPrincipal"
-              [class.timeline__mark--minuto]="!marca.esPrincipal">
-              <span>{{ marca.label }}</span>
+          <!-- Etiquetas de hora -->
+          <div class="tl-labels">
+            <div class="tl-lbl"
+                 *ngFor="let h of horasTimeline"
+                 [style.top.px]="horaAPixels(h + ':00')">
+              {{ formatHoraNum(h) }}
             </div>
           </div>
 
-          <div class="timeline__track">
+          <!-- Área de eventos -->
+          <div class="tl-area">
 
-            <div class="timeline__grid-line"
-              *ngFor="let marca of marcasMinutos"
-              [style.top.px]="marca.top"
-              [class.timeline__grid-line--principal]="marca.esPrincipal"
-              [class.timeline__grid-line--minuto]="!marca.esPrincipal">
+            <!-- Líneas de cuadrícula -->
+            <div class="tl-gridline"
+                 *ngFor="let h of horasTimeline"
+                 [style.top.px]="horaAPixels(h + ':00')">
             </div>
 
-            <div class="timeline__now" *ngIf="mostrarLineaAhora" [style.top.px]="lineaAhora">
-              <div class="timeline__now-dot"></div>
-              <div class="timeline__now-label">{{ horaActualStr }}</div>
+            <!-- Línea de tiempo actual -->
+            <div class="tl-now" *ngIf="mostrarLineaAhora" [style.top.px]="lineaAhora">
+              <div class="tl-now__dot"></div>
+              <div class="tl-now__line"></div>
             </div>
 
-            <div class="timeline__cita"
-              *ngFor="let cita of citasHoy"
-              [style.top.px]="horaAPixels(cita.hora)"
-              [style.height.px]="duracionAPixels(cita.duracion_total)"
-              [ngClass]="{
-                'tl--completada': getEstadoCita(cita) === 'completada',
-                'tl--en-curso':   getEstadoCita(cita) === 'en-curso',
-                'tl--proxima':    getEstadoCita(cita) === 'proxima'
-              }"
-              (click)="abrirModalCita(cita)">
-              <div class="tl__header">
-                <span class="tl__hora">{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
-                <span class="tl__badge tl__badge--ok" *ngIf="getEstadoCita(cita) === 'completada'">
-                  <i class="fas fa-check"></i> Lista
-                </span>
-                <span class="tl__badge tl__badge--curso" *ngIf="getEstadoCita(cita) === 'en-curso'">
-                  <i class="fas fa-circle"></i> En curso
-                </span>
+            <!-- Estado vacío -->
+            <div class="tl-empty" *ngIf="citasHoy.length === 0">
+              <i class="fas fa-calendar-times"></i>
+              <span>Sin citas para hoy · Disfruta tu día</span>
+            </div>
+
+            <!-- Bloques de citas -->
+            <div class="tl-cita"
+                 *ngFor="let cita of citasHoy"
+                 [style.top.px]="horaAPixels(cita.hora)"
+                 [style.height.px]="duracionAPixels(cita.duracion_total)"
+                 [class.tl-cita--completada]="getEstadoCita(cita) === 'completada'"
+                 [class.tl-cita--en-curso]="getEstadoCita(cita) === 'en-curso'"
+                 [class.tl-cita--proxima]="getEstadoCita(cita) === 'proxima'"
+                 (click)="abrirModalCita(cita)">
+              <div class="tl-cita__inner">
+                <span class="tl-cita__time">{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
+                <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
+                <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
+                <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>
               </div>
-              <div class="tl__cliente">{{ cita.nombre_cliente }}</div>
-              <div class="tl__servicio">{{ cita.nombre_servicio }} · {{ cita.duracion_total }} min</div>
             </div>
 
           </div>

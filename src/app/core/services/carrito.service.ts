@@ -5,6 +5,7 @@ import { IProducto } from './producto.service';
 export interface IItemCarrito {
   producto: IProducto;
   cantidad: number;
+  talla?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,13 +29,15 @@ export class CarritoService {
     return this.items.reduce((sum, i) => sum + i.cantidad, 0);
   }
 
-  agregar(producto: IProducto, cantidad: number = 1): void {
+  agregar(producto: IProducto, cantidad: number = 1, talla?: string): void {
     const items = [...this.items];
-    const existe = items.find(i => i.producto.id_producto === producto.id_producto);
+    const existe = items.find(i =>
+      i.producto.id_producto === producto.id_producto && i.talla === talla
+    );
     if (existe) {
       existe.cantidad = Math.min(existe.cantidad + cantidad, producto.stock);
     } else {
-      items.push({ producto, cantidad });
+      items.push({ producto, cantidad, talla });
     }
     this.actualizar(items);
   }
@@ -45,7 +48,7 @@ export class CarritoService {
 
   cambiarCantidad(id_producto: number, cantidad: number): void {
     const items = [...this.items];
-    const item  = items.find(i => i.producto.id_producto === id_producto);
+    const item = items.find(i => i.producto.id_producto === id_producto);
     if (!item) return;
     if (cantidad <= 0) { this.quitar(id_producto); return; }
     item.cantidad = Math.min(cantidad, item.producto.stock);
@@ -54,8 +57,8 @@ export class CarritoService {
 
   limpiar(): void { this.actualizar([]); }
 
-  abrirModal(): void  { this.modalSubject.next(true);  document.body.style.overflow = 'hidden'; }
-  cerrarModal(): void { this.modalSubject.next(false); document.body.style.overflow = 'auto';   }
+  abrirModal(): void { this.modalSubject.next(true); document.body.style.overflow = 'hidden'; }
+  cerrarModal(): void { this.modalSubject.next(false); document.body.style.overflow = 'auto'; }
   toggleModal(): void {
     const estado = this.modalSubject.getValue();
     estado ? this.cerrarModal() : this.abrirModal();
@@ -63,7 +66,7 @@ export class CarritoService {
 
   private actualizar(items: IItemCarrito[]): void {
     this.itemsSubject.next(items);
-    try { localStorage.setItem('carrito_blendlap', JSON.stringify(items)); } catch {}
+    try { localStorage.setItem('carrito_blendlap', JSON.stringify(items)); } catch { }
   }
 
   private cargarStorage(): IItemCarrito[] {

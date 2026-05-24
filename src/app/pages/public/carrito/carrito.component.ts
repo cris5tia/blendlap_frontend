@@ -20,13 +20,13 @@ export class CarritoComponent implements OnInit {
   modalConfirmar    = false;
 
   plazos = [
-    { id: '1_semana',    label: '1 Semana',    desc: 'Pago en 7 días'  },
-    { id: '1_quincena',  label: '1 Quincena',  desc: 'Pago en 15 días' },
-    { id: '2_quincenas', label: '2 Quincenas', desc: 'Pago en 30 días' },
-    { id: '1_mes',       label: '1 Mes',       desc: 'Pago en 1 mes'   }
+    { id: '1_semana',    label: '1 Semana',    desc: '7 días'  },
+    { id: '1_quincena',  label: '1 Quincena',  desc: '15 días' },
+    { id: '2_quincenas', label: '2 Quincenas', desc: '30 días' },
+    { id: '1_mes',       label: '1 Mes',       desc: '1 mes'   }
   ];
 
-  imagenUrl = 'http://localhost:3000/images/productos/';
+  imagenUrl = 'http://localhost:3001/images/productos/';
 
   constructor(
     private carritoService: CarritoService,
@@ -36,22 +36,12 @@ export class CarritoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Si no está logueado → login
     const usuario = this.authService.getUsuario();
-    if (!usuario) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    // Si es admin o barbero → no tienen carrito
-    if (usuario.rol === 'admin' || usuario.rol === 'barbero') {
-      this.router.navigate(['/']);
-      return;
-    }
-
+    if (!usuario) { this.router.navigate(['/login']); return; }
+    if (usuario.rol === 'admin' || usuario.rol === 'barbero') { this.router.navigate(['/']); return; }
     this.carritoService.items$.subscribe(items => this.items = items);
   }
 
-  // ─── Cantidad ─────────────────────────────────────────────
   aumentar(id: number): void {
     const item = this.items.find(i => i.producto.id_producto === id);
     if (!item) return;
@@ -64,67 +54,51 @@ export class CarritoComponent implements OnInit {
     this.carritoService.cambiarCantidad(id, item.cantidad - 1);
   }
 
-  quitar(id: number): void {
-    this.carritoService.quitar(id);
-  }
+  quitar(id: number): void { this.carritoService.quitar(id); }
+  limpiar(): void { this.carritoService.limpiar(); }
 
-  limpiar(): void {
-    this.carritoService.limpiar();
-  }
+  get total(): number { return this.carritoService.total; }
+  get cantidad(): number { return this.carritoService.cantidad; }
 
-  // ─── Totales ──────────────────────────────────────────────
-  get total(): number {
-    return this.carritoService.total;
-  }
-
-  get cantidad(): number {
-    return this.carritoService.cantidad;
-  }
-
-  // ─── Imagen ───────────────────────────────────────────────
   getImagen(imagen?: string): string {
     if (imagen) return `${this.imagenUrl}${imagen}`;
     return 'assets/images/no-img.png';
   }
 
-  // ─── Confirmar solicitud ──────────────────────────────────
   abrirConfirmar(): void {
     if (!this.items.length) return;
     this.modalConfirmar = true;
-    this.error          = '';
+    this.error = '';
   }
 
   confirmarSolicitud(): void {
     this.enviando = true;
-    this.error    = '';
-
+    this.error = '';
     const data = {
-      plazo:      this.plazoSeleccionado,
-      productos:  this.items.map(i => ({
+      plazo: this.plazoSeleccionado,
+      productos: this.items.map(i => ({
         id_producto:     i.producto.id_producto,
         cantidad:        i.cantidad,
+        talla:           i.talla || null,
         precio_unitario: Number(i.producto.precio),
         subtotal:        Number(i.producto.precio) * i.cantidad
       }))
     };
-
     this.creditoService.solicitarCredito(data).subscribe({
       next: () => {
-        this.enviando       = false;
+        this.enviando = false;
         this.modalConfirmar = false;
-        this.exito          = true;
+        this.exito = true;
         this.carritoService.limpiar();
       },
       error: (err: any) => {
-        this.error    = err.error?.mensaje || 'Error al enviar la solicitud';
+        this.error = err.error?.mensaje || 'Error al enviar la solicitud';
         this.enviando = false;
       }
     });
   }
 
-  irAlHome(): void {
-    this.router.navigate(['/']);
-  }
+  irAlHome(): void { this.router.navigate(['/']); }
 
   formatCurrency(v: number): string {
     return new Intl.NumberFormat('es-CO', {

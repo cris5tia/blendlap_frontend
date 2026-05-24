@@ -62,7 +62,7 @@
             <td>
               <div class="producto-cell">
                 <div class="producto-cell__img">
-                  <img *ngIf="p.imagen" [src]="'http://localhost:3000/images/productos/' + p.imagen" />
+                  <img *ngIf="p.imagen" [src]="'http://localhost:3001/images/productos/' + p.imagen" />
                   <i *ngIf="!p.imagen" class="fas fa-box"></i>
                 </div>
                 <span class="producto-cell__nombre">{{ p.nombre_producto }}</span>

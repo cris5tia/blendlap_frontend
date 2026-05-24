@@ -61,7 +61,7 @@ export class BarberosComponent implements OnInit {
     this.formulario = barbero ? { ...barbero } : this.formularioVacio();
     this.archivoSeleccionado = null;
     this.previewFoto = barbero?.foto
-      ? `http://localhost:3000/images/barberos/${barbero.foto}`
+      ? `http://localhost:3001/images/barberos/${barbero.foto}`
       : '';
     this.modalVisible = true;
   }

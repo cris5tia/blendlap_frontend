@@ -28,11 +28,10 @@
     <p class="section-subtitle">Conoce a los profesionales</p>
     <h2 class="section-title">Nuestro <span>Equipo</span></h2>
     <div class="equipo__grid">
-      <div class="barbero-card" *ngFor="let barbero of barberos"
-        (click)="abrirModalBarbero(barbero)" style="cursor:pointer">
+      <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
+        style="cursor:pointer">
         <div class="barbero-card__imagen">
-          <img *ngIf="barbero.foto"
-            [src]="'http://localhost:3000/images/barberos/' + barbero.foto"
+          <img *ngIf="barbero.foto" [src]="'http://localhost:3001/images/barberos/' + barbero.foto"
             [alt]="barbero.nombre">
           <div *ngIf="!barbero.foto" class="barbero-card__foto--empty">
             <i class="fas fa-user-tie"></i>
@@ -46,8 +45,7 @@
         <div class="barbero-card__body">
           <p class="barbero-card__cargo">{{ barbero.titulo || 'Barbero' }}</p>
           <h3>{{ barbero.nombre }} {{ barbero.apellido }}</h3>
-          <div class="barbero-card__rating"
-            [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
+          <div class="barbero-card__rating" [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
             (click)="barbero.promedio_estrellas > 0 && abrirModalResenas(barbero, $event)">
             <ng-container *ngIf="barbero.promedio_estrellas > 0">
               <div class="estrellas">
@@ -98,15 +96,14 @@
 </section>
 
 <!-- ─── MODAL BARBERO ────────────────────────────────────────── -->
-<div class="modal-overlay" *ngIf="barberoSeleccionado" (click)="cerrarModalBarbero()">
+<div class="modal-overlay modal-overlay--barbero" *ngIf="barberoSeleccionado" (click)="cerrarModalBarbero()">
   <div class="modal modal--barbero" (click)="$event.stopPropagation()">
     <div class="modal__imagen">
       <button class="modal__cerrar" (click)="cerrarModalBarbero()">
         <i class="fas fa-times"></i>
       </button>
-      <img *ngIf="barberoSeleccionado.foto"
-        [src]="'http://localhost:3000/images/barberos/' + barberoSeleccionado.foto"
-        [alt]="barberoSeleccionado.nombre"/>
+      <img *ngIf="barberoSeleccionado.foto" [src]="'http://localhost:3001/images/barberos/' + barberoSeleccionado.foto"
+        [alt]="barberoSeleccionado.nombre" />
       <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
         <i class="fas fa-user-tie"></i>
       </div>
@@ -160,8 +157,7 @@
       <div>
         <h3>{{ barberoResenas?.nombre }} {{ barberoResenas?.apellido }}</h3>
         <div class="modal-resenas__rating">
-          <i class="fas fa-star"
-            *ngFor="let s of getEstrellasArray(barberoResenas?.promedio_estrellas || 0)"></i>
+          <i class="fas fa-star" *ngFor="let s of getEstrellasArray(barberoResenas?.promedio_estrellas || 0)"></i>
           <span>{{ barberoResenas?.promedio_estrellas | number:'1.1-1' }}</span>
           <span class="modal-resenas__total">({{ barberoResenas?.total_resenas }} reseñas)</span>
         </div>
@@ -199,17 +195,15 @@
     <h2 class="section-title">Nuestros <span>Servicios</span></h2>
     <div class="servicios__categorias">
       <button *ngFor="let cat of categoriasServicio" class="servicios__cat-btn"
-        [class.active]="categoriaActivaServicio === cat.id"
-        (click)="cambiarCategoriaServicio(cat.id)">
-        {{ cat.nombre }}
+        [class.active]="categoriaActivaServicio === cat.id" (click)="cambiarCategoriaServicio(cat.id)">
+        <i [class]="cat.icon"></i> {{ cat.nombre }}
       </button>
     </div>
     <ng-container *ngIf="!esMobil()">
       <div class="servicios__grid">
         <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
           <div class="servicio-card__imagen">
-            <img [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
-              [alt]="servicio.nombre_servicio">
+            <img [src]="'http://localhost:3001/images/servicios/' + servicio.imagen" [alt]="servicio.nombre_servicio">
             <div class="servicio-card__badge">
               <i class="fas fa-clock"></i> {{ servicio.duracion }} min
             </div>
@@ -219,8 +213,7 @@
             <p>{{ servicio.descripcion }}</p>
             <div class="servicio-card__footer">
               <span class="servicio-card__precio">${{ servicio.precio | number:'1.0-0' }}</span>
-              <a class="servicio-card__btn"
-                (click)="agendarConServicio(servicio); $event.stopPropagation()">
+              <a class="servicio-card__btn" (click)="agendarConServicio(servicio); $event.stopPropagation()">
                 Reservar <i class="fas fa-arrow-right"></i>
               </a>
             </div>
@@ -236,9 +229,8 @@
       <div class="servicios__lista-movil">
         <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
           <div class="servicio-item-movil__img">
-            <img *ngIf="servicio.imagen"
-              [src]="'http://localhost:3000/images/servicios/' + servicio.imagen"
-              [alt]="servicio.nombre_servicio"/>
+            <img *ngIf="servicio.imagen" [src]="'http://localhost:3001/images/servicios/' + servicio.imagen"
+              [alt]="servicio.nombre_servicio" />
             <div *ngIf="!servicio.imagen" class="servicio-item-movil__img--empty">
               <i class="fas fa-cut"></i>
             </div>
@@ -269,8 +261,8 @@
     <h2 class="section-title">Nuestros <span>Productos</span></h2>
 
     <div class="productos__categorias">
-      <button *ngFor="let cat of categorias" class="productos__cat-btn"
-        [class.active]="categoriaActiva === cat.id" (click)="cambiarCategoria(cat.id)">
+      <button *ngFor="let cat of categorias" class="productos__cat-btn" [class.active]="categoriaActiva === cat.id"
+        (click)="cambiarCategoria(cat.id)">
         <i [class]="cat.icon"></i> {{ cat.nombre }}
       </button>
     </div>
@@ -280,10 +272,9 @@
     </div>
 
     <div class="productos__grid" *ngIf="!cargandoProductos">
-      <div class="producto-card" *ngFor="let producto of productosMostrados"
-        (click)="abrirModal(producto)">
+      <div class="producto-card" *ngFor="let producto of productosMostrados" (click)="abrirModal(producto)">
         <div class="producto-card__imagen">
-          <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto"/>
+          <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto" />
           <div class="producto-card__overlay"><i class="fas fa-search-plus"></i></div>
           <div class="producto-card__stock-cero" *ngIf="producto.stock === 0">Agotado</div>
         </div>
@@ -308,12 +299,10 @@
     </div>
 
     <div class="productos__ver-mas">
-      <button class="productos__btn-ver-mas" *ngIf="hayMasProductos"
-        (click)="verMasProductos()">
+      <button class="productos__btn-ver-mas" *ngIf="hayMasProductos" (click)="verMasProductos()">
         <i class="fas fa-plus"></i> Ver más productos
       </button>
-      <button class="productos__btn-ver-mas productos__btn-ver-menos"
-        *ngIf="!hayMasProductos && estaExpandidoProductos"
+      <button class="productos__btn-ver-mas productos__btn-ver-menos" *ngIf="!hayMasProductos && estaExpandidoProductos"
         (click)="verMenosProductos()">
         <i class="fas fa-chevron-up"></i> Ver menos
       </button>
@@ -343,50 +332,79 @@
 
 <!-- ─── MODAL PRODUCTO ───────────────────────────────────────── -->
 <div class="modal-overlay" *ngIf="productoSeleccionado" (click)="cerrarModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
+  <div class="modal modal--producto" (click)="$event.stopPropagation()">
+
     <button class="modal__cerrar" (click)="cerrarModal()">
       <i class="fas fa-times"></i>
     </button>
-    <div class="modal__imagen">
-      <img [src]="getImagenProducto(productoSeleccionado)"
-        [alt]="productoSeleccionado.nombre_producto"/>
-      <div class="modal__agotado" *ngIf="productoSeleccionado.stock === 0">Agotado</div>
-    </div>
-    <div class="modal__info">
-      <h2>{{ productoSeleccionado.nombre_producto }}</h2>
-      <p>{{ productoSeleccionado.descripcion }}</p>
 
-      <div class="modal__tallas" *ngIf="productoSeleccionado.talla">
-        <h4>Talla</h4>
+    <!-- Imagen -->
+    <div class="modal__imagen">
+      <img [src]="getImagenProducto(productoSeleccionado)" [alt]="productoSeleccionado.nombre_producto" />
+      <div class="modal__agotado" *ngIf="productoSeleccionado.stock === 0">
+        Agotado
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="modal__info">
+
+      <div class="modal__categoria">
+        {{ productoSeleccionado.categoria | titlecase }}
+      </div>
+
+      <h2>{{ productoSeleccionado.nombre_producto }}</h2>
+      <p class="modal__desc">{{ productoSeleccionado.descripcion }}</p>
+
+      <!-- Tallas -->
+      <div class="modal__tallas" *ngIf="tallasDelProducto.length > 0">
+        <label>Talla</label>
         <div class="modal__tallas-grid">
-          <span class="talla-badge talla-badge--lg seleccionada">
-            {{ productoSeleccionado.talla }}
-          </span>
+          <button *ngFor="let t of tallasDelProducto" class="talla-btn" [class.talla-btn--activa]="tallaElegida === t"
+            (click)="elegirTalla(t)">
+            {{ t }}
+          </button>
         </div>
       </div>
 
-      <div class="modal__stock" *ngIf="productoSeleccionado.stock > 0">
-        <i class="fas fa-check-circle"></i> {{ productoSeleccionado.stock }} disponibles
+      <!-- Disponibilidad -->
+      <div class="modal__disponibilidad">
+        <div class="disp-item" [class.disp-ok]="productoSeleccionado.stock > 5"
+          [class.disp-medio]="productoSeleccionado.stock > 0 && productoSeleccionado.stock <= 5"
+          [class.disp-cero]="productoSeleccionado.stock === 0">
+          <i class="fas" [class.fa-check-circle]="productoSeleccionado.stock > 0"
+            [class.fa-times-circle]="productoSeleccionado.stock === 0"></i>
+          <span *ngIf="productoSeleccionado.stock > 5">Disponible</span>
+          <span *ngIf="productoSeleccionado.stock > 0 && productoSeleccionado.stock <= 5">
+            Últimas {{ productoSeleccionado.stock }} unidades
+          </span>
+          <span *ngIf="productoSeleccionado.stock === 0">Agotado</span>
+        </div>
       </div>
 
-      <div class="modal__precio">
-        {{ productoSeleccionado.precio | currency:'COP':'symbol':'1.0-0' }}
+      <!-- Precio -->
+      <div class="modal__precio-wrap">
+        <span class="modal__precio-label">Precio</span>
+        <span class="modal__precio">
+          {{ productoSeleccionado.precio | currency:'COP':'symbol':'1.0-0' }}
+        </span>
       </div>
 
+      <!-- Feedback agregado -->
       <div class="modal__agregado" *ngIf="agregadoExito">
         <i class="fas fa-check-circle"></i> ¡Agregado al carrito!
       </div>
 
-      <button class="btn-primary modal__btn"
-        *ngIf="productoSeleccionado.stock > 0 && !agregadoExito"
+      <!-- Botones -->
+      <button class="modal__btn-carrito" *ngIf="productoSeleccionado.stock > 0 && !agregadoExito"
         (click)="agregarAlCarrito(productoSeleccionado)">
         <i class="fas fa-shopping-basket"></i> Agregar al carrito
       </button>
 
-      <button class="btn-primary modal__btn modal__btn--agotado"
-        *ngIf="productoSeleccionado.stock === 0" disabled>
+      <button class="modal__btn-agotado" *ngIf="productoSeleccionado.stock === 0" disabled>
         <i class="fas fa-ban"></i> Agotado
       </button>
+
     </div>
   </div>
 </div>
@@ -398,6 +416,9 @@
     <h2 class="section-title">Galería de <span>Estilos</span></h2>
   </div>
   <div class="galeria__wrapper">
+    <button class="galeria__btn galeria__btn--left" type="button" aria-label="Ver imágenes anteriores" (click)="scrollGaleria('left')">
+      <i class="fas fa-chevron-left"></i>
+    </button>
     <div class="galeria__track" #galeriaTrack>
       <ng-container *ngIf="!esMobil()">
         <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
@@ -406,8 +427,7 @@
               <img [src]="item.src" [alt]="item.alt" draggable="false">
             </ng-container>
             <ng-container *ngIf="item.tipo === 'video'">
-              <div class="galeria__video-wrapper"
-                (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
+              <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
                 <video [src]="item.src" loop muted playsinline preload="auto"></video>
                 <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
               </div>
@@ -421,8 +441,7 @@
             <img [src]="item.src" [alt]="item.alt" draggable="false">
           </ng-container>
           <ng-container *ngIf="item.tipo === 'video'">
-            <div class="galeria__video-wrapper"
-              (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
+            <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
               <video [src]="item.src" loop muted playsinline preload="auto"></video>
               <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
             </div>
@@ -430,13 +449,15 @@
         </div>
       </ng-container>
     </div>
+    <button class="galeria__btn galeria__btn--right" type="button" aria-label="Ver más imágenes" (click)="scrollGaleria('right')">
+      <i class="fas fa-chevron-right"></i>
+    </button>
   </div>
   <div class="galeria__ver-mas">
     <button class="galeria__btn-ver-mas" *ngIf="hayMasGaleria" (click)="verMasGaleria()">
       <i class="fas fa-th"></i> Ver más
     </button>
-    <button class="galeria__btn-ver-mas galeria__btn-ver-menos"
-      *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
+    <button class="galeria__btn-ver-mas galeria__btn-ver-menos" *ngIf="!hayMasGaleria" (click)="verMenosGaleria()">
       <i class="fas fa-chevron-up"></i> Ver menos
     </button>
   </div>
@@ -472,8 +493,7 @@
           <p>+57 321 895 4895</p>
         </div>
       </div>
-      <a href="https://maps.google.com/?q=Cl.+48+%23+19-55,+Armenia,+Quindío"
-        target="_blank" class="btn-primary">
+      <a href="https://maps.google.com/?q=Cl.+48+%23+19-55,+Armenia,+Quindío" target="_blank" class="btn-primary">
         <i class="fas fa-directions"></i> Cómo llegar
       </a>
     </div>
@@ -493,7 +513,7 @@
     <p class="section-subtitle">Nuestra diferencia</p>
     <h2 class="section-title">¿Por qué <span>Blendlap</span>?</h2>
     <div class="porque__grid">
-      <div class="porque__item" *ngFor="let item de razones">
+      <div class="porque__item" *ngFor="let item of razones">
         <div class="porque__icon"><i [class]="item.icon"></i></div>
         <h3>{{ item.titulo }}</h3>
         <p>{{ item.descripcion }}</p>

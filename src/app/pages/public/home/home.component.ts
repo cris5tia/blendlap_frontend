@@ -21,13 +21,13 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private servicioService: ServicioService,
-    private barberoService:  BarberoService,
+    private barberoService: BarberoService,
     private productoService: ProductoService,
-    private carritoService:  CarritoService,
-    private authService:     AuthService,
-    private router:          Router,
-    private resenaService:   ResenaService
-  ) {}
+    private carritoService: CarritoService,
+    private authService: AuthService,
+    private router: Router,
+    private resenaService: ResenaService
+  ) { }
 
   ngOnInit(): void {
     this.categoriaActivaServicio = 'clasicos';
@@ -35,6 +35,7 @@ export class HomeComponent implements OnInit {
     this.cargarServicios();
     this.cargarBarberos();
     this.cargarProductos();
+    this.verificarProductoPendiente();
   }
 
   scrollTo(seccion: string): void {
@@ -48,17 +49,17 @@ export class HomeComponent implements OnInit {
   esMobil(): boolean { return window.innerWidth <= 768; }
 
   // ─── Reseñas ──────────────────────────────────────────────
-  modalResenas    = false;
+  modalResenas = false;
   barberoResenas: IBarbero | null = null;
-  resenas:        any[] = [];
+  resenas: any[] = [];
   cargandoResenas = false;
 
   abrirModalResenas(barbero: IBarbero, event: Event): void {
     event.stopPropagation();
-    this.barberoResenas  = barbero;
-    this.modalResenas    = true;
+    this.barberoResenas = barbero;
+    this.modalResenas = true;
     this.cargandoResenas = true;
-    this.resenas         = [];
+    this.resenas = [];
     document.body.style.overflow = 'hidden';
     this.resenaService.getByBarbero(barbero.id_usuario).subscribe({
       next: (res) => { this.resenas = res.data; this.cargandoResenas = false; },
@@ -67,9 +68,9 @@ export class HomeComponent implements OnInit {
   }
 
   cerrarModalResenas(): void {
-    this.modalResenas   = false;
+    this.modalResenas = false;
     this.barberoResenas = null;
-    this.resenas        = [];
+    this.resenas = [];
     document.body.style.overflow = 'auto';
   }
 
@@ -81,15 +82,14 @@ export class HomeComponent implements OnInit {
   categoriaActivaServicio = 'clasicos';
 
   categoriasServicio = [
-    { id: 'clasicos', nombre: 'Clasicos' },
-    { id: 'combos',   nombre: 'Combos'   },
-    { id: 'premium',  nombre: 'Premium'  }
+    { id: 'clasicos', nombre: 'Clásicos', icon: 'fas fa-cut' },
+    { id: 'premium', nombre: 'Premium', icon: 'fas fa-crown' }
   ];
 
   cargarServicios(): void {
-    this.servicioService.getAll().subscribe({
-      next: (res) => this.servicios = res.data.sort((a, b) => Number(b.precio) - Number(a.precio)),
-      error: () => {}
+    this.servicioService.getAll({ activos: true }).subscribe({
+      next: (res) => this.servicios = res.data.sort((a, b) => Number(a.precio) - Number(b.precio)),
+      error: () => { }
     });
   }
 
@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
   cargarBarberos(): void {
     this.barberoService.getAll().subscribe({
       next: (res) => this.barberos = res.data,
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -152,32 +152,52 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/agendar']);
   }
 
-  // ─── Productos desde BD ───────────────────────────────────
-  productosDB:      IProducto[] = [];
+  // ─── Productos ────────────────────────────────────────────
+  productosDB: IProducto[] = [];
   cargandoProductos = false;
-  categoriaActiva   = 'barberia';
+  categoriaActiva = 'cuidado';
   productosVisibles = 4;
 
   productoSeleccionado: IProducto | null = null;
-  tallaSeleccionada    = '';
-  agregadoExito        = false;
+  tallaSeleccionada = '';
+  tallaElegida = '';
+  agregadoExito = false;
 
   categorias = [
-    { id: 'barberia',   nombre: 'Barbería',   icon: 'fas fa-cut'    },
-    { id: 'ropa',       nombre: 'Ropa',       icon: 'fas fa-tshirt' },
-    { id: 'accesorios', nombre: 'Accesorios', icon: 'fas fa-gem'    },
-    { id: 'cuidado',    nombre: 'Cuidado',    icon: 'fas fa-leaf'   }
-  ];
+  { id: 'cuidado',    nombre: 'Cuidado',     icon: 'fas fa-leaf' },
+  { id: 'barberia',   nombre: 'Barbería',    icon: 'fas fa-cut' },
+  { id: 'ropa',       nombre: 'Ropa',        icon: 'fas fa-tshirt' },
+  { id: 'accesorios', nombre: 'Accesorios',  icon: 'fas fa-tag' },
+];
 
   cargarProductos(): void {
     this.cargandoProductos = true;
     this.productoService.getAll().subscribe({
       next: (res) => {
-        this.productosDB      = res.data.filter(p => p.estado === 'activo');
+        this.productosDB = res.data.filter(p => p.estado === 'activo');
         this.cargandoProductos = false;
       },
       error: () => this.cargandoProductos = false
     });
+  }
+
+  verificarProductoPendiente(): void {
+    const pendiente = sessionStorage.getItem('producto_pendiente_carrito');
+    if (!pendiente) return;
+    const usuario = this.authService.getUsuario();
+    if (!usuario) return;
+    sessionStorage.removeItem('producto_pendiente_carrito');
+    const producto: IProducto = JSON.parse(pendiente);
+    const intentar = setInterval(() => {
+      if (this.productosDB.length > 0) {
+        clearInterval(intentar);
+        const actualizado = this.productosDB.find(p => p.id_producto === producto.id_producto);
+        if (actualizado) {
+          this.abrirModal(actualizado);
+          setTimeout(() => this.scrollTo('productos'), 300);
+        }
+      }
+    }, 200);
   }
 
   get productosFiltrados(): IProducto[] {
@@ -197,11 +217,11 @@ export class HomeComponent implements OnInit {
   }
 
   cambiarCategoria(id: string): void {
-    this.categoriaActiva   = id;
+    this.categoriaActiva = id;
     this.productosVisibles = 4;
   }
 
-  verMasProductos(): void   { this.productosVisibles += 4; }
+  verMasProductos(): void { this.productosVisibles += 4; }
   verMenosProductos(): void { this.productosVisibles = 4; }
 
   getImagenProducto(p: IProducto): string {
@@ -211,8 +231,9 @@ export class HomeComponent implements OnInit {
 
   abrirModal(producto: IProducto): void {
     this.productoSeleccionado = producto;
-    this.tallaSeleccionada    = '';
-    this.agregadoExito        = false;
+    this.tallaSeleccionada = '';
+    this.tallaElegida = '';
+    this.agregadoExito = false;
     document.body.style.overflow = 'hidden';
   }
 
@@ -223,65 +244,70 @@ export class HomeComponent implements OnInit {
 
   seleccionarTalla(talla: string): void { this.tallaSeleccionada = talla; }
 
+  elegirTalla(t: string): void { this.tallaElegida = t; }
+
+  get tallasDelProducto(): string[] {
+    if (!this.productoSeleccionado?.talla) return [];
+    return this.productoSeleccionado.talla.split(',').map(t => t.trim()).filter(t => t);
+  }
+
   // ─── Carrito ──────────────────────────────────────────────
   agregarAlCarrito(producto: IProducto, event?: Event): void {
-    if (event) event.stopPropagation();
-    if (producto.stock === 0) return;
+  if (event) event.stopPropagation();
+  if (producto.stock === 0) return;
 
-    const usuario = this.authService.getUsuario();
-
-    if (!usuario) {
-      sessionStorage.setItem('producto_pendiente_carrito', JSON.stringify(producto));
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (usuario.rol === 'admin' || usuario.rol === 'barbero') return;
-
-    this.carritoService.agregar(producto);
-    this.agregadoExito = true;
-    setTimeout(() => this.agregadoExito = false, 2000);
+  const usuario = this.authService.getUsuario();
+  if (!usuario) {
+    sessionStorage.setItem('producto_pendiente_carrito', JSON.stringify(producto));
+    this.router.navigate(['/login']);
+    return;
   }
+  if (usuario.rol === 'admin' || usuario.rol === 'barbero') return;
+
+  this.carritoService.agregar(producto, 1, this.tallaElegida || undefined);
+  this.agregadoExito = true;
+  setTimeout(() => this.agregadoExito = false, 2000);
+}
 
   // ─── Razones ──────────────────────────────────────────────
   razones = [
-    { icon: 'fas fa-medal',          titulo: 'Barberos Expertos', descripcion: 'Profesionales con años de experiencia y formación continua.' },
-    { icon: 'fas fa-leaf',           titulo: 'Productos Premium', descripcion: 'Usamos las mejores marcas para cuidar tu cabello y barba.'    },
-    { icon: 'fas fa-calendar-check', titulo: 'Reserva Fácil',     descripcion: 'Agenda tu cita en minutos desde nuestra plataforma.'         },
-    { icon: 'fas fa-smile',          titulo: 'Ambiente Único',    descripcion: 'Un espacio diseñado para tu comodidad y relax.'               }
+    { icon: 'fas fa-medal', titulo: 'Barberos Expertos', descripcion: 'Profesionales con años de experiencia y formación continua.' },
+    { icon: 'fas fa-leaf', titulo: 'Productos Premium', descripcion: 'Usamos las mejores marcas para cuidar tu cabello y barba.' },
+    { icon: 'fas fa-calendar-check', titulo: 'Reserva Fácil', descripcion: 'Agenda tu cita en minutos desde nuestra plataforma.' },
+    { icon: 'fas fa-smile', titulo: 'Ambiente Único', descripcion: 'Un espacio diseñado para tu comodidad y relax.' }
   ];
 
   // ─── Galería ──────────────────────────────────────────────
   galeriaColumnas = [
     [
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria.jpg',   alt: 'Corte clasico'   },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria13.jpg', alt: 'Corte moderno'   },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria6.jpg',  alt: 'Corte infantil'  },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria.jpg', alt: 'Corte clasico' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria13.jpg', alt: 'Corte moderno' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria6.jpg', alt: 'Corte infantil' },
     ],
     [
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria5.jpg',   alt: 'Estilo urbano'    },
-      { tipo: 'video',  src: 'assets/images/galeria/GaleVideo1.mp4', alt: 'Corte extra'      },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria12.jpg',  alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria5.jpg', alt: 'Estilo urbano' },
+      { tipo: 'video', src: 'assets/images/galeria/GaleVideo1.mp4', alt: 'Corte extra' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria12.jpg', alt: 'Corte con estilo' },
     ],
     [
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria2.jpg',  alt: 'Arreglo de barba' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria2.jpg', alt: 'Arreglo de barba' },
       { tipo: 'imagen', src: 'assets/images/galeria/Galeria11.jpg', alt: 'Corte con estilo' },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria7.jpg',  alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria7.jpg', alt: 'Corte con estilo' },
     ],
     [
-      { tipo: 'video',  src: 'assets/images/galeria/GaleVideo4.mp4', alt: 'Corte con estilo' },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria9.jpg',   alt: 'Corte con estilo' },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria3.jpg',   alt: 'Corte moderno'    },
+      { tipo: 'video', src: 'assets/images/galeria/GaleVideo4.mp4', alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria9.jpg', alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria3.jpg', alt: 'Corte moderno' },
     ],
     [
-      { tipo: 'video',  src: 'assets/images/galeria/GaleVideo3.mp4', alt: 'Corte extra'    },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria4.jpg',   alt: 'Afeitado clasico' },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria8.jpg',   alt: 'Corte moderno'    },
+      { tipo: 'video', src: 'assets/images/galeria/GaleVideo3.mp4', alt: 'Corte extra' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria4.jpg', alt: 'Afeitado clasico' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria8.jpg', alt: 'Corte moderno' },
     ],
     [
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria10.jpg',  alt: 'Corte con estilo' },
-      { tipo: 'video',  src: 'assets/images/galeria/GaleVideo5.mp4', alt: 'Corte con estilo' },
-      { tipo: 'imagen', src: 'assets/images/galeria/Galeria1.jpg',   alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria10.jpg', alt: 'Corte con estilo' },
+      { tipo: 'video', src: 'assets/images/galeria/GaleVideo5.mp4', alt: 'Corte con estilo' },
+      { tipo: 'imagen', src: 'assets/images/galeria/Galeria1.jpg', alt: 'Corte con estilo' },
     ],
   ];
 
@@ -295,8 +321,8 @@ export class HomeComponent implements OnInit {
     return this.galeriaVisible < this.galeriaColumnas.length;
   }
 
-  verMasGaleria(): void   { this.galeriaVisible += 6; }
-  verMenosGaleria(): void { this.galeriaVisible = 6;  }
+  verMasGaleria(): void { this.galeriaVisible += 6; }
+  verMenosGaleria(): void { this.galeriaVisible = 6; }
 
   get galeriaColumnasMostradas() {
     return this.galeriaColumnas.slice(0, this.galeriaVisible);
@@ -313,7 +339,8 @@ export class HomeComponent implements OnInit {
 
   scrollGaleria(direction: 'left' | 'right'): void {
     const track = this.galeriaTrack.nativeElement;
-    track.scrollBy({ left: direction === 'right' ? 400 : -400, behavior: 'smooth' });
+    const scrollAmount = track.clientWidth;
+    track.scrollBy({ left: direction === 'right' ? scrollAmount : -scrollAmount, behavior: 'smooth' });
   }
 
   playVideo(event: MouseEvent): void {

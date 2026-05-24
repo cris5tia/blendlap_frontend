@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-cliente-layout',
-  templateUrl: './cliente-layout.component.html',
-  styleUrl: './cliente-layout.component.scss'
+  template: `
+    <app-navbar></app-navbar>
+    <router-outlet></router-outlet>
+    <app-carrito-drawer></app-carrito-drawer>
+  `
 })
-export class ClienteLayoutComponent {
-
-}
+export class ClienteLayoutComponent {}

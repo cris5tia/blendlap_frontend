@@ -1,37 +1,23 @@
 <div class="cliente-dashboard">
 
-  <div class="dashboard-header">
-    <div class="dashboard-header__info">
-      <div class="dashboard-header__avatar">{{ usuario?.nombre?.charAt(0) }}</div>
-      <div>
-        <h1 class="dashboard-header__nombre">Hola, {{ usuario?.nombre }}</h1>
-        <p class="dashboard-header__sub">Tus citas y reservas</p>
-      </div>
-    </div>
-    <a routerLink="/" class="btn-inicio">
-      <i class="fas fa-home"></i> Inicio
-    </a>
-  </div>
-
   <div class="alert alert--error" *ngIf="error">
     <i class="fas fa-exclamation-circle"></i> {{ error }}
   </div>
 
   <div class="cargando" *ngIf="cargando">
-    <i class="fas fa-spinner fa-spin"></i> Cargando tus reservas...
+    <i class="fas fa-spinner fa-spin"></i> Cargando...
+  </div>
+
+  <!-- Alerta créditos aprobados -->
+  <div class="alerta-aprobado" *ngIf="creditosAprobados.length > 0">
+    <i class="fas fa-check-circle"></i>
+    <div>
+      <strong>¡Tienes {{ creditosAprobados.length }} crédito{{ creditosAprobados.length !== 1 ? 's' : '' }} aprobado{{ creditosAprobados.length !== 1 ? 's' : '' }}!</strong>
+      <p>Puedes pasar a recoger tus productos en tienda.</p>
+    </div>
   </div>
 
   <div class="tabs-container" *ngIf="!cargando">
-
-    <div class="tabs">
-      <button class="tab" [class.active]="tabActual === 'actuales'" (click)="tabActual = 'actuales'">
-        Actuales
-        <span class="tab-badge" *ngIf="reservasPendientes.length > 0">{{ reservasPendientes.length }}</span>
-      </button>
-      <button class="tab" [class.active]="tabActual === 'historial'" (click)="tabActual = 'historial'">
-        Historial
-      </button>
-    </div>
 
     <!-- ACTUALES -->
     <ng-container *ngIf="tabActual === 'actuales'">
@@ -54,7 +40,10 @@
               <span class="cita-item__nombre">{{ r.nombre_servicio || 'Servicio' }}</span>
               <span class="cita-item__cuando">{{ getFechaLabel(r.fecha) }} - {{ formatHora(r.hora) }}</span>
             </div>
-            <span class="cita-item__estado estado--pendiente">Pendiente</span>
+            <span class="cita-item__estado"
+              [ngClass]="r.estado === 'confirmada' ? 'estado--confirmada' : 'estado--pendiente'">
+              {{ estadoCitaLabel(r.estado) }}
+            </span>
           </div>
 
           <div class="cita-item__detalle" *ngIf="estaExpandida(r.id_reserva)">
@@ -168,6 +157,73 @@
       </div>
     </ng-container>
 
+    <!-- CRÉDITOS -->
+    <ng-container *ngIf="tabActual === 'creditos'">
+
+      <div class="empty-state" *ngIf="creditos.length === 0 && !cargandoCreditos">
+        <div class="empty-state__icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <h3>No tienes créditos aún</h3>
+        <p>Solicita un crédito desde la tienda de productos</p>
+      </div>
+
+      <div class="creditos-lista" *ngIf="creditos.length > 0">
+        <div class="credito-card" *ngFor="let c of creditos"
+          [class.credito-card--aprobado]="c.estado === 'activo'"
+          [class.credito-card--pendiente]="c.estado === 'pendiente'">
+
+          <div class="credito-card__header">
+            <div class="credito-card__top">
+              <span class="credito-badge"
+                [class.credito-badge--activo]="c.estado === 'activo'"
+                [class.credito-badge--pendiente]="c.estado === 'pendiente'"
+                [class.credito-badge--pagado]="c.estado === 'pagado'"
+                [class.credito-badge--vencido]="c.estado === 'vencido'">
+                <i class="fas fa-check-circle" *ngIf="c.estado === 'activo'"></i>
+                <i class="fas fa-clock"        *ngIf="c.estado === 'pendiente'"></i>
+                <i class="fas fa-check"        *ngIf="c.estado === 'pagado'"></i>
+                <i class="fas fa-exclamation"  *ngIf="c.estado === 'vencido'"></i>
+                {{ c.estado === 'activo'    ? 'Aprobado'    :
+                   c.estado === 'pendiente' ? 'En revisión' :
+                   c.estado === 'pagado'    ? 'Pagado'      : 'Vencido' }}
+              </span>
+              <span class="credito-fecha">{{ formatFechaCorta2(c.fecha_creacion) }}</span>
+            </div>
+            <div class="credito-monto">{{ formatCurrency(c.monto_total) }}</div>
+          </div>
+
+          <div class="credito-productos" *ngIf="c.productos_nombres">
+            <i class="fas fa-box"></i> {{ c.productos_nombres }}
+          </div>
+
+          <div class="credito-stats">
+            <div class="credito-stat">
+              <span class="credito-stat__label">Saldo pendiente</span>
+              <span class="credito-stat__val">{{ formatCurrency(c.saldo_pendiente) }}</span>
+            </div>
+            <div class="credito-stat">
+              <span class="credito-stat__label">Plazo</span>
+              <span class="credito-stat__val">{{ c.plazo.replace('_', ' ') }}</span>
+            </div>
+            <div class="credito-stat">
+              <span class="credito-stat__label">Vence</span>
+              <span class="credito-stat__val">{{ formatFechaCorta2(c.fecha_vencimiento) }}</span>
+            </div>
+          </div>
+
+          <div class="credito-alerta credito-alerta--ok" *ngIf="c.estado === 'activo'">
+            <i class="fas fa-store"></i>
+            Puedes pasar a recoger tus productos en tienda
+          </div>
+          <div class="credito-alerta credito-alerta--espera" *ngIf="c.estado === 'pendiente'">
+            <i class="fas fa-hourglass-half"></i>
+            Tu solicitud está siendo revisada por el administrador
+          </div>
+
+        </div>
+      </div>
+
+    </ng-container>
+
   </div>
 </div>
 
@@ -189,14 +245,12 @@
         <p>Tu reserva ha sido modificada</p>
       </div>
 
-      <ng-container *ngIf="!editarExitoso">
-        <!-- resto del contenido del body -->
-      </ng-container>
+      <ng-container *ngIf="!editarExitoso"></ng-container>
+
       <div class="alert alert--error" *ngIf="editarError">
         <i class="fas fa-exclamation-circle"></i> {{ editarError }}
       </div>
 
-      <!-- Calendario -->
       <div class="edit-calendario">
         <div class="edit-calendario__nav">
           <button (click)="editarMesAnterior()"><i class="fas fa-chevron-left"></i></button>
@@ -208,17 +262,18 @@
           <span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span>
         </div>
         <div class="edit-calendario__grid">
-          <div *ngFor="let dia of editarDiasCalendario" class="edit-calendario__dia" [class.vacio]="!dia.fecha"
+          <div *ngFor="let dia of editarDiasCalendario" class="edit-calendario__dia"
+            [class.vacio]="!dia.fecha"
             [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerradoEditar(dia)"
             [class.cerrado]="dia.fecha && esDiaCerradoEditar(dia)"
             [class.disponible]="dia.fecha && dia.disponible && !esDiaCerradoEditar(dia)"
-            [class.seleccionado]="esDiaSeleccionadoEditar(dia)" (click)="seleccionarFechaEditar(dia)">
+            [class.seleccionado]="esDiaSeleccionadoEditar(dia)"
+            (click)="seleccionarFechaEditar(dia)">
             {{ dia.fecha?.getDate() }}
           </div>
         </div>
       </div>
 
-      <!-- Slots -->
       <div class="edit-slots" *ngIf="editarFecha">
         <div class="edit-slots__cargando" *ngIf="editarCargandoSlots">
           <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
@@ -227,9 +282,12 @@
           <p>No hay horarios disponibles para este dia</p>
         </div>
         <div class="edit-slots__grid" *ngIf="!editarCargandoSlots && editarSlots.length > 0">
-          <button *ngFor="let slot of editarSlots" class="edit-slot" [class.disponible]="slot.disponible"
-            [class.ocupado]="!slot.disponible" [class.seleccionado]="editarHora === slot.hora"
-            [disabled]="!slot.disponible" (click)="editarHora = slot.hora">
+          <button *ngFor="let slot of editarSlots" class="edit-slot"
+            [class.disponible]="slot.disponible"
+            [class.ocupado]="!slot.disponible"
+            [class.seleccionado]="editarHora === slot.hora"
+            [disabled]="!slot.disponible"
+            (click)="editarHora = slot.hora">
             {{ formatHora(slot.hora) }}
           </button>
         </div>
@@ -247,16 +305,16 @@
     </div>
   </div>
 </div>
+
 <!-- Modal exito edicion -->
 <div class="modal-overlay" *ngIf="editarExitoso" (click)="editarExitoso = false">
   <div class="modal-exito" (click)="$event.stopPropagation()">
-    <div class="modal-exito__icon">
-      <i class="fas fa-check-circle"></i>
-    </div>
+    <div class="modal-exito__icon"><i class="fas fa-check-circle"></i></div>
     <h3>Cita reagendada</h3>
     <p>Tu reserva fue modificada correctamente</p>
   </div>
 </div>
+
 <!-- Modal cancelar -->
 <div class="modal-overlay" *ngIf="modalCancelar" (click)="modalCancelar = false">
   <div class="modal-exito" (click)="$event.stopPropagation()" style="border-top: 4px solid #dc3545;">
@@ -269,8 +327,8 @@
       <button class="btn-cancelar-modal" style="flex:1;" (click)="modalCancelar = false">
         No, mantener
       </button>
-      <button class="btn-accion btn-accion--cancelar" style="flex:1; border-radius:9px;" (click)="ejecutarCancelar()"
-        [disabled]="cancelando">
+      <button class="btn-accion btn-accion--cancelar" style="flex:1; border-radius:9px;"
+        (click)="ejecutarCancelar()" [disabled]="cancelando">
         <i class="fas fa-spinner fa-spin" *ngIf="cancelando"></i>
         {{ cancelando ? 'Cancelando...' : 'Si, cancelar' }}
       </button>
@@ -297,8 +355,10 @@
       <div class="modal-resena__body">
         <div class="estrellas-selector">
           <i class="fas fa-star estrella" *ngFor="let s of [1,2,3,4,5]"
-            [class.activa]="s <= (estrellasHover || formularioResena.calificacion)" (mouseenter)="estrellasHover = s"
-            (mouseleave)="estrellasHover = 0" (click)="setEstrellas(s)">
+            [class.activa]="s <= (estrellasHover || formularioResena.calificacion)"
+            (mouseenter)="estrellasHover = s"
+            (mouseleave)="estrellasHover = 0"
+            (click)="setEstrellas(s)">
           </i>
         </div>
         <div class="calificacion-texto" *ngIf="formularioResena.calificacion > 0">

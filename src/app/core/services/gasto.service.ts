@@ -12,13 +12,22 @@ export interface IGasto {
   descripcion?: string;
   fecha_creacion?: string;
 }
+export interface IEstadisticasGasto {
+  total: number;
+  cantidad: number;
+  promedio: number;
+  gasto_mas_alto: { nombre: string; monto: number } | null;
+  por_categoria: { categoria: string; total: number; cantidad: number }[];
+  evolucion: { dia: string; total: number }[];
+  recientes: IGasto[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class GastoService {
 
   private url = `${environment.apiUrl}/gastos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(filtros?: { desde?: string; hasta?: string; categoria?: string }): Observable<{ ok: boolean; data: IGasto[] }> {
     let params: any = {};
@@ -39,4 +48,13 @@ export class GastoService {
   eliminar(id: number): Observable<{ ok: boolean }> {
     return this.http.delete<{ ok: boolean }>(`${this.url}/${id}`);
   }
+  getEstadisticas(filtros?: { desde?: string; hasta?: string }):
+  Observable<{ ok: boolean; data: IEstadisticasGasto }> {
+  const params: any = {};
+  if (filtros?.desde) params.desde = filtros.desde;
+  if (filtros?.hasta) params.hasta = filtros.hasta;
+  return this.http.get<{ ok: boolean; data: IEstadisticasGasto }>(
+    `${this.url}/estadisticas`, { params }
+  );
+}
 }

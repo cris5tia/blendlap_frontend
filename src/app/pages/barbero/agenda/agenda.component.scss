@@ -76,197 +76,214 @@
   p  { font-size: 0.85rem; color: var(--color-gray); margin: 0; }
 }
 
+// ─── Resumen del día ─────────────────────────────────────────
+.citas-resumen {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.85rem 1.25rem; border-bottom: 1px solid #f1f3f5;
+  flex-wrap: wrap; gap: 0.5rem;
+
+  &__fecha {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.82rem; font-weight: 700; color: var(--color-gray);
+    i { color: var(--color-accent); }
+  }
+
+  &__stats { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+  &__stat {
+    display: flex; align-items: center; gap: 0.3rem;
+    font-size: 0.75rem; font-weight: 700;
+    padding: 0.2rem 0.65rem; border-radius: 20px;
+
+    &--total { background: rgba(251,196,71,0.12); color: #9a6f00; }
+    &--ok    { background: rgba(40,167,69,0.1); color: #1e7e34; }
+    &--now   {
+      background: rgba(220,53,69,0.08); color: #dc3545;
+      i { font-size: 0.45rem; animation: pulse-now 1s ease-in-out infinite; }
+    }
+  }
+}
+
+@keyframes pulse-now {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
 // ─── Timeline ────────────────────────────────────────────────
-.timeline-wrap { padding: 1rem 1.5rem; }
-
-.timeline {
-  position: relative;
-  display: flex;
-  background: transparent;
-  overflow: visible;
-
-  &__hours {
-    display: flex; flex-direction: column;
-    width: 52px; flex-shrink: 0;
-  }
-
-  &__hour-slot {
-  height: 72px; // 60 min * 1.2px
-  display: flex; align-items: flex-start; padding-top: 4px;
-  span { font-size: 0.68rem; color: #c0c0bc; font-weight: 600; white-space: nowrap; }
+.tl-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+  padding: 0.5rem 0 1rem;
 }
 
-  &__track {
-    flex: 1; position: relative;
-    border-left: 1px solid #e9ecef;
-    padding-left: 8px;
-  }
+.tl-wrap {
+  position: relative;
+  display: flex;
+  gap: 0;
+  padding: 0 1rem 0 0;
+}
 
-  &__now {
-    position: absolute;
-    left: -1px; right: 0;
-    height: 2px;
-    background: var(--color-accent);
-    z-index: 10;
+.tl-labels {
+  position: relative;
+  width: 56px;
+  flex-shrink: 0;
+}
 
-    &-dot {
-      position: absolute; left: -4px; top: -4px;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--color-accent);
-    }
-
-    &-label {
-      position: absolute; left: 10px; top: -9px;
-      font-size: 0.65rem; color: #b8860b; font-weight: 700;
-      background: var(--color-white); padding: 0 4px;
-    }
-  }
-
-  &__cita {
+.tl-lbl {
   position: absolute;
-  left: 8px; right: 4px;
-  border-radius: 10px;
-  padding: 10px 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  overflow: visible;
-  min-height: 80px;
-  z-index: 5;
-
-  &:hover { filter: brightness(0.96); transform: translateX(2px); }
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #adb5bd;
+  white-space: nowrap;
+  text-align: right;
+  pointer-events: none;
+  user-select: none;
 }
-.timeline {
-  position: relative;
-  display: flex;
-  background: transparent;
-  overflow: visible;
 
-  &__hours {
-    position: relative;
-    width: 52px;
+.tl-area {
+  position: relative;
+  flex: 1;
+  border-left: 1.5px solid #e9ecef;
+}
+
+.tl-gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #f0f0f0;
+  pointer-events: none;
+}
+
+// ─── Indicador de hora actual ─────────────────────────────────
+.tl-now {
+  position: absolute;
+  left: -5px;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+
+  &__dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #dc3545;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(220,53,69,0.2);
+  }
+
+  &__line {
+    flex: 1;
+    height: 2px;
+    background: #dc3545;
+  }
+}
+
+// ─── Estado vacío sobre timeline ─────────────────────────────
+.tl-empty {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+  opacity: 0.38;
+  i { font-size: 1.6rem; color: #adb5bd; }
+  span { font-size: 0.78rem; color: #adb5bd; white-space: nowrap; }
+}
+
+// ─── Bloques de cita en timeline ─────────────────────────────
+.tl-cita {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  border-radius: 10px;
+  padding: 7px 11px;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 5;
+  border-left: 3px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover { transform: translateX(2px); }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &__time {
+    font-size: 0.6rem;
+    font-weight: 700;
+    opacity: 0.7;
+    white-space: nowrap;
     flex-shrink: 0;
   }
 
-  &__mark {
-    position: absolute;
-    left: 0; right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 8px;
-    transform: translateY(-50%);
-
-    span { white-space: nowrap; }
-
-    &--principal span {
-      font-size: 0.68rem;
-      color: #888;
-      font-weight: 700;
-    }
-
-    &--minuto span {
-      font-size: 0.6rem;
-      color: #ccc;
-      font-weight: 400;
-    }
-  }
-
-  &__track {
-    flex: 1;
-    position: relative;
-    border-left: 1px solid #e9ecef;
-    padding-left: 8px;
-  }
-
-  &__grid-line {
-    position: absolute;
-    left: 0; right: 0;
-    pointer-events: none;
-
-    &--principal {
-      border-top: 1px solid #e9ecef;
-    }
-
-    &--minuto {
-      border-top: 1px dashed #f1f3f5;
-    }
-  }
-
-  &__now {
-    position: absolute;
-    left: -1px; right: 0;
-    height: 2px;
-    background: var(--color-accent);
-    z-index: 10;
-
-    &-dot {
-      position: absolute; left: -4px; top: -4px;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--color-accent);
-    }
-
-    &-label {
-      position: absolute; left: 10px; top: -9px;
-      font-size: 0.65rem; color: #b8860b; font-weight: 700;
-      background: var(--color-white); padding: 0 4px;
-    }
-  }
-
-  &__cita {
-    position: absolute;
-    left: 8px; right: 4px;
-    border-radius: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: all 0.2s;
+  &__nombre {
+    font-size: 0.84rem;
+    font-weight: 900;
+    white-space: nowrap;
     overflow: hidden;
-    min-height: 54px;
-    z-index: 5;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    font-family: var(--font-primary);
+  }
 
-    &:hover { filter: brightness(0.96); transform: translateX(2px); }
+  &__servicio {
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.78;
+    flex-shrink: 0;
+  }
+
+  &__dur {
+    font-size: 0.6rem;
+    opacity: 0.55;
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+
+  // ── Próxima ──
+  &--proxima {
+    background: rgba(251,196,71,0.1);
+    border-left-color: #fbc447;
+    .tl-cita__time, .tl-cita__nombre, .tl-cita__servicio, .tl-cita__dur { color: #7a5800; }
+  }
+
+  // ── En curso ──
+  &--en-curso {
+    background: #1a1a1a;
+    border-left-color: #fbc447;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+    .tl-cita__time   { color: #fbc447; opacity: 1; }
+    .tl-cita__nombre { color: #ffffff; }
+    .tl-cita__servicio { color: rgba(255,255,255,0.6); }
+    .tl-cita__dur    { color: rgba(255,255,255,0.4); }
+    &:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
+  }
+
+  // ── Completada ──
+  &--completada {
+    background: rgba(40,167,69,0.07);
+    border-left-color: #28a745;
+    .tl-cita__time, .tl-cita__nombre, .tl-cita__servicio, .tl-cita__dur { color: #1e7e34; }
   }
 }
-}
 
-// ─── Estados ─────────────────────────────────────────────────
-.tl--completada {
-  background: rgba(40,167,69,0.1);
-  border: 1px solid rgba(40,167,69,0.2);
-  .tl__hora     { color: #28a745; }
-  .tl__cliente  { color: #1e7e34; }
-  .tl__servicio { color: rgba(40,167,69,0.7); }
-}
-
-.tl--en-curso {
-  background: #e8e8e2;
-  border: 1px solid #c8c8c0;
-  .tl__hora     { color: #777; }
-  .tl__cliente  { color: #444; }
-  .tl__servicio { color: #999; }
-}
-
-.tl--proxima {
-  background: #f5f5f0;
-  border: 1px solid #e8e8e2;
-  .tl__hora     { color: #aaa; }
-  .tl__cliente  { color: #666; }
-  .tl__servicio { color: #bbb; }
-}
-
-.tl__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
-.tl__hora   { font-size: 0.7rem; font-weight: 800; }
-
-.tl__badge {
-  font-size: 0.62rem; font-weight: 700;
-  display: flex; align-items: center; gap: 3px;
-  padding: 2px 6px; border-radius: 20px;
-  i { font-size: 0.45rem; }
-  &--ok   { background: rgba(40,167,69,0.15); color: #1e7e34; }
-  &--curso { background: rgba(0,0,0,0.08); color: #666; }
-}
-
-.tl__cliente  { font-size: 0.88rem; font-weight: 800; line-height: 1.2; }
-.tl__servicio { font-size: 0.72rem; margin-top: 1px; }
 
 // ─── Proximas ────────────────────────────────────────────────
 .proximas-list { display: flex; flex-direction: column; }
