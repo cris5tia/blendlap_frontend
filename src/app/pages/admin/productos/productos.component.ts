@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductoService, IProducto, ICrearProducto } from '../../../core/services/producto.service';
-import { environment } from '../../../../environments/environment';
 
 type VistaModal = 'crear' | 'editar' | 'movimiento' | 'movimientos' | null;
 
@@ -30,7 +29,6 @@ export class ProductosComponent implements OnInit {
   // Imagen
   imagenFile: File | null = null;
   imagenPreview: string | null = null;
-  imagenUrl = `${environment.apiUrl.replace('/api', '')}/images/productos/`;
 
   categorias = ['barberia', 'ropa', 'accesorios', 'cuidado'];
   tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40', '41', '42', '43', '44', 'Única'];
@@ -78,19 +76,28 @@ export class ProductosComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
     this.imagenFile = input.files[0];
+    if (this.imagenFile.size > 5 * 1024 * 1024) {
+      this.error = 'La imagen no puede pesar mas de 5MB';
+      this.imagenFile = null;
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = (e) => this.imagenPreview = e.target?.result as string;
+    reader.onload = (e) => {
+      this.imagenPreview = e.target?.result as string;
+      this.form.imagen = this.imagenPreview;
+    };
     reader.readAsDataURL(this.imagenFile);
   }
 
   getImagenProducto(p: IProducto): string {
-    if (p.imagen) return `${this.imagenUrl}${p.imagen}`;
-    return 'assets/images/no-img.png';
+    if (!p.imagen) return 'assets/images/no-img.png';
+    return p.imagen;
   }
 
   limpiarImagen(): void {
     this.imagenFile = null;
     this.imagenPreview = null;
+    this.form.imagen = '';
   }
 
   // ─── Modales ──────────────────────────────────────────────
@@ -111,10 +118,10 @@ export class ProductosComponent implements OnInit {
       stock:           p.stock,
       categoria:       p.categoria,
       talla:           p.talla || '',
+      imagen:          p.imagen || '',
     };
-    this.limpiarImagen();
-    // Mostrar imagen actual si tiene
-    this.imagenPreview = p.imagen ? `${this.imagenUrl}${p.imagen}` : null;
+    this.imagenFile = null;
+    this.imagenPreview = p.imagen || null;
     this.error = '';
     this.modalVista = 'editar';
   }
@@ -143,30 +150,25 @@ export class ProductosComponent implements OnInit {
     this.error = '';
   }
 
-  // ─── Guardar con FormData ─────────────────────────────────
+  // ─── Guardar ──────────────────────────────────────────────
   guardar(): void {
     this.guardando = true;
     this.error = '';
 
-    const formData = new FormData();
-    formData.append('codigo_producto', this.form.codigo_producto);
-    formData.append('nombre_producto', this.form.nombre_producto);
-    formData.append('descripcion',     this.form.descripcion || '');
-    formData.append('precio',          String(this.form.precio));
-    formData.append('stock',           String(this.form.stock));
-    formData.append('categoria',       this.form.categoria);
-    formData.append('talla',           this.form.talla || '');
-    if (this.imagenFile) {
-      formData.append('imagen', this.imagenFile);
-    }
+    const data: ICrearProducto = {
+      ...this.form,
+      imagen: this.form.imagen ?? '',
+    };
 
-    const op = this.modalVista === 'crear'
-      ? this.productoService.createFormData(formData)
-      : this.productoService.updateFormData(this.productoSeleccionado!.id_producto, formData);
+    const esEditar   = this.modalVista === 'editar';
+    const idProducto = this.productoSeleccionado?.id_producto;
+    const op = esEditar
+      ? this.productoService.update(idProducto!, data)
+      : this.productoService.create(data);
 
     op.subscribe({
       next: () => {
-        this.exito = this.modalVista === 'crear' ? 'Producto creado' : 'Producto actualizado';
+        this.exito = esEditar ? 'Producto actualizado' : 'Producto creado';
         this.cerrarModal();
         this.cargar();
         this.guardando = false;
@@ -218,6 +220,18 @@ export class ProductosComponent implements OnInit {
     const map: any = { barberia: 'Barbería', ropa: 'Ropa', accesorios: 'Accesorios', cuidado: 'Cuidado' };
     return map[cat] || cat;
   }
+
+  categoriaIcon(cat: string): string {
+    const icons: any = { barberia: 'fa-cut', ropa: 'fa-tshirt', accesorios: 'fa-tag', cuidado: 'fa-leaf' };
+    return icons[cat] || 'fa-box';
+  }
+
+  countByCategoria(cat: string): number {
+    return this.productos.filter(p => p.categoria === cat).length;
+  }
+
+  setCategoria(cat: string): void { this.filtroCategoria = cat; this.filtrar(); }
+  setEstado(e: string): void      { this.filtroEstado = e;       this.filtrar(); }
 
   tieneStock(p: IProducto): boolean { return p.stock > 5; }
   stockMedio(p: IProducto): boolean { return p.stock > 0 && p.stock <= 5; }

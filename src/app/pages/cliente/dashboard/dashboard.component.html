@@ -1,23 +1,25 @@
 <div class="cliente-dashboard">
 
-  <div class="alert alert--error" *ngIf="error">
-    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  <!-- Barra de tabs centrada — solo en móvil, fija debajo del navbar -->
+  <div class="dm-tabs">
+    <button class="dm-tab"
+      [class.active]="tabActual === 'actuales'"
+      (click)="tabService.cambiarTab('actuales')">
+      <i class="fas fa-calendar-check"></i> Actuales
+    </button>
+    <button class="dm-tab"
+      [class.active]="tabActual === 'historial'"
+      (click)="tabService.cambiarTab('historial')">
+      <i class="fas fa-history"></i> Historial
+    </button>
   </div>
 
   <div class="cargando" *ngIf="cargando">
     <i class="fas fa-spinner fa-spin"></i> Cargando...
   </div>
 
-  <!-- Alerta créditos aprobados -->
-  <div class="alerta-aprobado" *ngIf="creditosAprobados.length > 0">
-    <i class="fas fa-check-circle"></i>
-    <div>
-      <strong>¡Tienes {{ creditosAprobados.length }} crédito{{ creditosAprobados.length !== 1 ? 's' : '' }} aprobado{{ creditosAprobados.length !== 1 ? 's' : '' }}!</strong>
-      <p>Puedes pasar a recoger tus productos en tienda.</p>
-    </div>
-  </div>
 
-  <div class="tabs-container" *ngIf="!cargando">
+<div class="tabs-container" *ngIf="!cargando">
 
     <!-- ACTUALES -->
     <ng-container *ngIf="tabActual === 'actuales'">
@@ -114,8 +116,8 @@
               <span class="cita-item__cuando">{{ formatFechaCorta(r.fecha) }} - {{ formatHora(r.hora) }}</span>
             </div>
             <span class="cita-item__estado"
-              [ngClass]="r.estado === 'completada' ? 'estado--completada' : 'estado--cancelada'">
-              {{ r.estado }}
+              [ngClass]="estadoEfectivo(r) === 'completada' ? 'estado--completada' : 'estado--cancelada'">
+              {{ estadoEfectivo(r) === 'completada' ? 'Completada' : 'Cancelada' }}
             </span>
           </div>
 
@@ -144,7 +146,7 @@
               <span class="detalle-fila__label">Profesional</span>
               <span class="detalle-fila__valor">{{ r.nombre_barbero }}</span>
             </div>
-            <div class="cita-item__acciones" *ngIf="r.estado === 'completada'">
+            <div class="cita-item__acciones" *ngIf="estadoEfectivo(r) === 'completada'">
               <button class="btn-accion btn-accion--resena" *ngIf="puedeResenar(r)" (click)="abrirModalResena(r)">
                 <i class="fas fa-star"></i> Dejar reseña
               </button>
@@ -291,6 +293,10 @@
       </button>
     </div>
 
+    <div class="alert alert--error" *ngIf="editarError" style="margin: 0.75rem 1.5rem 0; border-radius: 10px;">
+      <i class="fas fa-exclamation-circle"></i> {{ editarError }}
+    </div>
+
     <div class="modal-editar__body">
       <div class="editar-exito" *ngIf="editarExitoso">
         <div class="editar-exito__icon"><i class="fas fa-check-circle"></i></div>
@@ -298,13 +304,7 @@
         <p>Tu reserva ha sido modificada</p>
       </div>
 
-      <ng-container *ngIf="!editarExitoso"></ng-container>
-
-      <div class="alert alert--error" *ngIf="editarError">
-        <i class="fas fa-exclamation-circle"></i> {{ editarError }}
-      </div>
-
-      <div class="edit-calendario">
+      <div class="edit-calendario" *ngIf="!editarExitoso">
         <div class="edit-calendario__nav">
           <button (click)="editarMesAnterior()"><i class="fas fa-chevron-left"></i></button>
           <span>{{ editarNombreMes }}</span>
@@ -327,7 +327,7 @@
         </div>
       </div>
 
-      <div class="edit-slots" *ngIf="editarFecha">
+      <div class="edit-slots" *ngIf="editarFecha && !editarExitoso">
         <div class="edit-slots__cargando" *ngIf="editarCargandoSlots">
           <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
         </div>

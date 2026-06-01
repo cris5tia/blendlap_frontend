@@ -6,7 +6,6 @@ import { CarritoService } from '../../../core/services/carrito.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { ResenaService } from '../../../core/services/resena.service';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -16,8 +15,6 @@ import { environment } from '../../../../environments/environment';
 export class HomeComponent implements OnInit {
 
   @ViewChild('galeriaTrack') galeriaTrack!: ElementRef;
-
-  imagenUrl = `${environment.apiUrl.replace('/api', '')}/images/productos/`;
 
   constructor(
     private servicioService: ServicioService,
@@ -172,7 +169,12 @@ export class HomeComponent implements OnInit {
   productoSeleccionado: IProducto | null = null;
   tallaSeleccionada = '';
   tallaElegida = '';
-  agregadoExito = false;
+
+  // Toast confirmación
+  toastVisible = false;
+  toastNombre = '';
+  toastImagen = '';
+  private toastTimer: any;
 
   categorias = [
   { id: 'cuidado',    nombre: 'Cuidado',     icon: 'fas fa-leaf' },
@@ -236,7 +238,10 @@ export class HomeComponent implements OnInit {
   verMenosProductos(): void { this.productosVisibles = 4; }
 
   getImagenProducto(p: IProducto): string {
-    if (p.imagen) return `${this.imagenUrl}${p.imagen}`;
+    if (p.imagen?.startsWith('data:') || p.imagen?.startsWith('http') || p.imagen?.startsWith('assets/')) {
+      return p.imagen;
+    }
+    if (p.imagen) return `http://localhost:3001/images/productos/${p.imagen}`;
     return 'assets/images/no-img.png';
   }
 
@@ -244,7 +249,6 @@ export class HomeComponent implements OnInit {
     this.productoSeleccionado = producto;
     this.tallaSeleccionada = '';
     this.tallaElegida = '';
-    this.agregadoExito = false;
     document.body.style.overflow = 'hidden';
   }
 
@@ -264,21 +268,39 @@ export class HomeComponent implements OnInit {
 
   // ─── Carrito ──────────────────────────────────────────────
   agregarAlCarrito(producto: IProducto, event?: Event): void {
-  if (event) event.stopPropagation();
-  if (producto.stock === 0) return;
+    if (event) event.stopPropagation();
+    if (producto.stock === 0) return;
 
-  const usuario = this.authService.getUsuario();
-  if (!usuario) {
-    sessionStorage.setItem('producto_pendiente_carrito', JSON.stringify(producto));
-    this.router.navigate(['/login']);
-    return;
+    const usuario = this.authService.getUsuario();
+    if (!usuario) {
+      sessionStorage.setItem('producto_pendiente_carrito', JSON.stringify(producto));
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
+      return;
+    }
+    if (usuario.rol === 'admin' || usuario.rol === 'barbero') return;
+
+    this.carritoService.agregar(producto, 1, this.tallaElegida || undefined);
+    this.cerrarModal();
+    this.mostrarToast(producto);
   }
-  if (usuario.rol === 'admin' || usuario.rol === 'barbero') return;
 
-  this.carritoService.agregar(producto, 1, this.tallaElegida || undefined);
-  this.agregadoExito = true;
-  setTimeout(() => this.agregadoExito = false, 2000);
-}
+  private mostrarToast(producto: IProducto): void {
+    this.toastNombre = producto.nombre_producto;
+    this.toastImagen = this.getImagenProducto(producto);
+    this.toastVisible = true;
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => { this.toastVisible = false; }, 2500);
+  }
+
+  cerrarToast(): void {
+    this.toastVisible = false;
+    clearTimeout(this.toastTimer);
+  }
+
+  irAlCarrito(): void {
+    this.cerrarToast();
+    this.carritoService.abrirModal();
+  }
 
   // ─── Razones ──────────────────────────────────────────────
   razones = [

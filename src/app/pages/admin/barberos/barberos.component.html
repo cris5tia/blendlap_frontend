@@ -31,7 +31,7 @@
         <div class="barbero-card" *ngFor="let b of barberosFiltrados">
 
             <div class="barbero-card__foto">
-                <img *ngIf="b.foto" [src]="'http://localhost:3001/images/barberos/' + b.foto" [alt]="b.nombre" />
+                <img *ngIf="b.foto" [src]="b.foto | imgUrl" [alt]="b.nombre" />
                 <div *ngIf="!b.foto" class="barbero-card__foto--empty">
                     <i class="fas fa-user-tie"></i>
                 </div>
@@ -114,7 +114,7 @@
                     <label>Foto</label>
                     <div class="foto-upload">
                         <div class="foto-preview" *ngIf="previewFoto">
-                            <img [src]="previewFoto" alt="preview" />
+                            <img [src]="previewFoto | imgUrl" alt="preview" />
                             <button type="button" class="foto-preview__remove"
                                 (click)="previewFoto = ''; archivoSeleccionado = null">
                                 <i class="fas fa-times"></i>

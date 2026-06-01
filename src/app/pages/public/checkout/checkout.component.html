@@ -1,21 +1,48 @@
-<div class="checkout">
+<div class="checkout-page">
 
-  <!-- Header -->
-  <div class="checkout-header">
-    <button class="checkout-back" (click)="volverAlCarrito()">
-      <i class="fas fa-arrow-left"></i> Volver
-    </button>
-    <div class="checkout-logo">
-      <img src="/assets/images/navbar/logo.png" alt="Blendlap">
-      <span>Checkout seguro</span>
-    </div>
-    <div class="checkout-secure">
-      <i class="fas fa-lock"></i> SSL cifrado
-    </div>
-  </div>
+  <!-- ── Navbar (mismo estilo carrito) ─────────────────────── -->
+  <header class="cart-navbar">
+    <div class="cart-navbar__inner">
 
-  <!-- Body -->
-  <div class="checkout-body">
+      <button class="cnav-back" (click)="volver()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Volver</span>
+      </button>
+
+      <a class="cnav-logo" (click)="volverAlCarrito()">
+        <img src="assets/images/navbar/logo.png" alt="Blendlap">
+      </a>
+
+      <div class="cnav-right">
+        <div class="cnav-secure">
+          <i class="fas fa-lock"></i>
+          <span>Pago seguro</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Steps mejorado -->
+    <div class="cnav-steps">
+      <div class="step-item step-item--done">
+        <div class="step-circle"><i class="fas fa-check"></i></div>
+        <span>Tienda</span>
+      </div>
+      <div class="step-line step-line--done"></div>
+      <div class="step-item step-item--done">
+        <div class="step-circle"><i class="fas fa-check"></i></div>
+        <span>Carrito</span>
+      </div>
+      <div class="step-line step-line--active"></div>
+      <div class="step-item step-item--active">
+        <div class="step-circle">3</div>
+        <span>Pago</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Contenido ─────────────────────────────────────────── -->
+  <div class="checkout-contenido">
 
     <!-- Columna izquierda: Resumen del pedido -->
     <div class="checkout-resumen">
@@ -29,7 +56,7 @@
           <div class="resumen-item" *ngFor="let item of items">
             <div class="resumen-item__img-wrap">
               <img
-                [src]="'http://localhost:3001/images/productos/' + item.producto.imagen"
+                [src]="item.producto.imagen | imgUrl"
                 [alt]="item.producto.nombre_producto"
                 onerror="this.src='/assets/images/placeholder.png'">
               <span class="resumen-item__qty">{{ item.cantidad }}</span>
@@ -67,7 +94,6 @@
           </div>
         </div>
 
-        <!-- Badge seguridad -->
         <div class="resumen-seguridad">
           <i class="fas fa-shield-alt"></i>
           <p>Tu compra está protegida con cifrado SSL y procesada de forma segura por Wompi.</p>
@@ -78,7 +104,6 @@
     <!-- Columna derecha: Pago -->
     <div class="checkout-pago">
 
-      <!-- Card principal de pago -->
       <div class="pago-card">
         <div class="pago-card__header">
           <div class="pago-card__icon">
@@ -93,42 +118,26 @@
           </div>
         </div>
 
-        <!-- Métodos aceptados -->
         <div class="metodos-wrap">
           <p class="metodos-label">Métodos aceptados</p>
           <div class="metodos-grid">
-            <div class="metodo">
-              <i class="fab fa-cc-visa"></i>
-              <span>Visa</span>
-            </div>
-            <div class="metodo">
-              <i class="fab fa-cc-mastercard"></i>
-              <span>Mastercard</span>
-            </div>
-            <div class="metodo">
-              <i class="fas fa-university"></i>
-              <span>PSE</span>
-            </div>
-            <div class="metodo">
-              <i class="fas fa-mobile-alt"></i>
-              <span>Nequi</span>
-            </div>
+            <div class="metodo"><i class="fab fa-cc-visa"></i><span>Visa</span></div>
+            <div class="metodo"><i class="fab fa-cc-mastercard"></i><span>Mastercard</span></div>
+            <div class="metodo"><i class="fas fa-university"></i><span>PSE</span></div>
+            <div class="metodo"><i class="fas fa-mobile-alt"></i><span>Nequi</span></div>
           </div>
         </div>
 
-        <!-- Error -->
         <div class="pago-error" *ngIf="error">
           <i class="fas fa-exclamation-circle"></i> {{ error }}
         </div>
 
-        <!-- Total prominente -->
         <div class="pago-total-wrap">
           <p class="pago-total-label">Total a pagar</p>
           <p class="pago-total-amount">{{ formatCOP(total) }}</p>
           <p class="pago-total-sub">Pago en COP · procesado por Wompi</p>
         </div>
 
-        <!-- Botón principal -->
         <button class="btn-wompi" (click)="pagarConWompi()" [disabled]="iniciando">
           <ng-container *ngIf="!iniciando">
             <i class="fas fa-lock"></i>
@@ -147,7 +156,7 @@
         </p>
       </div>
 
-      <!-- Card modo prueba (sandbox) -->
+      <!-- Tarjetas de prueba -->
       <div class="test-card">
         <div class="test-card__header" (click)="mostrarTest = !mostrarTest">
           <div class="test-card__badge">
@@ -168,28 +177,14 @@
               <span class="test-badge test-badge--ok">APROBADA</span>
             </div>
             <div class="test-tarjeta__body">
-              <div class="test-row">
-                <span>Número</span>
-                <div class="test-copy" (click)="copiar('4242424242424242')">
-                  <code>4242 4242 4242 4242</code>
-                  <i class="fas fa-copy"></i>
-                </div>
+              <div class="test-row"><span>Número</span>
+                <div class="test-copy" (click)="copiar('4242424242424242')"><code>4242 4242 4242 4242</code><i class="fas fa-copy"></i></div>
               </div>
-              <div class="test-row">
-                <span>CVV</span>
-                <div class="test-copy" (click)="copiar('123')">
-                  <code>123</code>
-                  <i class="fas fa-copy"></i>
-                </div>
+              <div class="test-row"><span>CVV</span>
+                <div class="test-copy" (click)="copiar('123')"><code>123</code><i class="fas fa-copy"></i></div>
               </div>
-              <div class="test-row">
-                <span>Vencimiento</span>
-                <code>12/30</code>
-              </div>
-              <div class="test-row">
-                <span>Cuotas</span>
-                <code>1</code>
-              </div>
+              <div class="test-row"><span>Vencimiento</span><code>12/30</code></div>
+              <div class="test-row"><span>Cuotas</span><code>1</code></div>
             </div>
           </div>
 
@@ -200,24 +195,13 @@
               <span class="test-badge test-badge--ok">APROBADA</span>
             </div>
             <div class="test-tarjeta__body">
-              <div class="test-row">
-                <span>Número</span>
-                <div class="test-copy" (click)="copiar('5204730000001003')">
-                  <code>5204 7300 0000 1003</code>
-                  <i class="fas fa-copy"></i>
-                </div>
+              <div class="test-row"><span>Número</span>
+                <div class="test-copy" (click)="copiar('5204730000001003')"><code>5204 7300 0000 1003</code><i class="fas fa-copy"></i></div>
               </div>
-              <div class="test-row">
-                <span>CVV</span>
-                <div class="test-copy" (click)="copiar('123')">
-                  <code>123</code>
-                  <i class="fas fa-copy"></i>
-                </div>
+              <div class="test-row"><span>CVV</span>
+                <div class="test-copy" (click)="copiar('123')"><code>123</code><i class="fas fa-copy"></i></div>
               </div>
-              <div class="test-row">
-                <span>Vencimiento</span>
-                <code>12/30</code>
-              </div>
+              <div class="test-row"><span>Vencimiento</span><code>12/30</code></div>
             </div>
           </div>
 
@@ -228,12 +212,8 @@
               <span class="test-badge test-badge--err">RECHAZADA</span>
             </div>
             <div class="test-tarjeta__body">
-              <div class="test-row">
-                <span>Número</span>
-                <div class="test-copy" (click)="copiar('4111111111111111')">
-                  <code>4111 1111 1111 1111</code>
-                  <i class="fas fa-copy"></i>
-                </div>
+              <div class="test-row"><span>Número</span>
+                <div class="test-copy" (click)="copiar('4111111111111111')"><code>4111 1111 1111 1111</code><i class="fas fa-copy"></i></div>
               </div>
             </div>
           </div>

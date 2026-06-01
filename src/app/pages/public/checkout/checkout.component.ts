@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { PagoService } from '../../../core/services/pago.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,7 +22,8 @@ export class CheckoutComponent implements OnInit {
     private carritoService: CarritoService,
     private pagoService:    PagoService,
     private authService:    AuthService,
-    private router:         Router
+    private router:         Router,
+    private location:       Location
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +47,7 @@ export class CheckoutComponent implements OnInit {
     }).format(value);
   }
 
+  volver(): void { this.location.back(); }
   volverAlCarrito(): void { this.router.navigate(['/carrito']); }
 
   pagarConWompi(): void {

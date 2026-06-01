@@ -1,120 +1,198 @@
 <div class="carrito-page">
 
-  <!-- Éxito -->
+  <!-- ── Navbar del carrito ─────────────────────────────────── -->
+  <header class="cart-navbar">
+    <div class="cart-navbar__inner">
+
+      <button class="cnav-back" (click)="volver()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Volver</span>
+      </button>
+
+      <a class="cnav-logo" (click)="irAlHome()">
+        <img src="assets/images/navbar/logo.png" alt="Blendlap">
+      </a>
+
+      <div class="cnav-right">
+        <div class="cnav-badge-carrito" *ngIf="!exito && items.length > 0">
+          <i class="fas fa-shopping-basket"></i>
+          <span>{{ cantidad }} {{ cantidad === 1 ? 'artículo' : 'artículos' }}</span>
+        </div>
+        <div class="cnav-secure">
+          <i class="fas fa-lock"></i>
+          <span>Pago seguro</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="cnav-steps" *ngIf="!exito">
+      <div class="step-item step-item--done">
+        <div class="step-circle"><i class="fas fa-check"></i></div>
+        <span>Tienda</span>
+      </div>
+      <div class="step-line step-line--done"></div>
+      <div class="step-item step-item--active">
+        <div class="step-circle">2</div>
+        <span>Carrito</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <span>Pago</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Éxito ─────────────────────────────────────────────── -->
   <div class="carrito-exito" *ngIf="exito">
     <div class="exito-card">
-      <div class="exito-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="exito-circle"><i class="fas fa-check"></i></div>
       <h2>¡Solicitud enviada!</h2>
-      <p>Tu solicitud fue recibida. Nuestro equipo la revisará y te notificará cuando esté aprobada para que puedas pasar a recoger tus productos.</p>
+      <p>Nuestro equipo la revisará y te notificará cuando esté aprobada para pasar a recoger.</p>
       <div class="exito-pasos">
         <div class="exito-paso">
-          <div class="exito-paso__num">1</div>
-          <span>Solicitud recibida</span>
+          <div class="ep-dot ep-dot--ok"><i class="fas fa-check"></i></div>
+          <span>Recibida</span>
         </div>
-        <div class="exito-paso__linea"></div>
+        <div class="ep-line"></div>
         <div class="exito-paso">
-          <div class="exito-paso__num">2</div>
-          <span>Revisión del admin</span>
+          <div class="ep-dot"><span>2</span></div>
+          <span>En revisión</span>
         </div>
-        <div class="exito-paso__linea"></div>
+        <div class="ep-line"></div>
         <div class="exito-paso">
-          <div class="exito-paso__num">3</div>
-          <span>Recoge en tienda</span>
+          <div class="ep-dot"><span>3</span></div>
+          <span>Recoge</span>
         </div>
       </div>
       <button class="btn-volver" (click)="irAlHome()">
-        <i class="fas fa-arrow-left"></i> Volver al inicio
+        <i class="fas fa-home"></i> Volver al inicio
       </button>
     </div>
   </div>
 
-  <!-- Carrito vacío -->
+  <!-- ── Vacío ─────────────────────────────────────────────── -->
   <div class="carrito-vacio" *ngIf="!exito && items.length === 0">
     <div class="vacio-card">
-      <i class="fas fa-shopping-basket"></i>
+      <div class="vacio-icon"><i class="fas fa-shopping-basket"></i></div>
       <h2>Tu carrito está vacío</h2>
-      <p>Agrega productos desde la tienda para solicitar un crédito.</p>
+      <p>Explora nuestros productos y agrega lo que más te guste.</p>
       <button class="btn-volver" (click)="irAlHome()">
         <i class="fas fa-store"></i> Ver productos
       </button>
     </div>
   </div>
 
-  <!-- Carrito con items -->
+  <!-- ── Carrito con items ──────────────────────────────────── -->
   <div class="carrito-contenido" *ngIf="!exito && items.length > 0">
 
     <div class="carrito-header">
-      <div>
-        <h1><i class="fas fa-shopping-basket"></i> Mi Carrito</h1>
-        <p class="carrito-sub">{{ cantidad }} producto{{ cantidad !== 1 ? 's' : '' }} seleccionado{{ cantidad !== 1 ? 's' : '' }}</p>
+      <div class="ch-left">
+        <h1>Mi Carrito</h1>
+        <span class="ch-badge">{{ cantidad }} {{ cantidad === 1 ? 'producto' : 'productos' }}</span>
       </div>
       <button class="btn-limpiar" (click)="limpiar()">
-        <i class="fas fa-trash"></i> Vaciar
+        <i class="fas fa-trash-alt"></i> Vaciar
       </button>
     </div>
 
     <div class="carrito-layout">
 
-      <!-- Lista de productos -->
+      <!-- ── Columna izquierda: items ── -->
       <div class="carrito-items">
         <div class="carrito-item" *ngFor="let item of items">
-          <div class="item-img">
+
+          <div class="ci-img">
             <img [src]="getImagen(item.producto.imagen)" [alt]="item.producto.nombre_producto"/>
           </div>
-          <div class="item-info">
-            <h3>{{ item.producto.nombre_producto }}</h3>
-            <div class="item-badges">
-              <span class="item-talla" *ngIf="item.talla">
-                <i class="fas fa-ruler-horizontal"></i> {{ item.talla }}
-              </span>
-              <span class="item-categoria">{{ item.producto.categoria }}</span>
+
+          <div class="ci-body">
+            <span class="ci-categoria">{{ item.producto.categoria | titlecase }}</span>
+            <h3 class="ci-nombre">{{ item.producto.nombre_producto }}</h3>
+            <p class="ci-desc">{{ item.producto.descripcion }}</p>
+            <span class="ci-talla" *ngIf="item.talla">
+              <i class="fas fa-ruler-horizontal"></i> Talla {{ item.talla }}
+            </span>
+            <div class="ci-footer">
+              <span class="ci-precio">{{ formatCurrency(item.producto.precio) }}</span>
+              <div class="ci-controles">
+                <button class="cc-btn" (click)="disminuir(item.producto.id_producto!)">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="cc-qty">{{ item.cantidad }}</span>
+                <button class="cc-btn" (click)="aumentar(item.producto.id_producto!)"
+                  [disabled]="item.cantidad >= item.producto.stock">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
             </div>
-            <p class="item-desc">{{ item.producto.descripcion }}</p>
           </div>
-          <div class="item-controles">
-            <button class="btn-ctrl" (click)="disminuir(item.producto.id_producto!)">
-              <i class="fas fa-minus"></i>
-            </button>
-            <span class="item-cantidad">{{ item.cantidad }}</span>
-            <button class="btn-ctrl" (click)="aumentar(item.producto.id_producto!)"
-              [disabled]="item.cantidad >= item.producto.stock">
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-          <div class="item-precio">
-            <span class="precio-unit">{{ formatCurrency(item.producto.precio) }} c/u</span>
-            <span class="precio-total">{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
-          </div>
-          <button class="btn-quitar" (click)="quitar(item.producto.id_producto!)">
+
+          <button class="ci-trash" (click)="quitar(item.producto.id_producto!)" title="Eliminar">
             <i class="fas fa-times"></i>
           </button>
+
         </div>
       </div>
 
-      <!-- Resumen -->
-      <div class="carrito-resumen">
-        <h2>Resumen del pedido</h2>
+      <!-- ── Sidebar ── -->
+      <div class="carrito-sidebar">
 
-        <div class="resumen-rows">
-          <div class="resumen-row" *ngFor="let item of items">
-            <span>
+        <div class="sidebar-header">
+          <span class="sh-title">Resumen del pedido</span>
+          <span class="sh-count">{{ cantidad }} artículo{{ cantidad !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <!-- Items resumen -->
+        <div class="sidebar-items">
+          <div class="si-row" *ngFor="let item of items">
+            <div class="si-img">
+              <img [src]="getImagen(item.producto.imagen)" [alt]="item.producto.nombre_producto"/>
+              <span class="si-qty">{{ item.cantidad }}</span>
+            </div>
+            <span class="si-nombre">
               {{ item.producto.nombre_producto }}
               <em *ngIf="item.talla"> · {{ item.talla }}</em>
-              x{{ item.cantidad }}
             </span>
-            <span>{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
+            <span class="si-precio">{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
           </div>
         </div>
 
-        <div class="resumen-total">
+        <div class="sidebar-subtotal">
+          <span>Subtotal</span>
+          <span>{{ formatCurrency(total) }}</span>
+        </div>
+
+        <div class="sidebar-total">
           <span>Total</span>
           <strong>{{ formatCurrency(total) }}</strong>
         </div>
 
-        <div class="resumen-plazo">
-          <label>Plazo de pago</label>
+        <div class="alerta-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <!-- Wompi -->
+        <button class="btn-wompi" (click)="irAlCheckout()">
+          <i class="fas fa-lock"></i>
+          <div>
+            <strong>PAGAR CON WOMPI</strong>
+            <small>Pago 100% seguro</small>
+          </div>
+          <i class="fas fa-chevron-right btn-wompi__arr"></i>
+        </button>
+
+        <div class="sidebar-sep">
+          <span></span><p>O PAGA CON CRÉDITO</p><span></span>
+        </div>
+
+        <!-- Plazo visible -->
+        <div class="sidebar-plazo">
+          <p class="plazo-titulo"><i class="fas fa-calendar-alt"></i> PLAZO DE PAGO</p>
           <div class="plazos-grid">
-            <button *ngFor="let p of plazos" class="btn-plazo"
+            <button *ngFor="let p of plazos"
+              class="btn-plazo"
               [class.plazo-activo]="plazoSeleccionado === p.id"
               (click)="plazoSeleccionado = p.id">
               <span class="plazo-label">{{ p.label }}</span>
@@ -123,90 +201,66 @@
           </div>
         </div>
 
-        <div class="resumen-nota">
-          <div class="nota-icon"><i class="fas fa-shield-alt"></i></div>
-          <div class="nota-texto">
-            <strong>¿Cómo funciona?</strong>
-            <p>El administrador revisará tu solicitud. Una vez aprobada podrás pasar a recoger tus productos en tienda.</p>
-          </div>
-        </div>
-
-        <div class="alerta-error" *ngIf="error">
-          <i class="fas fa-exclamation-circle"></i> {{ error }}
-        </div>
-
-        <!-- Botón Wompi — pago inmediato en línea -->
-        <button class="btn-wompi-carrito" (click)="irAlCheckout()">
-          <span class="btn-wompi-carrito__left">
-            <i class="fas fa-lock"></i>
-            Pagar en línea
-          </span>
-          <span class="btn-wompi-carrito__right">
-            <span>{{ formatCurrency(total) }}</span>
-            <i class="fas fa-arrow-right"></i>
-          </span>
-        </button>
-
-        <!-- Separador -->
-        <div class="carrito-sep">
-          <span></span><p>o paga después</p><span></span>
-        </div>
-
-        <button class="btn-solicitar" (click)="abrirConfirmar()">
+        <!-- Solicitar crédito -->
+        <button class="btn-credito" (click)="abrirConfirmar()">
           <i class="fas fa-paper-plane"></i> Solicitar crédito
         </button>
-      </div>
 
+        <!-- Trust -->
+        <div class="sidebar-trust">
+          <div class="st-item"><i class="fas fa-shield-alt"></i> Compra segura</div>
+          <div class="st-divider"></div>
+          <div class="st-item"><i class="fas fa-award"></i> Garantía Blendlap</div>
+        </div>
+
+      </div>
     </div>
   </div>
 
-  <!-- Modal confirmar -->
+  <!-- ── Modal confirmar ────────────────────────────────────── -->
   <div class="modal-overlay" *ngIf="modalConfirmar" (click)="modalConfirmar = false">
     <div class="modal-confirm" (click)="$event.stopPropagation()">
-      <div class="modal-confirm__header">
-        <div class="modal-confirm__icon"><i class="fas fa-paper-plane"></i></div>
+
+      <div class="mc-header">
+        <div class="mc-icon"><i class="fas fa-paper-plane"></i></div>
         <div>
           <h2>Confirmar solicitud</h2>
-          <p>Revisa los detalles antes de enviar</p>
+          <p>Plazo: <strong>{{ plazoLabel(plazoSeleccionado) }}</strong></p>
         </div>
-        <button class="modal-confirm__close" (click)="modalConfirmar = false">
+        <button class="mc-close" (click)="modalConfirmar = false">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div class="modal-confirm__body">
-        <div class="confirm-resumen">
-          <div class="confirm-row" *ngFor="let item of items">
+
+      <div class="mc-body">
+        <div class="mc-resumen">
+          <div class="mc-row" *ngFor="let item of items">
             <span>
               {{ item.producto.nombre_producto }}
-              <span class="confirm-talla" *ngIf="item.talla"> · Talla {{ item.talla }}</span>
-              x{{ item.cantidad }}
+              <em *ngIf="item.talla"> · {{ item.talla }}</em>
+              ×{{ item.cantidad }}
             </span>
             <span>{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
           </div>
-          <div class="confirm-total">
+          <div class="mc-total">
             <span>Total</span>
             <strong>{{ formatCurrency(total) }}</strong>
           </div>
-          <div class="confirm-plazo">
-            <i class="fas fa-clock"></i>
-            Plazo: <strong>{{ plazoLabel(plazoSeleccionado) }}</strong>
-          </div>
         </div>
-        <div class="confirm-nota">
+        <div class="mc-nota">
           <i class="fas fa-info-circle"></i>
-          Una vez aprobado por el administrador podrás pasar a recoger los productos en tienda.
-        </div>
-        <div class="alerta-error" *ngIf="error">
-          <i class="fas fa-exclamation-circle"></i> {{ error }}
+          Una vez aprobado podrás pasar a recoger tus productos en tienda.
         </div>
       </div>
-      <div class="modal-confirm__footer">
+
+      <div class="mc-footer">
         <button class="btn-cancel" (click)="modalConfirmar = false">Cancelar</button>
         <button class="btn-confirmar" (click)="confirmarSolicitud()" [disabled]="enviando">
-          <span *ngIf="!enviando"><i class="fas fa-check"></i> Confirmar</span>
+          <span *ngIf="!enviando"><i class="fas fa-check"></i> Confirmar y enviar</span>
           <span *ngIf="enviando"><i class="fas fa-spinner fa-spin"></i> Enviando...</span>
         </button>
       </div>
+
     </div>
   </div>
 

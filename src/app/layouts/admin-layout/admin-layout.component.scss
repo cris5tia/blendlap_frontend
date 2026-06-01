@@ -234,6 +234,8 @@
 .admin-content {
   padding: 2rem;
   flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 // ─── Responsive ──────────────────────────────────────────────

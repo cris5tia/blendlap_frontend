@@ -18,18 +18,17 @@ import { authGuard } from './core/guards/auth.guard';
 import { BarberosComponent } from './pages/admin/barberos/barberos.component';
 import { GastosComponent } from './pages/admin/gastos/gastos.component';
 import { DashboardComponent as ClienteDashboardComponent } from './pages/cliente/dashboard/dashboard.component';
+import { PerfilComponent } from './pages/cliente/perfil/perfil.component';
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 import { StatsComponent } from './pages/barbero/stats/stats.component';
 import { HorarioComponent } from './pages/barbero/horario/horario.component';
 import { BarberoLayoutComponent } from './layouts/barbero-layout/barbero-layout.component';
 import { CreditosComponent } from './pages/admin/creditos/creditos.component';
-import { CarritoComponent } from './pages/public/carrito/carrito.component';
 import { ClienteLayoutComponent } from './layouts/cliente-layout/cliente-layout.component';
 import { HistoriaComponent } from './pages/public/nosotros/historia/historia.component';
 import { RecuperarPasswordComponent } from './pages/public/recuperar-password/recuperar-password.component';
 import { CheckoutComponent } from './pages/public/checkout/checkout.component';
 import { PagoResultadoComponent } from './pages/public/pago-resultado/pago-resultado.component';
-
 const routes: Routes = [
   { path: 'nosotros/historia', redirectTo: 'nosotros', pathMatch: 'full' },
   { path: 'nosotros/mision', redirectTo: 'nosotros', pathMatch: 'full' },
@@ -41,7 +40,7 @@ const routes: Routes = [
     path: '',
     component: PublicLayoutComponent,
     children: [
-      { path: '', component: HomeComponent }
+      { path: '', component: HomeComponent },
     ]
   },
   { path: 'nosotros', component: HistoriaComponent },
@@ -49,7 +48,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
   { path: 'recuperar-password', component: RecuperarPasswordComponent },
-  { path: 'carrito',        component: CarritoComponent },
+  { path: 'carrito',        redirectTo: '', pathMatch: 'full' },
   { path: 'checkout',       component: CheckoutComponent },
   { path: 'pago/resultado', component: PagoResultadoComponent },
 
@@ -96,8 +95,9 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { rol: 'cliente' },
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: ClienteDashboardComponent },
+      { path: '', redirectTo: 'mis-citas', pathMatch: 'full' },
+      { path: 'mis-citas', component: ClienteDashboardComponent },
+      { path: 'perfil',    component: PerfilComponent },
     ]
   },
 

@@ -146,17 +146,21 @@
   &__toggle { color: #adb5bd; font-size: 0.75rem; width: 16px; flex-shrink: 0; }
 
   &__resumen {
-    flex: 1; display: flex; align-items: center;
-    justify-content: space-between; gap: 1rem;
+    flex: 1; display: flex; flex-direction: column;
+    gap: 0.15rem; min-width: 0;
   }
 
-  &__nombre { font-size: 0.92rem; font-weight: 700; color: var(--color-primary); }
-  &__cuando { font-size: 0.82rem; color: var(--color-gray); white-space: nowrap; }
+  &__nombre {
+    font-size: 0.92rem; font-weight: 700; color: var(--color-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  &__cuando { font-size: 0.78rem; color: var(--color-gray); }
 
   &__estado {
     font-size: 0.72rem; font-weight: 700;
     padding: 0.25rem 0.65rem; border-radius: 20px;
     flex-shrink: 0; text-transform: capitalize;
+    white-space: nowrap;
   }
 
   &__detalle {
@@ -245,7 +249,7 @@
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  z-index: 200; padding: 1rem; animation: fadeIn 0.2s ease;
+  z-index: 1100; padding: 1rem; animation: fadeIn 0.2s ease;
 }
 
 // ─── Modal editar ─────────────────────────────────────────────
@@ -277,6 +281,49 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 0.8rem; transition: var(--transition);
     &:hover { background: #dc3545; color: #fff; }
+  }
+
+  // Desktop: fecha y hora en horizontal sin scroll
+  @media (min-width: 700px) {
+    max-width: 760px;
+    max-height: 85vh;
+    overflow-y: visible;
+
+    &__body {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 0;
+      padding: 0;
+    }
+  }
+}
+
+// ─── Layout horizontal desktop ────────────────────────────────
+@media (min-width: 700px) {
+  .edit-calendario {
+    flex: 0 0 340px;
+    padding: 1.25rem;
+    border-right: 1px solid #f1f3f5;
+  }
+
+  .edit-slots {
+    flex: 1;
+    padding: 1.25rem;
+    min-width: 0;
+
+    &__grid { grid-template-columns: repeat(3, 1fr); }
+
+    // Label de sección encima de los slots
+    &::before {
+      content: 'Hora disponible';
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--color-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 0.85rem;
+    }
   }
 }
 
@@ -637,6 +684,82 @@
   background: #f9fafb; border-top: 1px solid #f0f0f0;
   display: flex; align-items: center; gap: 0.4rem;
   i { color: #FBC447; }
+}
+
+// Barra de tabs centrada — oculta en desktop
+.dm-tabs { display: none; }
+
+@media (max-width: 768px) {
+  .cliente-dashboard {
+    padding-top: 144px; // navbar 90px + tab bar 44px + margen 10px
+  }
+
+  .dm-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: fixed;
+    top: 90px;
+    left: 0; right: 0;
+    z-index: 150;
+    padding: 0.6rem 1rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e8eaed;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .dm-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.4rem;
+    border-radius: 20px;
+    border: 1.5px solid #e8eaed;
+    background: transparent;
+    color: #9e9e9e;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: var(--font-secondary);
+    cursor: pointer;
+    transition: all 0.18s;
+
+    i { font-size: 0.75rem; }
+
+    &.active {
+      background: #1a1a1a;
+      border-color: #1a1a1a;
+      color: #FBC447;
+    }
+
+    &:not(.active):hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cliente-dashboard {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .tabs-container { padding: 0.75rem; }
+
+  .cita-item {
+    &__header { padding: 0.85rem 0.75rem; gap: 0.5rem; }
+    &__detalle { padding: 0 0.75rem 1rem 1.75rem; }
+    &__estado  { font-size: 0.68rem; padding: 0.2rem 0.5rem; }
+  }
+
+  .detalle-fila {
+    gap: 0.5rem;
+    &__label { min-width: 70px; font-size: 0.78rem; }
+    &__valor { font-size: 0.82rem; }
+  }
+
+  .btn-accion { font-size: 0.8rem; padding: 0.6rem 0.75rem; }
 }
 
 @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }

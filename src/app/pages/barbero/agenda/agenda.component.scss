@@ -217,9 +217,12 @@
   &__inner {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     gap: 2px;
-    height: 100%;
     overflow: hidden;
+    height: 100%;
+    text-align: left;
   }
 
   &__time {
@@ -253,7 +256,6 @@
   &__dur {
     font-size: 0.6rem;
     opacity: 0.55;
-    margin-top: auto;
     flex-shrink: 0;
   }
 
@@ -266,26 +268,97 @@
 
   // ── En curso ──
   &--en-curso {
-    background: #1a1a1a;
-    border-left-color: #fbc447;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.22);
-    .tl-cita__time   { color: #fbc447; opacity: 1; }
-    .tl-cita__nombre { color: #ffffff; }
-    .tl-cita__servicio { color: rgba(255,255,255,0.6); }
-    .tl-cita__dur    { color: rgba(255,255,255,0.4); }
-    &:hover { box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
+    background: rgba(40,167,69,0.13);
+    border-left-color: #28a745;
+    border-left-width: 4px;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.12);
+    .tl-cita__time     { color: #28a745; opacity: 1; }
+    .tl-cita__nombre   { color: #155724; }
+    .tl-cita__servicio { color: #1e7e34; opacity: 0.9; }
+    .tl-cita__dur      { color: #28a745; }
+    &:hover { box-shadow: 0 4px 14px rgba(40,167,69,0.22); }
   }
 
   // ── Completada ──
   &--completada {
-    background: rgba(40,167,69,0.07);
+    background: rgba(40,167,69,0.13);
     border-left-color: #28a745;
-    .tl-cita__time, .tl-cita__nombre, .tl-cita__servicio, .tl-cita__dur { color: #1e7e34; }
+    border-left-width: 4px;
+    .tl-cita__time     { color: #28a745; opacity: 1; }
+    .tl-cita__nombre   { color: #155724; }
+    .tl-cita__servicio { color: #1e7e34; opacity: 0.9; }
+    .tl-cita__dur      { color: #28a745; }
+    .tl-cita__completada-badge { display: flex; }
+  }
+
+  &__completada-badge {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #28a745;
+    margin-top: auto;
+    flex-shrink: 0;
   }
 }
 
 
 // ─── Proximas ────────────────────────────────────────────────
+.prox-filtro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f1f3f5;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  &__chip {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    border: 1.5px solid #e9ecef;
+    background: transparent;
+    color: #6c757d;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: var(--font-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+
+    &:hover { border-color: var(--color-accent); color: var(--color-primary); }
+
+    &.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+
+      .prox-filtro__count {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+      }
+    }
+  }
+
+  &__count {
+    background: #f1f3f5;
+    color: #6c757d;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    transition: all 0.18s;
+  }
+}
+
 .proximas-list { display: flex; flex-direction: column; }
 
 .prox-item {
@@ -333,6 +406,7 @@
   padding: 1.75rem 1.5rem;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   animation: slideUp 0.25s ease; position: relative;
+  text-align: center;
 
   &__close {
     position: absolute; top: 1rem; right: 1rem;
@@ -345,6 +419,7 @@
 
   &__estado {
     display: inline-flex; align-items: center; gap: 0.4rem;
+    justify-content: center;
     font-size: 0.75rem; font-weight: 700;
     padding: 0.3rem 0.8rem; border-radius: 20px; margin-bottom: 1rem;
   }
@@ -364,13 +439,13 @@
 .estado--proxima    { background: rgba(251,196,71,0.12); color: #b8860b; }
 
 .det-fila {
-  display: flex; align-items: center; gap: 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.6rem 0; border-bottom: 1px solid #f8f9fa;
   &:last-child { border-bottom: none; }
 }
 
-.det-label { font-size: 0.8rem; font-weight: 700; color: var(--color-gray); min-width: 80px; }
-.det-valor { font-size: 0.88rem; color: var(--color-primary); }
+.det-label { font-size: 0.8rem; font-weight: 700; color: var(--color-gray); min-width: 80px; text-align: left; }
+.det-valor { font-size: 0.88rem; color: var(--color-primary); text-align: right; }
 .valor-precio { font-weight: 800; }
 
 .btn-completar {

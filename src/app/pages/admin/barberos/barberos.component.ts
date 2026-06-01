@@ -60,9 +60,7 @@ export class BarberosComponent implements OnInit {
     this.editando = !!barbero;
     this.formulario = barbero ? { ...barbero } : this.formularioVacio();
     this.archivoSeleccionado = null;
-    this.previewFoto = barbero?.foto
-      ? `http://localhost:3001/images/barberos/${barbero.foto}`
-      : '';
+    this.previewFoto = barbero?.foto ?? '';
     this.modalVisible = true;
   }
 
@@ -92,7 +90,8 @@ export class BarberosComponent implements OnInit {
     this.guardando = true;
 
     if (this.archivoSeleccionado) {
-      this.barberoService.uploadFoto(this.archivoSeleccionado).subscribe({
+      const idBarbero = this.editando ? this.formulario.id_usuario : undefined;
+      this.barberoService.uploadFoto(this.archivoSeleccionado, idBarbero).subscribe({
         next: (res) => {
           this.formulario.foto = res.nombreArchivo;
           this.archivoSeleccionado = null;

@@ -43,7 +43,7 @@ export class RegistroComponent implements OnInit {
     switch (rol) {
       case 'admin':   this.router.navigate(['/admin/dashboard']); break;
       case 'barbero': this.router.navigate(['/barbero/dashboard']); break;
-      default:        this.router.navigate(['/']);
+      default:        this.router.navigate(['/cliente/mis-citas']);
     }
   }
 

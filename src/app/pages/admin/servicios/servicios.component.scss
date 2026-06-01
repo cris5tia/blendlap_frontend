@@ -70,6 +70,56 @@
     }
 }
 
+.filtro-estado {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+
+    &__chip {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 20px;
+        border: 1.5px solid #e9ecef;
+        background: transparent;
+        color: var(--color-gray);
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: var(--font-secondary);
+        cursor: pointer;
+        transition: all 0.18s;
+        white-space: nowrap;
+
+        i { font-size: 0.72rem; }
+
+        &:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+        &.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: #fff;
+            .filtro-estado__badge { background: rgba(255,255,255,0.2); color: #fff; }
+        }
+
+        &--activo.active { background: #198754; border-color: #198754; }
+        &--inactivo.active { background: #6c757d; border-color: #6c757d; }
+    }
+
+    &__badge {
+        background: #f1f3f5;
+        color: #6c757d;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 0.1rem 0.45rem;
+        border-radius: 10px;
+        min-width: 18px;
+        text-align: center;
+        transition: all 0.18s;
+    }
+}
+
 .search-box {
     display: flex;
     align-items: center;

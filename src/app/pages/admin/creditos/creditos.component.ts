@@ -10,7 +10,7 @@ import { ProductoService, IProducto } from '../../../core/services/producto.serv
 export class CreditosComponent implements OnInit {
 
   // ─── Pestañas ─────────────────────────────────────────────
-  tabActiva: 'pendientes' | 'activos' | 'pagados' = 'activos';
+  tabActiva: 'pendientes' | 'activos' | 'pagados' | 'rechazados' = 'activos';
 
   // ─── Datos ────────────────────────────────────────────────
   todosLosCreditos: ICredito[] = [];
@@ -103,6 +103,15 @@ export class CreditosComponent implements OnInit {
       (this.busqueda ? this.matchBusqueda(c) : true)
     );
   }
+
+  get creditosRechazados(): ICredito[] {
+    return this.todosLosCreditos.filter(c =>
+      c.estado === 'rechazado' &&
+      (this.busqueda ? this.matchBusqueda(c) : true)
+    );
+  }
+
+  get contadorRechazados(): number { return this.todosLosCreditos.filter(c => c.estado === 'rechazado').length; }
 
   matchBusqueda(c: ICredito): boolean {
     const b = this.busqueda.toLowerCase();
@@ -313,7 +322,8 @@ export class CreditosComponent implements OnInit {
   estadoClass(e: string): string {
     const map: any = {
       pendiente: 'badge-warning', activo: 'badge-info',
-      pagado: 'badge-success',    vencido: 'badge-danger'
+      pagado: 'badge-success',    vencido: 'badge-danger',
+      rechazado: 'badge-rechazado'
     };
     return map[e] || 'badge-default';
   }

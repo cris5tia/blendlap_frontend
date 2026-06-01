@@ -2,583 +2,575 @@ $primary:     #1a1a1a;
 $accent:      #FBC447;
 $accent-soft: #fdd278;
 $white:       #ffffff;
-$gray-light:  #f5f5f5;
+$gray-light:  #f4f5f7;
 $gray:        #9e9e9e;
+$gray-mid:    #6b7280;
 $borde:       #e5e7eb;
 $rojo:        #ef4444;
 $verde:       #22c55e;
 
+// ─── Page ─────────────────────────────────────────────────────
 .carrito-page {
   min-height: 100vh;
   background: $gray-light;
-  padding: 6rem 1.5rem 3rem;
 }
 
-// ─── Éxito / Vacío ─────────────────────────────────────────
-.carrito-exito,
-.carrito-vacio {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
+// ─── Navbar ───────────────────────────────────────────────────
+.cart-navbar {
+  background: $primary;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  position: sticky; top: 0; z-index: 200;
 }
 
-.exito-card,
-.vacio-card {
-  background: $white;
-  border-radius: 20px;
-  padding: 3rem 2.5rem;
-  text-align: center;
-  max-width: 520px;
-  width: 100%;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+.cart-navbar__inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 1.5rem; height: 66px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+  position: relative;
+}
 
-  i { font-size: 3.5rem; color: $accent; display: block; margin-bottom: 1rem; }
+.cnav-back {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.88); border-radius: 9px;
+  padding: 0.52rem 1rem; cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+  i { font-size: 0.76rem; }
+  &:hover { background: rgba(255,255,255,0.14); color: $white; }
+}
 
-  h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    color: $primary;
-    margin-bottom: 0.75rem;
+.cnav-logo {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center;
+  cursor: pointer; text-decoration: none;
+
+  img {
+    height: 46px; width: auto; object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba($accent, 0.25));
+  }
+}
+
+.cnav-right {
+  display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0;
+}
+
+.cnav-badge-carrito {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: rgba(251,196,71,0.14);
+  border: 1px solid rgba(251,196,71,0.28);
+  padding: 0.4rem 0.8rem; border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.76rem; font-weight: 700; color: $accent;
+  i { font-size: 0.72rem; }
+}
+
+.cnav-secure {
+  display: flex; align-items: center; gap: 0.32rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.73rem; font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  i { color: $verde; font-size: 0.68rem; }
+}
+
+.cnav-steps {
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  padding: 0.7rem 1.5rem;
+  background: rgba(255,255,255,0.04);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.step-item {
+  display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
+
+  span { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.3); white-space: nowrap; }
+
+  &--done {
+    .step-circle { background: $verde; color: $white; border-color: $verde; }
+    span { color: $verde; }
   }
 
-  p {
-    font-size: 0.9rem;
-    color: $gray;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+  &--active {
+    .step-circle { background: $accent; color: $primary; border-color: $accent; font-weight: 800; }
+    span { color: $accent; font-weight: 700; }
   }
 }
 
-.exito-icon i { color: $verde; }
+.step-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700;
+  i { font-size: 0.65rem; }
+}
+
+.step-line {
+  width: 60px; height: 2px;
+  background: rgba(255,255,255,0.12);
+  margin-bottom: 1.1rem; flex-shrink: 0;
+
+  &--done   { background: $verde; }
+  &--active { background: linear-gradient(to right, $verde, $accent); }
+}
+
+// ─── Estados vacío / éxito ────────────────────────────────────
+.carrito-vacio,
+.carrito-exito {
+  display: flex; justify-content: center; align-items: center;
+  min-height: calc(100vh - 100px); padding: 2rem 1rem;
+}
+
+.vacio-card,
+.exito-card {
+  background: $white; border-radius: 20px;
+  padding: 3rem 2.5rem; text-align: center;
+  max-width: 440px; width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: $primary; margin-bottom: 0.5rem; }
+  p  { font-size: 0.85rem; color: $gray; line-height: 1.6; margin-bottom: 1.5rem; }
+}
+
+.vacio-icon {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(251,196,71,0.1);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+  i { font-size: 2rem; color: $accent; }
+}
+
+.exito-circle {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, $verde, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.28);
+  i { font-size: 1.6rem; color: $white; }
+}
 
 .exito-pasos {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin: 1.5rem 0 2rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 0 1.75rem;
 }
 
 .exito-paso {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-
-  &__num {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: $accent;
-    color: $primary;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem; font-weight: 800;
-  }
-
-  span {
-    font-size: 0.7rem;
-    color: $gray;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  &__linea {
-    width: 40px;
-    height: 1.5px;
-    background: rgba(251,196,71,0.3);
-    margin-bottom: 1.2rem;
-  }
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  > span { font-size: 0.65rem; color: $gray; font-weight: 600; white-space: nowrap; }
 }
 
+.ep-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: $borde; color: $gray;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700;
+  &--ok { background: $verde; color: $white; i { font-size: 0.7rem; } }
+  span { font-size: 0.75rem; }
+}
+
+.ep-line { width: 40px; height: 1.5px; background: $borde; margin-bottom: 1.3rem; flex-shrink: 0; }
+
 .btn-volver {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: $primary;
-  color: $white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.75rem; background: $primary; color: $white;
+  border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; font-family: 'Montserrat', sans-serif; transition: background 0.2s;
   &:hover { background: #333; }
 }
 
-// ─── Header ────────────────────────────────────────────────
-.carrito-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  max-width: 1100px;
-  margin: 0 auto 1.5rem;
+// ─── Contenido ────────────────────────────────────────────────
+.carrito-contenido {
+  max-width: 1200px; margin: 0 auto;
+  padding: 1.75rem 1.5rem 3rem;
+}
 
-  h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: $primary;
-    margin: 0 0 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    i { color: $accent; font-size: 1.4rem; }
+.carrito-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.1rem; gap: 1rem;
+
+  .ch-left {
+    display: flex; align-items: center; gap: 0.7rem;
+    h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: $primary; margin: 0; }
   }
 
-  .carrito-sub { font-size: 0.88rem; color: $gray; margin: 0; }
+  .ch-badge {
+    background: $accent; color: $primary;
+    padding: 0.18rem 0.65rem; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 800; font-family: 'Montserrat', sans-serif;
+  }
 }
 
 .btn-limpiar {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: none;
-  border: 1.5px solid $borde;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: $gray;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
-  &:hover { border-color: $rojo; color: $rojo; }
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.45rem 0.9rem; background: none;
+  border: 1.5px solid $borde; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 600; color: $gray;
+  cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s;
+  &:hover { border-color: $rojo; color: $rojo; background: #fff5f5; }
 }
 
-// ─── Layout ────────────────────────────────────────────────
+// ─── Layout 2 columnas ────────────────────────────────────────
 .carrito-layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 1.5rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  @media (max-width: 900px) { grid-template-columns: 1fr; }
+  grid-template-columns: 1fr 345px;
+  gap: 1.25rem;
+  align-items: start;
+
+  @media (max-width: 960px) { grid-template-columns: 1fr; }
 }
 
-// ─── Items ─────────────────────────────────────────────────
+// ─── Items (columna izquierda) ────────────────────────────────
 .carrito-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
 }
 
 .carrito-item {
-  background: $white;
-  border-radius: 14px;
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid transparent;
-  transition: border-color 0.2s;
+  background: $white; border-radius: 14px;
+  padding: 1rem 1rem 1rem 1rem;
+  display: flex; gap: 1rem; align-items: flex-start;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border: 1.5px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
 
-  &:hover { border-color: rgba(251,196,71,0.3); }
-
-  @media (max-width: 600px) { flex-wrap: wrap; }
+  &:hover { border-color: rgba(251,196,71,0.35); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 }
 
-.item-img {
-  width: 72px; height: 72px; flex-shrink: 0;
-  border-radius: 10px; overflow: hidden;
-  border: 1px solid $borde;
-
-  img { width: 100%; height: 100%; object-fit: cover; }
+.ci-img {
+  width: 90px; height: 90px; flex-shrink: 0;
+  border-radius: 10px; overflow: hidden; border: 1px solid $borde;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
 }
 
-.item-info {
+.ci-body {
   flex: 1; min-width: 0;
-
-  h3 {
-    font-size: 0.95rem; font-weight: 700; color: $primary;
-    margin: 0 0 0.3rem;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  display: flex; flex-direction: column; gap: 0.28rem;
 }
 
-.item-badges {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.3rem;
+.ci-categoria {
+  font-size: 0.63rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: $gray; display: block;
 }
 
-.item-talla {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: darken($accent, 25%);
-  background: rgba(251,196,71,0.12);
-  border: 1px solid rgba(251,196,71,0.35);
-  padding: 0.15rem 0.55rem;
-  border-radius: 20px;
-  i { font-size: 0.6rem; }
-}
-
-.item-categoria {
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: $gray;
-  background: $gray-light;
-  padding: 0.15rem 0.55rem;
-  border-radius: 20px;
-  text-transform: capitalize;
-}
-
-.item-desc {
-  font-size: 0.75rem; color: $gray; margin: 0;
+.ci-nombre {
+  font-size: 0.96rem; font-weight: 700; color: $primary; margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.item-controles {
-  display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
-  .item-cantidad { font-size: 1rem; font-weight: 700; color: $primary; min-width: 24px; text-align: center; }
+.ci-desc {
+  font-size: 0.75rem; color: $gray; line-height: 1.45; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
 }
 
-.btn-ctrl {
-  width: 30px; height: 30px;
-  border-radius: 8px; border: 1.5px solid $borde;
-  background: $white; cursor: pointer; font-size: 0.75rem;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; color: $primary;
-  &:hover:not(:disabled) { border-color: $accent; background: rgba(251,196,71,0.1); }
+.ci-talla {
+  display: inline-flex; align-items: center; gap: 0.2rem;
+  font-size: 0.66rem; font-weight: 700; color: darken($accent, 26%);
+  background: rgba(251,196,71,0.1); border: 1px solid rgba(251,196,71,0.3);
+  padding: 0.1rem 0.5rem; border-radius: 20px; width: fit-content;
+  i { font-size: 0.56rem; }
+}
+
+.ci-footer {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 0.5rem; margin-top: 0.3rem;
+}
+
+.ci-precio {
+  font-size: 1.05rem; font-weight: 800; color: $primary;
+  font-family: 'Playfair Display', serif;
+}
+
+.ci-controles {
+  display: flex; align-items: center;
+  border: 1.5px solid $borde; border-radius: 9px; overflow: hidden;
+}
+
+.cc-btn {
+  width: 30px; height: 30px; background: $white; border: none; cursor: pointer;
+  font-size: 0.64rem; color: $primary;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+  &:hover:not(:disabled) { background: rgba(251,196,71,0.15); }
   &:disabled { opacity: 0.3; cursor: not-allowed; }
 }
 
-.item-precio {
-  display: flex; flex-direction: column; align-items: flex-end;
-  gap: 0.15rem; flex-shrink: 0; min-width: 100px;
-  .precio-unit  { font-size: 0.72rem; color: $gray; }
-  .precio-total { font-size: 1rem; font-weight: 800; color: $primary; }
+.cc-qty {
+  font-size: 0.9rem; font-weight: 800; color: $primary;
+  min-width: 32px; text-align: center;
+  border-left: 1.5px solid $borde; border-right: 1.5px solid $borde;
+  line-height: 30px;
 }
 
-.btn-quitar {
-  background: none; border: none; color: $gray;
+.ci-trash {
+  background: none; border: none; color: $borde;
   cursor: pointer; font-size: 0.9rem; padding: 0.3rem;
-  transition: color 0.2s; flex-shrink: 0;
-  &:hover { color: $rojo; }
+  transition: color 0.2s; flex-shrink: 0; align-self: flex-start;
+  border-radius: 6px;
+  &:hover { color: $rojo; background: #fff5f5; }
 }
 
-// ─── Resumen ───────────────────────────────────────────────
-.carrito-resumen {
-  background: $white;
-  border-radius: 14px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  height: fit-content;
-  position: sticky;
-  top: 90px;
-
-  h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem; font-weight: 700; color: $primary;
-    margin: 0 0 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid $borde;
-  }
+// ─── Sidebar (columna derecha) ────────────────────────────────
+.carrito-sidebar {
+  background: $white; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  position: sticky; top: 105px;
+  overflow: hidden;
 }
 
-.resumen-rows {
-  display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;
+.sidebar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1.15rem; background: $primary;
+  .sh-title { font-size: 0.88rem; font-weight: 700; color: $white; font-family: 'Playfair Display', serif; }
+  .sh-count { font-size: 0.66rem; font-weight: 700; color: rgba(255,255,255,0.45); font-family: 'Montserrat', sans-serif; }
 }
 
-.resumen-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.82rem; color: $gray; gap: 0.5rem;
-
-  em { font-style: normal; color: darken($accent, 20%); font-weight: 600; }
-
-  span:first-child {
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
-  }
-}
-
-.resumen-total {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0.85rem 0;
-  border-top: 2px solid $primary;
+.sidebar-items {
+  padding: 0.7rem 1.15rem;
   border-bottom: 1px solid $borde;
-  margin-bottom: 1.25rem;
-  span  { font-size: 0.95rem; font-weight: 600; color: $primary; }
-  strong { font-size: 1.25rem; font-weight: 800; color: $primary; }
+  display: flex; flex-direction: column; gap: 0.55rem;
+  max-height: 200px; overflow-y: auto;
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: $borde; border-radius: 2px; }
 }
 
-// ─── Plazos ────────────────────────────────────────────────
-.resumen-plazo {
-  margin-bottom: 1.25rem;
-  label {
-    display: block; font-size: 0.75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    color: $gray; margin-bottom: 0.6rem;
+.si-row { display: flex; align-items: center; gap: 0.55rem; }
+
+.si-img {
+  position: relative; flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 7px;
+  overflow: hidden; border: 1px solid $borde;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.si-qty {
+  position: absolute; top: -4px; right: -4px;
+  background: $primary; color: $white;
+  width: 16px; height: 16px; border-radius: 50%;
+  font-size: 0.52rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.si-nombre {
+  flex: 1; font-size: 0.74rem; color: $primary; font-weight: 600; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  em { font-style: normal; color: $gray; font-size: 0.67rem; }
+}
+
+.si-precio { font-size: 0.76rem; font-weight: 700; color: $primary; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
+
+.sidebar-subtotal {
+  display: flex; justify-content: space-between;
+  padding: 0.65rem 1.15rem 0;
+  font-size: 0.78rem; color: $gray; font-family: 'Montserrat', sans-serif;
+}
+
+.sidebar-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.35rem 1.15rem 0.75rem;
+  border-bottom: 1px solid $borde;
+  span   { font-size: 0.85rem; font-weight: 700; color: $primary; font-family: 'Montserrat', sans-serif; }
+  strong { font-size: 1.3rem; font-weight: 800; color: $primary; font-family: 'Playfair Display', serif; }
+}
+
+.alerta-error {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  background: #fee2e2; color: #991b1b;
+  font-size: 0.78rem; font-family: 'Montserrat', sans-serif;
+  border-top: 1px solid #fecaca;
+}
+
+// ── Wompi ─────────────────────────────────────────────────────
+.btn-wompi {
+  display: flex; align-items: center; gap: 0.7rem;
+  width: 100%; padding: 0.95rem 1.15rem;
+  background: $primary; color: $white; border: none; cursor: pointer;
+  font-family: 'Montserrat', sans-serif; transition: filter 0.2s;
+
+  > i:first-child { font-size: 0.9rem; color: $accent; flex-shrink: 0; }
+
+  div {
+    flex: 1; display: flex; flex-direction: column; align-items: flex-start;
+    strong { font-size: 0.88rem; font-weight: 800; display: block; letter-spacing: 0.03em; }
+    small  { font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 0.04rem; }
   }
+
+  &__arr { font-size: 0.62rem; color: rgba(255,255,255,0.28); flex-shrink: 0; }
+
+  &:hover { filter: brightness(1.14); }
+}
+
+.sidebar-sep {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  span { flex: 1; height: 1px; background: $borde; display: block; }
+  p { font-size: 0.58rem; font-weight: 800; color: $gray; text-transform: uppercase;
+      letter-spacing: 0.07em; margin: 0; white-space: nowrap; font-family: 'Montserrat', sans-serif; }
+}
+
+// ── Plazos ────────────────────────────────────────────────────
+.sidebar-plazo {
+  padding: 0 1.15rem 0.85rem;
+}
+
+.plazo-titulo {
+  font-size: 0.68rem; font-weight: 800; color: $primary;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin: 0 0 0.6rem; display: flex; align-items: center; gap: 0.38rem;
+  font-family: 'Montserrat', sans-serif;
+  i { color: $accent; }
 }
 
 .plazos-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem;
 }
 
 .btn-plazo {
-  padding: 0.6rem 0.5rem;
-  border: 2px solid $borde;
-  border-radius: 10px;
-  background: $white;
-  cursor: pointer; text-align: center;
-  transition: all 0.2s;
-  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 0.5rem 0.25rem;
+  border: 1.5px solid $borde; border-radius: 8px;
+  background: $white; cursor: pointer; text-align: center;
+  transition: all 0.15s;
+  display: flex; flex-direction: column; gap: 0.07rem;
   font-family: 'Montserrat', sans-serif;
 
-  .plazo-label { font-size: 0.82rem; font-weight: 700; color: $primary; display: block; }
-  .plazo-desc  { font-size: 0.65rem; color: $gray; display: block; }
+  .plazo-label { font-size: 0.7rem; font-weight: 700; color: $primary; display: block; }
+  .plazo-desc  { font-size: 0.56rem; color: $gray; display: block; }
 
   &:hover { border-color: $accent; }
 
   &.plazo-activo {
-    border-color: $accent;
-    background: rgba(251,196,71,0.08);
-    .plazo-label { color: darken($accent, 22%); }
+    border-color: $accent; background: rgba(251,196,71,0.1);
+    .plazo-label { color: darken($accent, 24%); }
+    .plazo-desc  { color: darken($accent, 12%); }
   }
 }
 
-// ─── Nota ──────────────────────────────────────────────────
-.resumen-nota {
-  display: flex; gap: 0.75rem; margin-bottom: 1.25rem;
-  background: linear-gradient(135deg, rgba(251,196,71,0.08) 0%, rgba(251,196,71,0.03) 100%);
-  border: 1px solid rgba(251,196,71,0.25);
-  padding: 1rem; border-radius: 12px;
-
-  .nota-icon {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(251,196,71,0.15);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    i { color: $accent; font-size: 1rem; }
-  }
-
-  .nota-texto {
-    flex: 1;
-    strong { display: block; font-size: 0.82rem; font-weight: 700; color: $primary; margin-bottom: 0.25rem; }
-    p { font-size: 0.75rem; color: $gray; line-height: 1.5; margin: 0; }
-  }
-}
-
-// ─── Botón Wompi (pago en línea) ───────────────────────────
-.btn-wompi-carrito {
-  width: 100%;
-  padding: 0;
-  background: $primary;
-  color: $white;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: stretch;
-  overflow: hidden;
-  transition: all 0.25s;
+// ── Botón crédito ─────────────────────────────────────────────
+.btn-credito {
+  display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+  width: 100%; padding: 0.9rem 1.15rem;
+  background: $accent; color: $primary; border: none; cursor: pointer;
   font-family: 'Montserrat', sans-serif;
-  position: relative;
-  margin-bottom: 0.85rem;
-  box-shadow: 0 4px 18px rgba(26,26,26,0.22);
-
-  &::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(251,196,71,0.15) 0%, rgba(251,196,71,0) 60%);
-    opacity: 0;
-    transition: opacity 0.25s;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(26,26,26,0.3);
-    &::before { opacity: 1; }
-  }
-
-  &__left {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.9rem 1rem;
-    i { font-size: 0.8rem; color: $accent; }
-  }
-
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.9rem 1rem;
-    background: rgba(251,196,71,0.12);
-    border-left: 1px solid rgba(255,255,255,0.08);
-    color: $accent;
-    font-size: 0.88rem;
-    font-weight: 800;
-    white-space: nowrap;
-    i { font-size: 0.75rem; }
-  }
+  font-size: 0.9rem; font-weight: 800;
+  transition: filter 0.2s;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  i { font-size: 0.82rem; }
+  &:hover { filter: brightness(1.06); }
 }
 
-// ─── Separador "o paga después" ────────────────────────────
-.carrito-sep {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.85rem;
-
-  span {
-    flex: 1;
-    height: 1px;
-    background: $borde;
-    display: block;
-  }
-
-  p {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: $gray;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 0;
-    white-space: nowrap;
-  }
+// ── Trust ─────────────────────────────────────────────────────
+.sidebar-trust {
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0.65rem 1rem; background: $gray-light; border-top: 1px solid $borde;
 }
 
-// ─── Botón solicitar ───────────────────────────────────────
-.btn-solicitar {
-  width: 100%; padding: 0.9rem;
-  background: $accent; color: $primary;
-  border: none; border-radius: 10px;
-  font-size: 0.95rem; font-weight: 700;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-  transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
-  &:hover { background: $accent-soft; transform: translateY(-1px); }
+.st-item {
+  font-size: 0.66rem; font-weight: 600; color: $gray-mid;
+  display: flex; align-items: center; gap: 0.3rem;
+  i { color: $verde; font-size: 0.68rem; }
 }
 
-// ─── Alertas ───────────────────────────────────────────────
-.alerta-error {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.7rem 0.9rem;
-  background: #fee2e2; border: 1px solid #fecaca;
-  border-radius: 8px; color: #991b1b;
-  font-size: 0.82rem; margin-bottom: 1rem;
-}
+.st-divider { width: 1px; height: 20px; background: $borde; }
 
-// ─── Modal confirmar ───────────────────────────────────────
+// ─── Modal ────────────────────────────────────────────────────
 .modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6);
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
   display: flex; align-items: center; justify-content: center;
-  z-index: 1100; padding: 1rem;
-  backdrop-filter: blur(4px);
+  z-index: 1100; padding: 1rem; backdrop-filter: blur(4px);
 }
 
 .modal-confirm {
-  background: $white;
-  border-radius: 20px;
-  width: 100%; max-width: 480px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-  overflow: hidden;
+  background: $white; border-radius: 18px; width: 100%; max-width: 440px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25); overflow: hidden;
+}
 
-  &__header {
-    background: $primary;
-    padding: 1.25rem 1.5rem;
-    display: flex; align-items: center; gap: 1rem;
+.mc-header {
+  background: $primary; padding: 1.1rem 1.25rem;
+  display: flex; align-items: center; gap: 0.85rem;
 
-    h2 { font-size: 1rem; font-weight: 700; color: $white; margin: 0; }
-    p  { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0; }
-  }
-
-  &__icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: rgba(251,196,71,0.2);
+  .mc-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: rgba(251,196,71,0.18);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    i { color: $accent; font-size: 1rem; }
+    i { color: $accent; font-size: 0.9rem; }
   }
 
-  &__close {
-    margin-left: auto;
-    background: rgba(255,255,255,0.1); border: none;
-    color: $white; width: 30px; height: 30px;
-    border-radius: 6px; cursor: pointer; font-size: 0.85rem;
-    display: flex; align-items: center; justify-content: center;
-    &:hover { background: rgba(255,255,255,0.25); }
-  }
-
-  &__body { padding: 1.5rem; }
-
-  &__footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid $borde;
-    display: flex; justify-content: flex-end; gap: 0.75rem;
-  }
+  h2 { font-size: 0.92rem; font-weight: 700; color: $white; margin: 0 0 0.1rem; }
+  p  { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin: 0;
+       strong { color: $accent; } }
 }
 
-.confirm-resumen {
-  background: $gray-light; border-radius: 12px;
-  padding: 1rem; margin-bottom: 1rem;
+.mc-close {
+  margin-left: auto; flex-shrink: 0;
+  background: rgba(255,255,255,0.1); border: none;
+  color: $white; width: 28px; height: 28px; border-radius: 6px;
+  cursor: pointer; font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  &:hover { background: rgba(255,255,255,0.2); }
 }
 
-.confirm-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.85rem; color: $primary;
-  padding: 0.35rem 0; border-bottom: 1px solid $borde;
+.mc-body { padding: 1.2rem 1.25rem; }
+
+.mc-resumen {
+  background: $gray-light; border-radius: 10px; padding: 0.85rem; margin-bottom: 0.9rem;
+}
+
+.mc-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 0.82rem; color: $primary; padding: 0.28rem 0;
+  border-bottom: 1px solid $borde;
   &:last-of-type { border-bottom: none; }
+  em { font-style: normal; color: $gray; font-size: 0.72rem; }
 }
 
-.confirm-talla {
-  font-size: 0.78rem; font-weight: 600;
-  color: darken($accent, 22%);
-}
-
-.confirm-total {
+.mc-total {
   display: flex; justify-content: space-between;
-  padding: 0.6rem 0 0.3rem;
-  font-size: 0.95rem; font-weight: 700; color: $primary;
-  border-top: 2px solid $primary; margin-top: 0.5rem;
+  padding: 0.55rem 0 0; margin-top: 0.4rem; border-top: 2px solid $primary;
+  font-size: 0.88rem; font-weight: 600; color: $primary;
+  strong { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
 }
 
-.confirm-plazo {
-  font-size: 0.82rem; color: $gray;
-  padding-top: 0.5rem;
-  display: flex; align-items: center; gap: 0.4rem;
-  i { color: $accent; }
-}
-
-.confirm-nota {
-  font-size: 0.8rem; color: $gray;
-  background: $gray-light; padding: 0.75rem 1rem;
-  border-radius: 10px; margin-bottom: 0;
-  display: flex; align-items: flex-start; gap: 0.5rem;
-  line-height: 1.5;
+.mc-nota {
+  font-size: 0.76rem; color: $gray; background: $gray-light;
+  padding: 0.6rem 0.85rem; border-radius: 9px;
+  display: flex; align-items: flex-start; gap: 0.4rem; line-height: 1.5;
   i { color: $accent; margin-top: 0.1rem; flex-shrink: 0; }
 }
 
+.mc-footer {
+  padding: 0.9rem 1.25rem; border-top: 1px solid $borde;
+  display: flex; justify-content: flex-end; gap: 0.6rem;
+}
+
 .btn-cancel {
-  padding: 0.65rem 1.25rem;
-  background: $gray-light; border: 1.5px solid $borde;
-  border-radius: 8px; font-size: 0.88rem; font-weight: 600;
-  cursor: pointer; color: $gray; transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  padding: 0.6rem 1.1rem; background: $gray-light; border: 1.5px solid $borde;
+  border-radius: 8px; font-size: 0.83rem; font-weight: 600;
+  cursor: pointer; color: $gray; font-family: 'Montserrat', sans-serif; transition: all 0.15s;
   &:hover { background: darken($gray-light, 4%); }
 }
 
 .btn-confirmar {
-  padding: 0.65rem 1.5rem;
-  background: $accent; color: $primary;
-  border: none; border-radius: 8px;
-  font-size: 0.88rem; font-weight: 700;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 0.5rem;
-  transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  padding: 0.6rem 1.35rem; background: $accent; color: $primary;
+  border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 800;
+  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;
   &:hover:not(:disabled) { background: $accent-soft; transform: translateY(-1px); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ─── Mobile ───────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .cnav-logo { position: static; transform: none; }
+  .cnav-logo .cnav-logo__text { display: none; }
+  .cnav-secure { display: none; }
+  .cnav-badge-carrito span { display: none; }
+  .plazos-grid { grid-template-columns: 1fr 1fr; }
+  .cart-navbar__inner { height: 58px; }
+  .carrito-contenido { padding: 1.25rem 1rem 2.5rem; }
 }

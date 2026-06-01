@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { HorarioService, IHorarioDia, IExcepcion } from '../../../core/services/horario.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-horario',
@@ -18,6 +19,10 @@ export class HorarioComponent implements OnInit {
   modalAgregar = false;
   guardando = false;
   errorForm = '';
+
+  confirmarEliminar = false;
+  excepcionAEliminar: number | null = null;
+  eliminando = false;
 
   readonly diaHoy = new Date().getDay();
 
@@ -40,7 +45,8 @@ export class HorarioComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private horarioService: HorarioService
+    private horarioService: HorarioService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -137,18 +143,40 @@ export class HorarioComponent implements OnInit {
         this.guardando = false;
         this.cerrarModalAgregar();
         this.cargarExcepciones();
+        this.toast.success('Descanso agregado', 'El bloque de descanso fue guardado correctamente.');
       },
       error: (err) => {
         this.errorForm = err.error?.mensaje || 'Error al guardar';
         this.guardando = false;
+        this.toast.error('Error al guardar', err.error?.mensaje || 'Ocurrió un error inesperado.');
       }
     });
   }
 
-  eliminarExcepcion(id: number): void {
-    this.horarioService.eliminarExcepcion(id).subscribe({
-      next: () => this.cargarExcepciones(),
-      error: () => this.error = 'Error al eliminar'
+  pedirConfirmarEliminar(id: number): void {
+    this.excepcionAEliminar = id;
+    this.confirmarEliminar = true;
+  }
+
+  cancelarEliminar(): void {
+    this.confirmarEliminar = false;
+    this.excepcionAEliminar = null;
+  }
+
+  confirmarEliminarExcepcion(): void {
+    if (this.excepcionAEliminar === null) return;
+    this.eliminando = true;
+    this.horarioService.eliminarExcepcion(this.excepcionAEliminar).subscribe({
+      next: () => {
+        this.eliminando = false;
+        this.cancelarEliminar();
+        this.cargarExcepciones();
+        this.toast.success('Descanso eliminado', 'El bloque de descanso fue eliminado correctamente.');
+      },
+      error: () => {
+        this.eliminando = false;
+        this.toast.error('Error al eliminar', 'No se pudo eliminar el descanso. Intentá de nuevo.');
+      }
     });
   }
 

@@ -6,7 +6,6 @@ import { Component } from '@angular/core';
     <app-navbar></app-navbar>
     <router-outlet></router-outlet>
     <app-footer></app-footer>
-    <app-carrito-drawer></app-carrito-drawer>
   `
 })
 export class PublicLayoutComponent {}

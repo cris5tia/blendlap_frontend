@@ -13,6 +13,7 @@ export class ServiciosComponent implements OnInit {
   servicios: IServicio[] = [];
   serviciosFiltrados: IServicio[] = [];
   busqueda = '';
+  filtroEstado: 'todos' | 'activo' | 'inactivo' = 'activo';
   cargando = false;
   error = '';
 
@@ -52,20 +53,26 @@ export class ServiciosComponent implements OnInit {
 
   filtrar(): void {
     const q = this.busqueda.toLowerCase().trim();
-    this.serviciosFiltrados = q
-      ? this.servicios.filter(s =>
-        s.nombre_servicio.toLowerCase().includes(q)
-      )
-      : [...this.servicios];
+    this.serviciosFiltrados = this.servicios.filter(s => {
+      const coincideBusqueda = !q || s.nombre_servicio.toLowerCase().includes(q);
+      const coincideEstado = this.filtroEstado === 'todos' || s.estado === this.filtroEstado;
+      return coincideBusqueda && coincideEstado;
+    });
   }
+
+  setFiltroEstado(estado: 'todos' | 'activo' | 'inactivo'): void {
+    this.filtroEstado = estado;
+    this.filtrar();
+  }
+
+  get countActivos(): number { return this.servicios.filter(s => s.estado === 'activo').length; }
+  get countInactivos(): number { return this.servicios.filter(s => s.estado === 'inactivo').length; }
 
   abrirModal(servicio?: IServicio): void {
     this.editando = !!servicio;
     this.formulario = servicio ? { ...servicio } : this.formularioVacio();
     this.archivoSeleccionado = null;
-    this.previewImagen = servicio?.imagen
-      ? `http://localhost:3001/images/servicios/${servicio.imagen}`
-      : '';
+    this.previewImagen = servicio?.imagen ?? '';
     this.modalVisible = true;
   }
 
@@ -87,32 +94,23 @@ export class ServiciosComponent implements OnInit {
     if (!input.files?.length) return;
 
     this.archivoSeleccionado = input.files[0];
+    if (this.archivoSeleccionado.size > 5 * 1024 * 1024) {
+      this.error = 'La imagen no puede pesar mas de 5MB';
+      this.archivoSeleccionado = null;
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (e) => {
       this.previewImagen = e.target?.result as string;
+      this.formulario.imagen = this.previewImagen;
     };
     reader.readAsDataURL(this.archivoSeleccionado);
   }
 
   guardar(): void {
     this.guardando = true;
-
-    if (this.archivoSeleccionado) {
-      this.servicioService.uploadImagen(this.archivoSeleccionado).subscribe({
-        next: (res) => {
-          this.formulario.imagen = res.nombreArchivo;
-          this.archivoSeleccionado = null;
-          this.guardarServicio();
-        },
-        error: () => {
-          this.error = 'Error al subir la imagen';
-          this.guardando = false;
-        }
-      });
-    } else {
-      this.guardarServicio();
-    }
+    this.guardarServicio();
   }
 
   private guardarServicio(): void {

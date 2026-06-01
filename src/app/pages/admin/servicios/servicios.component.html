@@ -16,6 +16,19 @@
       <i class="fas fa-search"></i>
       <input type="text" placeholder="Buscar servicio..." [(ngModel)]="busqueda" (input)="filtrar()" />
     </div>
+
+    <div class="filtro-estado">
+      <button class="filtro-estado__chip" [class.active]="filtroEstado === 'todos'" (click)="setFiltroEstado('todos')">
+        Todos <span class="filtro-estado__badge">{{ servicios.length }}</span>
+      </button>
+      <button class="filtro-estado__chip filtro-estado__chip--activo" [class.active]="filtroEstado === 'activo'" (click)="setFiltroEstado('activo')">
+        <i class="fas fa-eye"></i> Activos <span class="filtro-estado__badge">{{ countActivos }}</span>
+      </button>
+      <button class="filtro-estado__chip filtro-estado__chip--inactivo" [class.active]="filtroEstado === 'inactivo'" (click)="setFiltroEstado('inactivo')">
+        <i class="fas fa-eye-slash"></i> Inactivos <span class="filtro-estado__badge">{{ countInactivos }}</span>
+      </button>
+    </div>
+
     <span class="toolbar__count">{{ serviciosFiltrados.length }} servicios</span>
   </div>
 
@@ -24,7 +37,7 @@
       <div class="servicio-card" *ngFor="let s of serviciosFiltrados">
 
         <div class="servicio-card__img">
-          <img *ngIf="s.imagen" [src]="'http://localhost:3001/images/servicios/' + s.imagen"
+          <img *ngIf="s.imagen" [src]="s.imagen | imgUrl"
             [alt]="s.nombre_servicio" />
           <div *ngIf="!s.imagen" class="servicio-card__img--empty">
             <i class="fas fa-cut"></i>
@@ -125,7 +138,7 @@
         <div class="form-group">
           <label>Imagen</label>
           <div class="imagen-preview" *ngIf="previewImagen">
-            <img [src]="previewImagen" [alt]="formulario.nombre_servicio" />
+            <img [src]="previewImagen | imgUrl" [alt]="formulario.nombre_servicio" />
             <button type="button" class="imagen-preview__remove"
               (click)="previewImagen = ''; archivoSeleccionado = null; formulario.imagen = ''">
               <i class="fas fa-times"></i>

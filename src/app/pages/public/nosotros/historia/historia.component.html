@@ -1,32 +1,58 @@
 <div class="historia-page">
 
+  <!-- Navbar interna -->
+  <nav class="nosotros-nav">
+    <div class="nosotros-nav__container">
+
+      <!-- Logo (izquierda en desktop, centro en móvil) -->
+      <a routerLink="/" class="nosotros-nav__logo">
+        <img src="assets/images/navbar/logo.png" alt="Blendlap" />
+      </a>
+
+      <!-- Volver (derecha en desktop, izquierda en móvil) -->
+      <a routerLink="/" class="nosotros-nav__back">
+        <i class="fas fa-arrow-left"></i>
+        <span>Volver</span>
+      </a>
+
+    </div>
+  </nav>
+
   <!-- Hero -->
   <section class="historia-hero" id="nosotros">
     <div class="historia-hero__overlay"></div>
-    <a routerLink="/" class="historia-back" aria-label="Volver al inicio">
-      <i class="fas fa-arrow-left"></i>
-      <span>Volver</span>
-    </a>
     <div class="historia-hero__content">
       <span class="historia-hero__pre">BLENDLAP BARBER&Iacute;A</span>
-      <h1>Más que una Barbería </h1>
-      <p>Una barber&iacute;a construida con trabajo, detalle y una identidad propia.</p>
-    </div>
-    
-  </section>
-
-  <!-- Intro -->
-  <section class="historia-intro">
-    <div class="container">
-      <div class="historia-intro__texto">
-        <span class="historia-intro__pre">Nuestra esencia</span>
-        <h2>Blendlap se construy&oacute; paso a paso.</h2>
-        <p>Empez&oacute; desde casa, pas&oacute; por diferentes etapas y sigui&oacute; creciendo con la confianza de cada cliente. Hoy reunimos esa historia, nuestra misi&oacute;n y los valores que gu&iacute;an cada servicio.</p>
-        <div class="historia-intro__pilares">
-          <span>Historia</span>
-          <span>Misi&oacute;n</span>
-          <span>Valores</span>
-          <span>Equipo</span>
+      <h1>El detalle que te distingue.</h1>
+      <p>Empezamos desde casa y llegamos a un local propio con equipo. Cada paso fue posible gracias al trabajo y a quienes confiaron en nosotros.</p>
+      <div class="historia-hero__valores">
+        <div class="historia-hero__valor">
+          <i class="fas fa-shield-alt"></i>
+          <div>
+            <strong>Confianza</strong>
+            <span>Relaciones que se construyen.</span>
+          </div>
+        </div>
+        <div class="historia-hero__valor">
+          <i class="fas fa-star"></i>
+          <div>
+            <strong>Calidad</strong>
+            <span>Atenci&oacute;n al detalle siempre.</span>
+          </div>
+        </div>
+        <div class="historia-hero__valor">
+          <i class="fas fa-cut"></i>
+          <div>
+            <strong>Pasi&oacute;n</strong>
+            <span>Amamos lo que hacemos.</span>
+          </div>
+        </div>
+        <div class="historia-hero__valor">
+          <i class="fas fa-users"></i>
+          <div>
+            <strong>Comunidad</strong>
+            <span>M&aacute;s que clientes, somos familia.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -189,3 +215,8 @@
   </section>
 
 </div>
+
+<!-- Botón scroll to top -->
+<button class="scroll-top" [class.scroll-top--visible]="mostrarScrollTop" (click)="scrollAlTop()" aria-label="Subir al inicio">
+  <i class="fas fa-chevron-up"></i>
+</button>

@@ -38,11 +38,6 @@ export class ServicioService {
   update(id: number, data: Partial<IServicio>): Observable<{ ok: boolean; data: IServicio }> {
     return this.http.put<{ ok: boolean; data: IServicio }>(`${this.url}/${Number(id)}`, data);
   }
-  uploadImagen(file: File): Observable<{ ok: boolean; nombreArchivo: string }> {
-    const formData = new FormData();
-    formData.append('imagen', file);
-    return this.http.post<{ ok: boolean; nombreArchivo: string }>(`${this.url}/upload-imagen`, formData);
-  }
   getImagenesDisponibles(): Observable<string[]> {
     return this.http.get<string[]>('assets/images/servicios/imagenes.json');
   }

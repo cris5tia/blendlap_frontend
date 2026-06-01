@@ -84,23 +84,6 @@
       <strong>{{ formatCurrency(total) }}</strong>
     </div>
 
-    <div class="drawer__plazo">
-      <label>Plazo de pago</label>
-      <div class="plazos-grid">
-        <button *ngFor="let p of plazos" class="btn-plazo"
-          [class.activo]="plazoSeleccionado === p.id"
-          (click)="plazoSeleccionado = p.id">
-          <span>{{ p.label }}</span>
-          <small>{{ p.desc }}</small>
-        </button>
-      </div>
-    </div>
-
-    <div class="drawer__nota">
-      <i class="fas fa-shield-alt"></i>
-      <span>El admin aprobará tu solicitud antes de que puedas recoger los productos.</span>
-    </div>
-
     <div class="drawer__error" *ngIf="error">
       <i class="fas fa-exclamation-circle"></i> {{ error }}
     </div>
@@ -119,6 +102,23 @@
     <!-- Separador -->
     <div class="drawer__sep">
       <span></span><p>o paga después</p><span></span>
+    </div>
+
+    <div class="drawer__plazo">
+      <label>Plazo de pago</label>
+      <div class="plazos-grid">
+        <button *ngFor="let p of plazos" class="btn-plazo"
+          [class.activo]="plazoSeleccionado === p.id"
+          (click)="plazoSeleccionado = p.id">
+          <span>{{ p.label }}</span>
+          <small>{{ p.desc }}</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="drawer__nota">
+      <i class="fas fa-shield-alt"></i>
+      <span>El admin aprobará tu solicitud antes de que puedas recoger los productos.</span>
     </div>
 
     <button class="drawer__btn-solicitar" (click)="solicitar()" [disabled]="enviando">

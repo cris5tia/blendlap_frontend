@@ -125,7 +125,7 @@
             <span class="exc-item__dur">{{ duracionHoras(exc.hora_inicio, exc.hora_fin) }}</span>
             <span class="exc-item__motivo" *ngIf="exc.motivo">{{ exc.motivo }}</span>
           </div>
-          <button class="exc-item__del" (click)="eliminarExcepcion(exc.id_excepcion!)" title="Eliminar">
+          <button class="exc-item__del" (click)="pedirConfirmarEliminar(exc.id_excepcion!)" title="Eliminar">
             <i class="fas fa-trash-alt"></i>
           </button>
         </div>
@@ -136,7 +136,37 @@
 
 </div>
 
-<!-- MODAL -->
+<!-- MODAL CONFIRMAR ELIMINAR -->
+<div class="modal-overlay" *ngIf="confirmarEliminar" (click)="cancelarEliminar()">
+  <div class="modal-box modal-box--sm" (click)="$event.stopPropagation()">
+
+    <button class="modal-box__close" (click)="cancelarEliminar()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-box__head">
+      <div class="modal-box__icon modal-box__icon--danger">
+        <i class="fas fa-trash-alt"></i>
+      </div>
+      <div>
+        <h3>Eliminar descanso</h3>
+        <p>¿Estás seguro de que querés eliminar este bloque de descanso? Esta acción no se puede deshacer.</p>
+      </div>
+    </div>
+
+    <div class="modal-box__footer" style="padding-top: 1.25rem;">
+      <button class="btn-cancel" (click)="cancelarEliminar()">Cancelar</button>
+      <button class="btn-delete" (click)="confirmarEliminarExcepcion()" [disabled]="eliminando">
+        <i class="fas fa-spinner fa-spin" *ngIf="eliminando"></i>
+        <i class="fas fa-trash-alt"       *ngIf="!eliminando"></i>
+        {{ eliminando ? 'Eliminando...' : 'Sí, eliminar' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL AGREGAR DESCANSO -->
 <div class="modal-overlay" *ngIf="modalAgregar" (click)="cerrarModalAgregar()">
   <div class="modal-box" (click)="$event.stopPropagation()">
 

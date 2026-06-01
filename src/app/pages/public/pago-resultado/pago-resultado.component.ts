@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PagoService } from '../../../core/services/pago.service';
 import { CarritoService } from '../../../core/services/carrito.service';
-import { TabService } from '../../../core/services/tab.service';
 
 type EstadoPago = 'verificando' | 'aprobado' | 'rechazado' | 'error';
 
@@ -24,8 +23,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
     private route:          ActivatedRoute,
     private router:         Router,
     private pagoService:    PagoService,
-    private carritoService: CarritoService,
-    private tabService:     TabService
+    private carritoService: CarritoService
   ) {}
 
   ngOnInit(): void {
@@ -74,11 +72,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
     });
   }
 
-  irAlInicio(): void    { this.router.navigate(['/']); }
-  irAlCarrito(): void   { this.router.navigate(['/carrito']); }
-  irAlCheckout(): void  { this.router.navigate(['/checkout']); }
-  irAlDashboard(): void {
-    this.tabService.cambiarTab('compras');
-    this.router.navigate(['/cliente/dashboard']);
+  irAMisCompras(): void {
+    this.router.navigate(['/cliente/perfil'], { queryParams: { tab: 'compras' } });
   }
 }

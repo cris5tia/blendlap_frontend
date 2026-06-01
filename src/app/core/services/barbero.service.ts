@@ -42,9 +42,10 @@ export class BarberoService {
         return this.http.delete<{ ok: boolean; mensaje: string }>(`${this.url}/barberos/${id}`);
     }
 
-    uploadFoto(file: File): Observable<{ ok: boolean; nombreArchivo: string }> {
+    uploadFoto(file: File, idBarbero?: number): Observable<{ ok: boolean; nombreArchivo: string }> {
         const formData = new FormData();
         formData.append('foto', file);
+        if (idBarbero) formData.append('id_barbero', String(idBarbero));
         return this.http.post<{ ok: boolean; nombreArchivo: string }>(`${this.url}/barberos/upload-foto`, formData);
     }
     getAllAdmin(): Observable<{ ok: boolean; data: IBarbero[] }> {

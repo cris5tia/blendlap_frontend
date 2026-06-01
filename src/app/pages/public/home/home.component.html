@@ -29,7 +29,7 @@
       <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
         style="cursor:pointer">
         <div class="barbero-card__imagen">
-          <img *ngIf="barbero.foto" [src]="'http://localhost:3001/images/barberos/' + barbero.foto"
+          <img *ngIf="barbero.foto" [src]="barbero.foto | imgUrl"
             [alt]="barbero.nombre">
           <div *ngIf="!barbero.foto" class="barbero-card__foto--empty">
             <i class="fas fa-user-tie"></i>
@@ -96,11 +96,11 @@
 <!-- ─── MODAL BARBERO ────────────────────────────────────────── -->
 <div class="modal-overlay modal-overlay--barbero" *ngIf="barberoSeleccionado" (click)="cerrarModalBarbero()">
   <div class="modal modal--barbero" (click)="$event.stopPropagation()">
+    <button class="modal__cerrar" (click)="cerrarModalBarbero()">
+      <i class="fas fa-times"></i>
+    </button>
     <div class="modal__imagen">
-      <button class="modal__cerrar" (click)="cerrarModalBarbero()">
-        <i class="fas fa-times"></i>
-      </button>
-      <img *ngIf="barberoSeleccionado.foto" [src]="'http://localhost:3001/images/barberos/' + barberoSeleccionado.foto"
+      <img *ngIf="barberoSeleccionado.foto" [src]="barberoSeleccionado.foto | imgUrl"
         [alt]="barberoSeleccionado.nombre" />
       <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
         <i class="fas fa-user-tie"></i>
@@ -137,8 +137,8 @@
           </div>
         </div>
       </div>
-      <a routerLink="/agendar" class="btn-primary modal__btn" (click)="cerrarModalBarbero()">
-        <i class="fas fa-calendar-check"></i> Agendar
+      <a routerLink="/agendar" [queryParams]="{ barbero: barberoSeleccionado.id_usuario }" class="btn-primary modal__btn" (click)="cerrarModalBarbero()">
+        <i class="fas fa-calendar-check"></i> Agendar con él
       </a>
     </div>
   </div>
@@ -201,7 +201,7 @@
       <div class="servicios__grid">
         <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
           <div class="servicio-card__imagen">
-            <img [src]="'http://localhost:3001/images/servicios/' + servicio.imagen" [alt]="servicio.nombre_servicio">
+            <img [src]="servicio.imagen | imgUrl" [alt]="servicio.nombre_servicio">
             <div class="servicio-card__badge">
               <i class="fas fa-clock"></i> {{ servicio.duracion }} min
             </div>
@@ -227,7 +227,7 @@
       <div class="servicios__lista-movil">
         <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
           <div class="servicio-item-movil__img">
-            <img *ngIf="servicio.imagen" [src]="'http://localhost:3001/images/servicios/' + servicio.imagen"
+            <img *ngIf="servicio.imagen" [src]="servicio.imagen | imgUrl"
               [alt]="servicio.nombre_servicio" />
             <div *ngIf="!servicio.imagen" class="servicio-item-movil__img--empty">
               <i class="fas fa-cut"></i>
@@ -388,13 +388,8 @@
         </span>
       </div>
 
-      <!-- Feedback agregado -->
-      <div class="modal__agregado" *ngIf="agregadoExito">
-        <i class="fas fa-check-circle"></i> ¡Agregado al carrito!
-      </div>
-
       <!-- Botones -->
-      <button class="modal__btn-carrito" *ngIf="productoSeleccionado.stock > 0 && !agregadoExito"
+      <button class="modal__btn-carrito" *ngIf="productoSeleccionado.stock > 0"
         (click)="agregarAlCarrito(productoSeleccionado)">
         <i class="fas fa-shopping-basket"></i> Agregar al carrito
       </button>
@@ -461,50 +456,6 @@
   </div>
 </section>
 
-<!-- ─── UBICACIÓN ─────────────────────────────────────────────── -->
-<section class="ubicacion" id="ubicacion">
-  <div class="container">
-    <p class="section-subtitle">Encuéntranos</p>
-    <h2 class="section-title">Nuestra <span>Ubicación</span></h2>
-  </div>
-  <div class="ubicacion__content container">
-    <div class="ubicacion__info">
-      <div class="info-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <div>
-          <h4>Dirección</h4>
-          <p>Cl. 48 # 19-55, Armenia, Quindío</p>
-          <p>Antes del semáforo para salir a la calle 19</p>
-        </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-clock"></i>
-        <div>
-          <h4>Horario</h4>
-          <p>Martes - Domingo: 9:00am - 9:00pm</p>
-        </div>
-      </div>
-      <div class="info-item">
-        <i class="fab fa-whatsapp"></i>
-        <div>
-          <h4>WhatsApp</h4>
-          <p>+57 321 895 4895</p>
-        </div>
-      </div>
-      <a href="https://maps.google.com/?q=Cl.+48+%23+19-55,+Armenia,+Quindío" target="_blank" class="btn-primary">
-        <i class="fas fa-directions"></i> Cómo llegar
-      </a>
-    </div>
-    <div class="ubicacion__mapa">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3977.0!2d-75.6814!3d4.5339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e38f5a1c2b3d4e5%3A0x1234567890abcdef!2sCl.+48+%2319-55%2C+Armenia%2C+Quind%C3%ADo!5e0!3m2!1ses!2sco!4v1234567890"
-        width="100%" height="420" style="border:0;" allowfullscreen="" loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
-  </div>
-</section>
-
 <!-- ─── POR QUÉ NOSOTROS — solo desktop ──────────────────────── -->
 <section class="porque">
   <div class="container">
@@ -519,6 +470,18 @@
     </div>
   </div>
 </section>
+
+<!-- ─── TOAST CARRITO ─────────────────────────────────────────── -->
+<div class="cart-toast" [class.cart-toast--visible]="toastVisible">
+  <div class="cart-toast__check"><i class="fas fa-check"></i></div>
+  <img class="cart-toast__img" [src]="toastImagen" [alt]="toastNombre" />
+  <div class="cart-toast__info">
+    <span class="cart-toast__label">¡Agregado al carrito!</span>
+    <span class="cart-toast__nombre">{{ toastNombre }}</span>
+  </div>
+  <button class="cart-toast__ir" (click)="irAlCarrito()">Ver carrito</button>
+  <button class="cart-toast__close" (click)="cerrarToast()"><i class="fas fa-times"></i></button>
+</div>
 
 <!-- ─── SCROLL TOP ───────────────────────────────────────────── -->
 <button class="scroll-top-btn" [class.visible]="mostrarScrollTop" (click)="scrollAlTop()" aria-label="Volver arriba">

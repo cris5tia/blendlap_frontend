@@ -26,7 +26,7 @@ export class CarritoService {
   }
 
   get cantidad(): number {
-    return this.items.reduce((sum, i) => sum + i.cantidad, 0);
+    return this.items.length;
   }
 
   agregar(producto: IProducto, cantidad: number = 1, talla?: string): void {

@@ -4,7 +4,7 @@
   <div class="page-header">
     <div>
       <h1 class="page-header__title">Productos</h1>
-      <p class="page-header__sub">Gestión de inventario y stock</p>
+      <p class="page-header__sub">{{ productos.length }} productos · {{ stockBajoCount > 0 ? stockBajoCount + ' con stock bajo' : 'stock al día' }}</p>
     </div>
     <button class="btn-primary" (click)="abrirCrear()">
       <i class="fas fa-plus"></i> Nuevo producto
@@ -13,97 +13,92 @@
 
   <!-- Alertas -->
   <div class="alert-success" *ngIf="exito"><i class="fas fa-check-circle"></i> {{ exito }}</div>
-  <div class="alert-error" *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
-
-  <!-- Stock bajo warning -->
+  <div class="alert-error"   *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
   <div class="alert-warning" *ngIf="stockBajoCount > 0">
     <i class="fas fa-exclamation-triangle"></i>
-    {{ stockBajoCount }} producto(s) con stock bajo o agotado
+    {{ stockBajoCount }} producto{{ stockBajoCount !== 1 ? 's' : '' }} con stock bajo o agotado
   </div>
 
-  <!-- Filtros -->
+  <!-- Tabs de categoría -->
+  <div class="cat-tabs">
+    <button class="cat-tab" [class.active]="filtroCategoria === ''" (click)="setCategoria('')">
+      <i class="fas fa-th-large"></i>
+      Todos
+      <span class="cat-tab__count">{{ productos.length }}</span>
+    </button>
+    <button class="cat-tab cat-tab--{{ c }}" *ngFor="let c of categorias"
+      [class.active]="filtroCategoria === c" (click)="setCategoria(c)">
+      <i class="fas {{ categoriaIcon(c) }}"></i>
+      {{ categoriaLabel(c) }}
+      <span class="cat-tab__count">{{ countByCategoria(c) }}</span>
+    </button>
+  </div>
+
+  <!-- Barra de búsqueda + estado -->
   <div class="filtros-bar">
     <div class="search-box">
       <i class="fas fa-search"></i>
       <input type="text" placeholder="Buscar por nombre o código..." [(ngModel)]="busqueda" (input)="filtrar()" />
     </div>
-    <select [(ngModel)]="filtroCategoria" (change)="filtrar()">
-      <option value="">Todas las categorías</option>
-      <option *ngFor="let c of categorias" [value]="c">{{ categoriaLabel(c) }}</option>
-    </select>
-    <select [(ngModel)]="filtroEstado" (change)="filtrar()">
-      <option value="">Todos los estados</option>
-      <option value="activo">Activo</option>
-      <option value="inactivo">Inactivo</option>
-    </select>
+    <div class="estado-chips">
+      <button class="estado-chip" [class.active]="filtroEstado === ''" (click)="setEstado('')">Todos</button>
+      <button class="estado-chip estado-chip--activo"   [class.active]="filtroEstado === 'activo'"   (click)="setEstado('activo')"><i class="fas fa-circle"></i> Activos</button>
+      <button class="estado-chip estado-chip--inactivo" [class.active]="filtroEstado === 'inactivo'" (click)="setEstado('inactivo')"><i class="fas fa-circle"></i> Inactivos</button>
+    </div>
+    <span class="filtros-bar__count">{{ productosFiltrados.length }} resultado{{ productosFiltrados.length !== 1 ? 's' : '' }}</span>
   </div>
 
   <!-- Cargando -->
-  <div class="cargando" *ngIf="cargando"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+  <div class="cargando" *ngIf="cargando"><i class="fas fa-spinner fa-spin"></i> Cargando productos...</div>
 
-  <!-- Tabla -->
-  <div class="tabla-card" *ngIf="!cargando">
-    <div class="tabla-wrap">
-      <table class="tabla" *ngIf="productosFiltrados.length > 0">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Código</th>
-            <th>Categoría</th>
-            <th>Talla</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of productosFiltrados">
-            <td>
-              <div class="producto-cell">
-                <div class="producto-cell__img">
-                  <img *ngIf="p.imagen" [src]="'http://localhost:3001/images/productos/' + p.imagen" />
-                  <i *ngIf="!p.imagen" class="fas fa-box"></i>
-                </div>
-                <span class="producto-cell__nombre">{{ p.nombre_producto }}</span>
-              </div>
-            </td>
-            <td><code class="codigo">{{ p.codigo_producto }}</code></td>
-            <td><span class="badge-cat badge-cat--{{ p.categoria }}">{{ categoriaLabel(p.categoria) }}</span></td>
-            <td>{{ p.talla || '—' }}</td>
-            <td class="val-green fw-bold">{{ formatCurrency(p.precio) }}</td>
-            <td>
-              <span class="stock-badge" [class.stock-ok]="tieneStock(p)" [class.stock-medio]="stockMedio(p)"
-                [class.stock-cero]="sinStock(p)">
-                {{ p.stock }} uds
-              </span>
-            </td>
-            <td>
-              <span class="badge" [class.badge-success]="p.estado === 'activo'"
-                [class.badge-danger]="p.estado === 'inactivo'">
-                {{ p.estado }}
-              </span>
-            </td>
-            <td>
-              <div class="acciones">
-                <button class="btn-icon btn-icon--blue" title="Editar" (click)="abrirEditar(p)"><i
-                    class="fas fa-edit"></i></button>
-                <button class="btn-icon btn-icon--green" title="Movimiento" (click)="abrirMovimiento(p)"><i
-                    class="fas fa-exchange-alt"></i></button>
-                <button class="btn-icon btn-icon--gray" title="Historial" (click)="abrirMovimientos(p)"><i
-                    class="fas fa-history"></i></button>
-                <button class="btn-icon btn-icon--red" title="Eliminar" (click)="eliminar(p)"><i
-                    class="fas fa-trash"></i></button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="tabla-empty" *ngIf="productosFiltrados.length === 0">
-        <i class="fas fa-box-open"></i>
-        <p>No se encontraron productos</p>
+  <!-- Grid de cards -->
+  <div class="productos-grid" *ngIf="!cargando">
+
+    <div class="prod-card" *ngFor="let p of productosFiltrados" [class.prod-card--inactivo]="p.estado === 'inactivo'">
+
+      <!-- Imagen -->
+      <div class="prod-card__img">
+        <img *ngIf="p.imagen" [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
+        <div *ngIf="!p.imagen" class="prod-card__img-empty"><i class="fas fa-box"></i></div>
+        <span class="prod-card__cat badge-cat--{{ p.categoria }}">{{ categoriaLabel(p.categoria) }}</span>
+        <div class="prod-card__inactivo-tag" *ngIf="p.estado === 'inactivo'"><i class="fas fa-eye-slash"></i> Inactivo</div>
       </div>
+
+      <!-- Cuerpo -->
+      <div class="prod-card__body">
+        <div class="prod-card__meta">
+          <code class="codigo">{{ p.codigo_producto }}</code>
+          <span class="stock-badge" [class.stock-ok]="tieneStock(p)" [class.stock-medio]="stockMedio(p)" [class.stock-cero]="sinStock(p)">
+            {{ p.stock }} uds
+          </span>
+        </div>
+
+        <h3 class="prod-card__nombre">{{ p.nombre_producto }}</h3>
+
+        <p class="prod-card__talla" *ngIf="p.talla">
+          <i class="fas fa-ruler-horizontal"></i> {{ p.talla }}
+        </p>
+
+        <div class="prod-card__precio">{{ formatCurrency(p.precio) }}</div>
+
+        <!-- Acciones -->
+        <div class="prod-card__acciones">
+          <button class="btn-icon btn-icon--blue"  title="Editar"      (click)="abrirEditar(p)"><i class="fas fa-pen"></i></button>
+          <button class="btn-icon btn-icon--green" title="Movimiento"  (click)="abrirMovimiento(p)"><i class="fas fa-exchange-alt"></i></button>
+          <button class="btn-icon btn-icon--gray"  title="Historial"   (click)="abrirMovimientos(p)"><i class="fas fa-history"></i></button>
+          <button class="btn-icon btn-icon--red"   title="Eliminar"    (click)="eliminar(p)"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+
     </div>
+
+    <!-- Empty -->
+    <div class="grid-empty" *ngIf="productosFiltrados.length === 0">
+      <i class="fas fa-box-open"></i>
+      <p>No hay productos para este filtro</p>
+      <button class="btn-secondary" (click)="setCategoria(''); setEstado(''); busqueda=''">Limpiar filtros</button>
+    </div>
+
   </div>
 
 </div>
@@ -155,7 +150,7 @@
           <label>Imagen del producto</label>
           <div class="imagen-upload">
             <div class="imagen-preview" *ngIf="imagenPreview">
-              <img [src]="imagenPreview" alt="Preview" />
+              <img [src]="imagenPreview | imgUrl" alt="Preview" />
               <button class="imagen-preview__quitar" type="button" (click)="limpiarImagen()">
                 <i class="fas fa-times"></i>
               </button>
@@ -225,42 +220,106 @@
 
 <!-- ── MODAL HISTORIAL ── -->
 <div class="modal-overlay" *ngIf="modalVista === 'movimientos'" (click)="cerrarModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
+  <div class="modal modal--historial" (click)="$event.stopPropagation()">
+
     <div class="modal__header">
-      <span>Historial — {{ productoSeleccionado?.nombre_producto }}</span>
+      <span>Historial de movimientos</span>
       <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
     </div>
-    <div class="modal__body">
-      <div class="tabla-wrap">
-        <table class="tabla" *ngIf="movimientos.length > 0">
+
+    <!-- Barra producto -->
+    <div class="hist-prod-bar">
+      <code class="codigo">{{ productoSeleccionado?.codigo_producto }}</code>
+      <span class="hist-prod-bar__nombre">{{ productoSeleccionado?.nombre_producto }}</span>
+      <div class="hist-prod-bar__stock">
+        <span>Stock actual</span>
+        <strong>{{ productoSeleccionado?.stock }} uds</strong>
+      </div>
+    </div>
+
+    <div class="modal__body" style="padding:0">
+
+      <div class="hist-tabla-wrap" *ngIf="movimientos.length > 0">
+        <table class="hist-tabla">
           <thead>
             <tr>
-              <th>Fecha</th>
+              <th class="hist-th-dot"></th>
+              <th>Fecha y hora</th>
               <th>Tipo</th>
-              <th>Cantidad</th>
-              <th>Stock resultante</th>
+              <th class="text-right">Cantidad</th>
+              <th class="text-right">Stock final</th>
               <th>Motivo</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let m of movimientos">
-              <td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td><span class="badge" [class.badge-success]="m.tipo_movimiento==='Entrada'"
-                  [class.badge-danger]="m.tipo_movimiento==='Salida'">{{ m.tipo_movimiento }}</span></td>
-              <td>{{ m.cantidad }}</td>
-              <td>{{ m.stock_resultante }}</td>
-              <td>{{ m.motivo || '—' }}</td>
+
+              <!-- Punto de color -->
+              <td class="hist-td-dot">
+                <span class="hist-dot"
+                  [class.hist-dot--entrada]="m.tipo_movimiento === 'Entrada'"
+                  [class.hist-dot--salida]="m.tipo_movimiento === 'Salida'"></span>
+              </td>
+
+              <!-- Fecha en dos líneas -->
+              <td class="hist-td-fecha">
+                <span class="hist-fecha__dia">{{ m.fecha | date:'dd/MM/yy' }}</span>
+                <span class="hist-fecha__hora">{{ m.fecha | date:'HH:mm' }}</span>
+              </td>
+
+              <!-- Badge tipo -->
+              <td>
+                <span class="hist-badge"
+                  [class.hist-badge--entrada]="m.tipo_movimiento === 'Entrada'"
+                  [class.hist-badge--salida]="m.tipo_movimiento === 'Salida'">
+                  <i class="fas"
+                    [class.fa-arrow-up]="m.tipo_movimiento === 'Entrada'"
+                    [class.fa-arrow-down]="m.tipo_movimiento === 'Salida'"></i>
+                  {{ m.tipo_movimiento }}
+                </span>
+              </td>
+
+              <!-- Cantidad coloreada -->
+              <td class="text-right">
+                <span class="hist-delta"
+                  [class.hist-delta--pos]="m.tipo_movimiento === 'Entrada'"
+                  [class.hist-delta--neg]="m.tipo_movimiento === 'Salida'">
+                  {{ m.tipo_movimiento === 'Entrada' ? '+' : '-' }}{{ m.cantidad }}
+                </span>
+              </td>
+
+              <!-- Stock final -->
+              <td class="text-right hist-td-stock">{{ m.stock_resultante != null ? m.stock_resultante + ' uds' : '—' }}</td>
+
+              <!-- Motivo -->
+              <td class="hist-td-motivo">
+                <i class="fas fa-tag hist-motivo-icon" *ngIf="m.motivo"></i>
+                {{ m.motivo || '—' }}
+              </td>
+
             </tr>
           </tbody>
         </table>
-        <div class="tabla-empty" *ngIf="movimientos.length === 0">
-          <i class="fas fa-history"></i>
-          <p>Sin movimientos registrados</p>
-        </div>
       </div>
+
+      <div class="hist-empty" *ngIf="movimientos.length === 0">
+        <i class="fas fa-history"></i>
+        <p>Sin movimientos registrados</p>
+      </div>
+
     </div>
-    <div class="modal__footer">
-      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+
+    <!-- Footer con conteo + leyenda + botón -->
+    <div class="hist-footer">
+      <div class="hist-leyenda">
+        <span><i class="fas fa-arrow-up"></i> Entrada</span>
+        <span><i class="fas fa-arrow-down"></i> Salida</span>
+      </div>
+      <span class="hist-conteo" *ngIf="movimientos.length > 0">
+        Mostrando {{ movimientos.length }} de {{ movimientos.length }} movimientos
+      </span>
+      <button class="btn-secondary hist-btn-cerrar" (click)="cerrarModal()">Cerrar</button>
     </div>
+
   </div>
 </div>

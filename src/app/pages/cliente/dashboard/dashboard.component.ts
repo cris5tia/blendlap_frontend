@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { ResenaService, IResena } from '../../../core/services/resena.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -6,17 +6,18 @@ import { CreditoService, ICredito } from '../../../core/services/credito.service
 import { PagoService, ICompra } from '../../../core/services/pago.service';
 import { Router } from '@angular/router';
 import { TabService } from '../../../core/services/tab.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
   reservas: IReserva[] = [];
   cargando = false;
-  error = '';
+
   usuario: any = null;
   tabActual: 'actuales' | 'historial' | 'creditos' | 'compras' = 'actuales';
   reservaExpandida: number | null = null;
@@ -54,7 +55,8 @@ export class DashboardComponent implements OnInit {
     private authService: AuthService,
     private creditoService: CreditoService,
     private pagoService: PagoService,
-    private tabService: TabService,
+    public tabService: TabService,
+    private toast: ToastService,
     private router: Router,
   ) { }
 
@@ -69,6 +71,7 @@ export class DashboardComponent implements OnInit {
       this.reservaExpandida = null;
       this.autoExpandirPrimero();
     });
+    this._tick = setInterval(() => {}, 60_000);
   }
 
   cargarReservas(): void {
@@ -79,7 +82,7 @@ export class DashboardComponent implements OnInit {
         this.cargando = false;
         this.autoExpandirPrimero();
       },
-      error: () => { this.error = 'Error al cargar tus reservas'; this.cargando = false; }
+      error: () => { this.toast.error('Error', 'No se pudieron cargar tus reservas'); this.cargando = false; }
     });
   }
 
@@ -144,12 +147,27 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private esReservaPasada(r: IReserva): boolean {
+    const fecha = r.fecha.split('T')[0];
+    const [hh, mm] = (r.hora || '00:00').split(':').map(Number);
+    const finMin = hh * 60 + mm + (Number(r.duracion_total) || 30);
+    const finHh = Math.floor(finMin / 60);
+    const finMm = finMin % 60;
+    const fechaFin = new Date(`${fecha}T${String(finHh).padStart(2, '0')}:${String(finMm).padStart(2, '0')}:00`);
+    return fechaFin < new Date();
+  }
+
   get reservasPendientes(): IReserva[] {
-    return this.reservas.filter(r => r.estado === 'pendiente' || r.estado === 'confirmada');
+    return this.reservas.filter(r =>
+      (r.estado === 'pendiente' || r.estado === 'confirmada') && !this.esReservaPasada(r)
+    );
   }
 
   get reservasHistorial(): IReserva[] {
-    return this.reservas.filter(r => r.estado === 'completada' || r.estado === 'cancelada');
+    return this.reservas.filter(r =>
+      r.estado === 'completada' || r.estado === 'cancelada' ||
+      ((r.estado === 'pendiente' || r.estado === 'confirmada') && this.esReservaPasada(r))
+    );
   }
 
   toggleExpand(id: number): void {
@@ -247,7 +265,19 @@ export class DashboardComponent implements OnInit {
       duracion
     ).subscribe({
       next: (res) => {
-        this.editarSlots = res.data.disponible ? res.data.slots : [];
+        let slots = res.data.disponible ? res.data.slots : [];
+
+        const ahora = new Date();
+        const hoy = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+        if (this.editarFecha === hoy) {
+          const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
+          slots = slots.filter((slot: any) => {
+            const [h, m] = slot.hora.split(':').map(Number);
+            return h * 60 + m > minutosAhora;
+          });
+        }
+
+        this.editarSlots = slots;
         this.editarCargandoSlots = false;
       },
       error: () => { this.editarSlots = []; this.editarCargandoSlots = false; }
@@ -281,7 +311,7 @@ export class DashboardComponent implements OnInit {
 
   // ─── Resena ───────────────────────────────────────────────
   puedeResenar(reserva: IReserva): boolean {
-    return reserva.estado === 'completada' && !reserva.tiene_resena;
+    return this.esResenable(reserva) && !reserva.tiene_resena;
   }
 
   estadoCitaLabel(estado: string): string {
@@ -294,7 +324,16 @@ export class DashboardComponent implements OnInit {
     return labels[estado] || estado;
   }
 
+  estadoEfectivo(r: IReserva): 'completada' | 'cancelada' {
+    return r.estado === 'cancelada' ? 'cancelada' : 'completada';
+  }
+
+  esResenable(r: IReserva): boolean {
+    return r.estado !== 'cancelada' && (r.estado === 'completada' || this.esReservaPasada(r));
+  }
+
   abrirModalResena(reserva: IReserva): void {
+    if (!this.puedeResenar(reserva)) return;
     this.reservaAResenar = reserva;
     this.formularioResena = this.resenaVacia();
     this.formularioResena.id_reserva = reserva.id_reserva;
@@ -319,6 +358,10 @@ export class DashboardComponent implements OnInit {
       this.errorResena = 'Selecciona una calificacion';
       return;
     }
+    if (!this.reservaAResenar || !this.esResenable(this.reservaAResenar)) {
+      this.errorResena = 'Solo puedes reseñar citas que ya finalizaron';
+      return;
+    }
     this.guardandoResena = true;
     this.errorResena = '';
     this.resenaService.crear(this.formularioResena).subscribe({
@@ -340,7 +383,7 @@ export class DashboardComponent implements OnInit {
     if (!confirm('Estas seguro de cancelar esta reserva?')) return;
     this.reservaService.cancelar(reserva.id_reserva).subscribe({
       next: () => this.cargarReservas(),
-      error: () => this.error = 'Error al cancelar la reserva'
+      error: () => this.toast.error('Error', 'No se pudo cancelar la reserva')
     });
   }
 
@@ -393,6 +436,10 @@ export class DashboardComponent implements OnInit {
   private resenaVacia(): IResena {
     return { id_barbero: 0, id_reserva: 0, calificacion: 0, comentario: '' };
   }
+  private _tick: any;
+
+  ngOnDestroy(): void { clearInterval(this._tick); }
+
   modalCancelar = false;
   reservaACancelar: IReserva | null = null;
   cancelando = false;
@@ -414,7 +461,7 @@ export class DashboardComponent implements OnInit {
       },
       error: () => {
         this.cancelando = false;
-        this.error = 'Error al cancelar la reserva';
+        this.toast.error('Error', 'No se pudo cancelar la reserva');
       }
     });
   }

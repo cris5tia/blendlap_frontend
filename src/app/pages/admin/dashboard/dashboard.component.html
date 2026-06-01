@@ -203,7 +203,7 @@
         </div>
         <div class="top-barbero">
           <div class="top-barbero__foto">
-            <img *ngIf="data.topBarbero.foto" [src]="'http://localhost:3001/images/barberos/' + data.topBarbero.foto" />
+            <img *ngIf="data.topBarbero.foto" [src]="data.topBarbero.foto | imgUrl" />
             <i *ngIf="!data.topBarbero.foto" class="fas fa-user-tie"></i>
           </div>
           <div class="top-barbero__info">
@@ -229,7 +229,7 @@
         <div class="top-servicio">
           <div class="top-servicio__img">
             <img *ngIf="data.topServicio.imagen"
-              [src]="'http://localhost:3001/images/servicios/' + data.topServicio.imagen" />
+              [src]="data.topServicio.imagen | imgUrl" />
             <i *ngIf="!data.topServicio.imagen" class="fas fa-cut"></i>
           </div>
           <div>
@@ -256,7 +256,7 @@
             {{ i + 1 }}
           </div>
           <div class="ranking-item__foto">
-            <img *ngIf="b.foto" [src]="'http://localhost:3001/images/barberos/' + b.foto" />
+            <img *ngIf="b.foto" [src]="b.foto | imgUrl" />
             <i *ngIf="!b.foto" class="fas fa-user-tie"></i>
           </div>
           <div class="ranking-item__info">

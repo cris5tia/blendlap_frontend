@@ -1,605 +1,396 @@
-$gold:  #fbc447;
-$dark:  #1a1a1a;
-$white: #ffffff;
-$gray:  #6c757d;
-$light: #f8f9fa;
-$green: #28a745;
-$red:   #dc3545;
+$primary:  #1a1a1a;
+$accent:   #FBC447;
+$white:    #ffffff;
+$gray:     #6b7280;
+$gray-light: #f4f5f7;
+$borde:    #e5e7eb;
+$verde:    #22c55e;
+$rojo:     #ef4444;
 
-// ─── Layout ───────────────────────────────────────────────────────────────────
-.checkout {
+// ─── Page ─────────────────────────────────────────────────────
+.checkout-page {
   min-height: 100vh;
-  background: #f4f5f7;
-  display: flex;
-  flex-direction: column;
+  background: $gray-light;
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-.checkout-header {
-  background: $dark;
-  padding: 1rem 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 2px solid $gold;
+// ─── Navbar (idéntico al carrito) ─────────────────────────────
+.cart-navbar {
+  background: $primary;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  position: sticky; top: 0; z-index: 200;
 }
 
-.checkout-back {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255,255,255,0.6);
-  font-size: 0.83rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0;
-
-  &:hover { color: $gold; }
+.cart-navbar__inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 1.5rem; height: 66px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+  position: relative;
 }
 
-.checkout-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.cnav-back {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.88); border-radius: 9px;
+  padding: 0.52rem 1rem; cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  transition: background 0.15s; flex-shrink: 0;
+  i { font-size: 0.76rem; }
+  &:hover { background: rgba(255,255,255,0.14); color: $white; }
+}
 
+.cnav-logo {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center;
+  cursor: pointer; text-decoration: none;
   img {
-    height: 36px;
-    width: auto;
-    filter: drop-shadow(0 2px 6px rgba($gold,0.3));
+    height: 46px; width: auto; object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba($accent, 0.25));
   }
+}
+
+.cnav-right {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+
+.cnav-secure {
+  display: flex; align-items: center; gap: 0.32rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.73rem; font-weight: 600; color: rgba(255,255,255,0.4);
+  i { color: $verde; font-size: 0.68rem; }
+}
+
+.cnav-steps {
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  padding: 0.7rem 1.5rem;
+  background: rgba(255,255,255,0.04);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.step-item {
+  display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
+  position: relative;
 
   span {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.4);
-    font-weight: 500;
-    letter-spacing: 0.5px;
+    font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+  }
+
+  &--done {
+    .step-circle { background: $verde; color: $white; border-color: $verde; }
+    span { color: $verde; }
+  }
+
+  &--active {
+    .step-circle { background: $accent; color: $primary; border-color: $accent; font-weight: 800; }
+    span { color: $accent; font-weight: 700; }
   }
 }
 
-.checkout-secure {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
-
-  i { color: $green; }
+.step-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700;
+  i { font-size: 0.65rem; }
 }
 
-// ─── Body ─────────────────────────────────────────────────────────────────────
-.checkout-body {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 2.5rem 1.5rem;
+.step-line {
+  width: 60px; height: 2px;
+  background: rgba(255,255,255,0.12);
+  margin-bottom: 1.1rem; flex-shrink: 0;
+
+  &--done   { background: $verde; }
+  &--active { background: linear-gradient(to right, $verde, $accent); }
+}
+
+// ─── Contenido ────────────────────────────────────────────────
+.checkout-contenido {
+  max-width: 1200px; margin: 0 auto;
+  padding: 1.75rem 1.5rem 3rem;
   display: grid;
   grid-template-columns: 1fr 420px;
-  gap: 2rem;
+  gap: 1.25rem;
   align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    .checkout-pago { order: -1; }
+  }
 }
 
-// ─── Resumen del pedido ───────────────────────────────────────────────────────
+// ─── Resumen del pedido ───────────────────────────────────────
 .resumen-card {
-  background: $white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  background: $white; border-radius: 16px;
+  padding: 1.6rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
 .resumen-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: $dark;
-  margin: 0 0 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  i { color: $gold; }
+  font-size: 1rem; font-weight: 800; color: $primary;
+  margin: 0 0 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  i { color: $accent; }
 }
 
-.resumen-items {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+.resumen-items { display: flex; flex-direction: column; gap: 0.85rem; }
 
 .resumen-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  display: flex; align-items: center; gap: 1rem;
 
   &__img-wrap {
-    position: relative;
-    flex-shrink: 0;
-
+    position: relative; flex-shrink: 0;
     img {
-      width: 64px;
-      height: 64px;
-      object-fit: cover;
-      border-radius: 10px;
-      border: 1px solid #e9ecef;
+      width: 64px; height: 64px; object-fit: cover;
+      border-radius: 10px; border: 1px solid $borde;
     }
   }
 
   &__qty {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: $dark;
-    color: $gold;
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; top: -6px; right: -6px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: $primary; color: $accent;
+    font-size: 0.7rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif;
   }
 
-  &__info {
-    flex: 1;
-    min-width: 0;
-  }
+  &__info { flex: 1; min-width: 0; }
 
   &__name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: $dark;
-    margin: 0 0 0.3rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.88rem; font-weight: 600; color: $primary;
+    margin: 0 0 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin: 0;
-  }
+  &__meta { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
 
-  &__precio {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: $dark;
-    flex-shrink: 0;
-  }
+  &__precio { font-size: 0.9rem; font-weight: 700; color: $primary; flex-shrink: 0; font-family: 'Playfair Display', serif; }
 }
 
 .badge-talla,
 .badge-cat {
-  font-size: 0.68rem;
-  padding: 0.18rem 0.5rem;
-  border-radius: 20px;
-  font-weight: 600;
+  font-size: 0.66rem; padding: 0.16rem 0.5rem;
+  border-radius: 20px; font-weight: 600;
 }
 
-.badge-talla {
-  background: rgba($dark, 0.08);
-  color: $dark;
-}
+.badge-talla { background: rgba($primary, 0.07); color: $primary; }
+.badge-cat   { background: rgba($accent, 0.12); color: darken($accent, 20%); }
 
-.badge-cat {
-  background: rgba($gold, 0.15);
-  color: darken($gold, 20%);
-}
+.resumen-divider { border: none; border-top: 1px solid $borde; margin: 1rem 0; }
 
-.resumen-divider {
-  border: none;
-  border-top: 1px solid #f0f0f0;
-  margin: 1.25rem 0;
-}
-
-.resumen-totales { display: flex; flex-direction: column; gap: 0.6rem; }
+.resumen-totales { display: flex; flex-direction: column; gap: 0.5rem; }
 
 .resumen-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.88rem;
-  color: $gray;
+  display: flex; justify-content: space-between;
+  font-size: 0.86rem; color: $gray;
 
   &.resumen-total {
-    font-size: 1.05rem;
-    color: $dark;
-    font-weight: 700;
-
-    strong { color: $dark; font-size: 1.2rem; }
+    font-size: 1rem; color: $primary; font-weight: 700;
+    strong { font-size: 1.2rem; font-family: 'Playfair Display', serif; }
   }
 }
 
-.text-green { color: $green; font-weight: 600; }
+.text-green { color: $verde; font-weight: 600; }
 
 .resumen-seguridad {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  background: rgba($green, 0.06);
-  border: 1px solid rgba($green, 0.15);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-  margin-top: 1.25rem;
-
-  i { color: $green; font-size: 1rem; margin-top: 2px; }
-
-  p {
-    margin: 0;
-    font-size: 0.8rem;
-    color: $gray;
-    line-height: 1.5;
-  }
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  background: rgba($verde, 0.06); border: 1px solid rgba($verde, 0.15);
+  border-radius: 10px; padding: 0.85rem 1rem; margin-top: 1.1rem;
+  i { color: $verde; font-size: 0.95rem; margin-top: 2px; }
+  p { margin: 0; font-size: 0.78rem; color: $gray; line-height: 1.5; }
 }
 
-// ─── Pago card ────────────────────────────────────────────────────────────────
+// ─── Pago card ────────────────────────────────────────────────
 .pago-card {
-  background: $white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  margin-bottom: 1.25rem;
+  background: $white; border-radius: 16px;
+  padding: 1.6rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 1.1rem;
 
   &__header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-
-    h2 { font-size: 1rem; font-weight: 800; color: $dark; margin: 0; }
-    p  { font-size: 0.8rem; color: $gray; margin: 0; }
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;
+    h2 { font-size: 1rem; font-weight: 800; color: $primary; margin: 0; font-family: 'Playfair Display', serif; }
+    p  { font-size: 0.78rem; color: $gray; margin: 0; strong { color: $primary; } }
   }
 
   &__icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: rgba($dark, 0.06);
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba($primary, 0.06);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
-    color: $dark;
-    flex-shrink: 0;
+    font-size: 1.1rem; color: $primary; flex-shrink: 0;
   }
 }
 
 .wompi-badge {
   margin-left: auto;
-  background: rgba($green, 0.1);
-  color: darken($green, 5%);
-  border: 1px solid rgba($green, 0.25);
-  border-radius: 20px;
-  padding: 0.25rem 0.7rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  background: rgba($verde, 0.1); color: darken($verde, 8%);
+  border: 1px solid rgba($verde, 0.2); border-radius: 20px;
+  padding: 0.22rem 0.65rem; font-size: 0.68rem; font-weight: 700;
+  display: flex; align-items: center; gap: 0.3rem;
 }
 
-// Métodos de pago
-.metodos-wrap { margin-bottom: 1.5rem; }
+.metodos-wrap { margin-bottom: 1.25rem; }
 
 .metodos-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: $gray;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin: 0 0 0.75rem;
+  font-size: 0.68rem; font-weight: 700; color: $gray;
+  text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.6rem;
 }
 
-.metodos-grid {
-  display: flex;
-  gap: 0.6rem;
-}
+.metodos-grid { display: flex; gap: 0.5rem; }
 
 .metodo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.75rem 0.5rem;
-  border: 1.5px solid #e9ecef;
-  border-radius: 10px;
-  font-size: 0.65rem;
-  color: $gray;
-  font-weight: 600;
-
-  i {
-    font-size: 1.4rem;
-    color: $dark;
-  }
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.28rem;
+  padding: 0.65rem 0.4rem; border: 1.5px solid $borde; border-radius: 9px;
+  font-size: 0.63rem; color: $gray; font-weight: 600;
+  i { font-size: 1.35rem; color: $primary; }
 }
 
-// Error
 .pago-error {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba($red, 0.07);
-  border: 1px solid rgba($red, 0.2);
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  color: $red;
-  font-size: 0.85rem;
-  margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  background: rgba($rojo, 0.07); border: 1px solid rgba($rojo, 0.2);
+  border-radius: 10px; padding: 0.7rem 1rem;
+  color: $rojo; font-size: 0.84rem; margin-bottom: 1.1rem;
 }
 
-// Total
 .pago-total-wrap {
-  background: $light;
-  border-radius: 12px;
-  padding: 1.25rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  border: 1px solid #e9ecef;
+  background: $gray-light; border-radius: 12px;
+  padding: 1.1rem; text-align: center; margin-bottom: 1.25rem;
+  border: 1px solid $borde;
 }
 
 .pago-total-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: $gray;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin: 0 0 0.25rem;
+  font-size: 0.68rem; font-weight: 700; color: $gray;
+  text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.2rem;
 }
 
 .pago-total-amount {
-  font-size: 2rem;
-  font-weight: 900;
-  color: $dark;
-  margin: 0;
-  line-height: 1.1;
+  font-size: 2rem; font-weight: 900; color: $primary;
+  margin: 0; font-family: 'Playfair Display', serif;
 }
 
-.pago-total-sub {
-  font-size: 0.72rem;
-  color: $gray;
-  margin: 0.3rem 0 0;
-}
+.pago-total-sub { font-size: 0.7rem; color: $gray; margin: 0.25rem 0 0; }
 
-// Botón Wompi
 .btn-wompi {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  background: $dark;
-  color: $gold;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.92rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.25s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  letter-spacing: 0.3px;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba($gold,0.08), transparent);
-    transition: opacity 0.25s;
-    opacity: 0;
-  }
-
-  &:hover:not(:disabled) {
-    background: lighten($dark, 8%);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-
-    &::before { opacity: 1; }
-  }
-
-  &:active:not(:disabled) { transform: translateY(0); }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-  }
+  width: 100%; padding: 1rem 1.5rem;
+  background: $primary; color: $accent;
+  border: none; border-radius: 12px;
+  font-size: 0.92rem; font-weight: 800; cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.6rem; letter-spacing: 0.3px;
+  font-family: 'Montserrat', sans-serif;
 
   i:last-child { margin-left: auto; }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.12); transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+
+  &:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 }
 
 .pago-disclaimer {
-  font-size: 0.72rem;
-  color: $gray;
-  text-align: center;
-  margin: 0.9rem 0 0;
-  line-height: 1.5;
-
-  strong { color: $dark; }
+  font-size: 0.71rem; color: $gray; text-align: center;
+  margin: 0.85rem 0 0; line-height: 1.5;
+  strong { color: $primary; }
 }
 
-// ─── Card modo prueba ─────────────────────────────────────────────────────────
+// ─── Tarjetas de prueba ───────────────────────────────────────
 .test-card {
-  background: $white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  overflow: hidden;
-  border: 1.5px solid rgba($gold, 0.3);
+  background: $white; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden;
+  border: 1.5px solid rgba($accent, 0.28);
 
   &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.25rem;
-    cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.15rem; cursor: pointer; user-select: none;
     transition: background 0.2s;
-
-    &:hover { background: rgba($gold, 0.04); }
-
-    i { color: $gray; font-size: 0.8rem; }
+    &:hover { background: rgba($accent, 0.04); }
+    i { color: $gray; font-size: 0.78rem; }
   }
 
   &__badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: darken($gold, 18%);
-    background: rgba($gold, 0.12);
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    font-size: 0.7rem; font-weight: 700; color: darken($accent, 18%);
+    background: rgba($accent, 0.12); padding: 0.28rem 0.7rem;
+    border-radius: 20px; letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 0.4rem;
   }
 
   &__body {
-    padding: 0 1.25rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    padding: 0 1.15rem 1.15rem;
+    display: flex; flex-direction: column; gap: 0.7rem;
   }
 }
 
-.test-intro {
-  font-size: 0.8rem;
-  color: $gray;
-  margin: 0;
-  line-height: 1.5;
-}
+.test-intro { font-size: 0.78rem; color: $gray; margin: 0; line-height: 1.5; }
 
 .test-tarjeta {
-  border: 1.5px solid #e9ecef;
-  border-radius: 12px;
-  overflow: hidden;
-
-  &--mc     { border-color: #e9ecef; }
-  &--declined { border-color: rgba($red, 0.25); }
+  border: 1.5px solid $borde; border-radius: 11px; overflow: hidden;
+  &--declined { border-color: rgba($rojo, 0.25); }
 
   &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 0.85rem;
-    background: $light;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: $dark;
-
-    i {
-      font-size: 1.3rem;
-
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.8rem; background: $gray-light;
+    font-size: 0.76rem; font-weight: 600; color: $primary;
+    i { font-size: 1.25rem;
       &.fa-cc-visa       { color: #1a1f71; }
       &.fa-cc-mastercard { color: #eb001b; }
     }
   }
 
-  &__body {
-    padding: 0.75rem 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-  }
+  &__body { padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
 }
 
 .test-badge {
-  margin-left: auto;
-  font-size: 0.62rem;
-  font-weight: 800;
-  padding: 0.15rem 0.5rem;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-
-  &--ok  { background: rgba($green, 0.1); color: darken($green, 5%); }
-  &--err { background: rgba($red,   0.1); color: $red; }
+  margin-left: auto; font-size: 0.6rem; font-weight: 800;
+  padding: 0.14rem 0.48rem; border-radius: 20px; letter-spacing: 0.04em;
+  &--ok  { background: rgba($verde, 0.1); color: darken($verde, 5%); }
+  &--err { background: rgba($rojo,  0.1); color: $rojo; }
 }
 
 .test-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.78rem;
-
-  & > span:first-child { color: $gray; font-weight: 500; }
-
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.76rem;
+  > span:first-child { color: $gray; font-weight: 500; }
   code {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    color: $dark;
-    font-weight: 700;
-    background: rgba($dark, 0.05);
-    padding: 0.15rem 0.4rem;
-    border-radius: 6px;
+    font-family: 'Courier New', monospace; font-size: 0.78rem;
+    color: $primary; font-weight: 700;
+    background: rgba($primary, 0.05); padding: 0.12rem 0.38rem; border-radius: 5px;
   }
 }
 
 .test-copy {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
+  display: flex; align-items: center; gap: 0.38rem; cursor: pointer;
   transition: opacity 0.2s;
-
-  i {
-    font-size: 0.75rem;
-    color: $gray;
-    transition: color 0.2s;
-  }
-
-  &:hover { i { color: $dark; } }
+  i { font-size: 0.72rem; color: $gray; transition: color 0.2s; }
+  &:hover i { color: $primary; }
   &:active { opacity: 0.6; }
 }
 
 .test-nequi {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(148, 0, 211, 0.05);
-  border: 1px solid rgba(148, 0, 211, 0.15);
-  border-radius: 10px;
-
-  i {
-    font-size: 1.4rem;
-    color: #940dd3;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.78rem;
-    color: $dark;
-
-    &:last-child { color: $gray; margin-top: 2px; }
-  }
-
-  code {
-    font-family: 'Courier New', monospace;
-    font-weight: 700;
-    cursor: pointer;
-    background: rgba(148, 0, 211, 0.08);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    transition: opacity 0.2s;
-
-    &:hover { opacity: 0.7; }
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.7rem; background: rgba(148,0,211,0.05);
+  border: 1px solid rgba(148,0,211,0.15); border-radius: 10px;
+  i { font-size: 1.35rem; color: #940dd3; }
+  p { margin: 0; font-size: 0.76rem; color: $primary;
+      &:last-child { color: $gray; margin-top: 2px; }
+    code {
+      font-family: 'Courier New', monospace; font-weight: 700; cursor: pointer;
+      background: rgba(148,0,211,0.08); padding: 0.1rem 0.32rem; border-radius: 4px;
+      &:hover { opacity: 0.7; }
+    }
   }
 }
 
-// ─── Responsive ───────────────────────────────────────────────────────────────
-@media (max-width: 860px) {
-  .checkout-body {
-    grid-template-columns: 1fr;
-    padding: 1.5rem 1rem;
-  }
-
-  .checkout-pago { order: -1; }
-
-  .checkout-header {
-    padding: 0.9rem 1rem;
-
-    .checkout-logo span,
-    .checkout-secure { display: none; }
-  }
+// ─── Mobile ───────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .cnav-logo { position: static; transform: none; }
+  .cnav-logo .cnav-logo__text { display: none; }
+  .cart-navbar__inner { height: 58px; }
+  .checkout-contenido { padding: 1.25rem 1rem 2.5rem; }
 }

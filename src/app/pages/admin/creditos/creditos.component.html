@@ -50,6 +50,10 @@
     <button class="tab" [class.tab-activa]="tabActiva === 'pagados'" (click)="tabActiva = 'pagados'">
       <i class="fas fa-check-circle"></i> Pagados
     </button>
+    <button class="tab" [class.tab-activa]="tabActiva === 'rechazados'" (click)="tabActiva = 'rechazados'">
+      <i class="fas fa-times-circle"></i> Rechazados
+      <span class="tab-badge tab-badge--rojo" *ngIf="contadorRechazados > 0">{{ contadorRechazados }}</span>
+    </button>
   </div>
 
   <!-- Buscador -->
@@ -221,6 +225,51 @@
     </div>
   </div>
 
+  <!-- ══ RECHAZADOS ══ -->
+  <div *ngIf="tabActiva === 'rechazados'">
+    <div class="tabla-wrap" *ngIf="!cargando; else loader">
+      <table class="tabla" *ngIf="creditosRechazados.length; else vacioRechazados">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Monto</th>
+            <th>Plazo</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of creditosRechazados" class="fila-rechazada">
+            <td class="id-col">{{ c.id_credito }}</td>
+            <td>
+              <div class="cliente-info">
+                <span class="nombre">{{ c.nombre_cliente }}</span>
+                <span class="telefono">{{ c.telefono_cliente }}</span>
+              </div>
+            </td>
+            <td class="detalle-col">{{ c.productos_nombres }}</td>
+            <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
+            <td>{{ plazoLabel(c.plazo) }}</td>
+            <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+            <td class="acciones-col">
+              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #vacioRechazados>
+        <div class="estado-vacio">
+          <i class="fas fa-check-circle"></i>
+          <p>Sin solicitudes rechazadas</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
   <ng-template #loader>
     <div class="loader-wrap">
       <div class="spinner"></div>
@@ -280,9 +329,7 @@
             </button>
           </div>
           <div class="producto-resultado" *ngIf="productoEncontrado">
-            <img [src]="productoEncontrado.imagen
-              ? 'http://localhost:3001/images/productos/' + productoEncontrado.imagen
-              : 'assets/images/no-img.png'" [alt]="productoEncontrado.nombre_producto" />
+            <img [src]="productoEncontrado.imagen | imgUrl" [alt]="productoEncontrado.nombre_producto" />
             <div class="prod-resultado-info">
               <span class="prod-codigo">{{ productoEncontrado.codigo_producto }}</span>
               <span class="prod-nombre">{{ productoEncontrado.nombre_producto }}</span>
@@ -303,9 +350,7 @@
           <label class="sec-titulo">Productos seleccionados</label>
           <div class="seleccionados">
             <div class="sel-item" *ngFor="let s of productosSeleccionados">
-              <img [src]="s.producto.imagen
-                ? 'http://localhost:3001/images/productos/' + s.producto.imagen
-                : 'assets/images/no-img.png'" [alt]="s.producto.nombre_producto" />
+              <img [src]="s.producto.imagen | imgUrl" [alt]="s.producto.nombre_producto" />
               <div class="sel-data">
                 <span class="sel-codigo">{{ s.producto.codigo_producto }}</span>
                 <span class="sel-nombre">{{ s.producto.nombre_producto }}</span>
@@ -400,9 +445,7 @@
           <h3>Productos</h3>
           <div class="detalle-productos">
             <div class="det-prod" *ngFor="let p of creditoDetalle.productos">
-              <img [src]="p.imagen
-                ? 'http://localhost:3001/images/productos/' + p.imagen
-                : 'assets/images/no-img.png'" [alt]="p.nombre_producto" />
+              <img [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
               <span class="det-nombre">{{ p.nombre_producto }}</span>
               <span>x{{ p.cantidad }}</span>
               <span class="det-precio">{{ formatCurrency(p.subtotal) }}</span>

@@ -26,8 +26,6 @@ export class CarritoDrawerComponent implements OnInit {
     { id: '1_mes',       label: '1 Mes',    desc: '1 mes'   }
   ];
 
-  imagenUrl = 'http://localhost:3001/images/productos/';
-
   constructor(
     private carritoService: CarritoService,
     private creditoService: CreditoService,
@@ -57,7 +55,9 @@ export class CarritoDrawerComponent implements OnInit {
   get total(): number { return this.carritoService.total; }
 
   getImagen(imagen?: string): string {
-    return imagen ? `${this.imagenUrl}${imagen}` : 'assets/images/no-img.png';
+    if (!imagen) return 'assets/images/no-img.png';
+    if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('assets/')) return imagen;
+    return `http://localhost:3001/images/productos/${imagen}`;
   }
 
   formatCurrency(v: number): string {

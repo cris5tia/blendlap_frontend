@@ -43,6 +43,10 @@ export class HorarioService {
     return this.http.post<{ ok: boolean; id_excepcion: number }>(`${this.url}/excepciones`, data);
   }
 
+  actualizarExcepcion(id: number, data: Partial<IExcepcion>): Observable<{ ok: boolean }> {
+    return this.http.put<{ ok: boolean }>(`${this.url}/excepciones/${id}`, data);
+  }
+
   eliminarExcepcion(id: number): Observable<{ ok: boolean }> {
     return this.http.delete<{ ok: boolean }>(`${this.url}/excepciones/${id}`);
   }

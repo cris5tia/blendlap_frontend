@@ -1,0 +1,21 @@
+<div class="toast-wrap">
+  <div class="toast"
+    *ngFor="let t of toasts; trackBy: trackById"
+    [class]="'toast toast--' + t.type">
+
+    <div class="toast__icon">
+      <i class="fas" [ngClass]="icon(t.type)"></i>
+    </div>
+
+    <div class="toast__body">
+      <p class="toast__title">{{ t.title }}</p>
+      <p class="toast__msg" *ngIf="t.message">{{ t.message }}</p>
+    </div>
+
+    <button class="toast__close" (click)="dismiss(t.id)">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="toast__bar" [style.animation-duration]="t.duration + 'ms'"></div>
+  </div>
+</div>

@@ -141,8 +141,8 @@ export class AgendaComponent implements OnInit, OnDestroy {
     return (minutos - inicioMin) * this.PX_POR_MINUTO;
   }
 
-  duracionAPixels(_duracion: number): number {
-    return 90;
+  duracionAPixels(duracion: number): number {
+    return Math.max(20, (duracion || 30) * this.PX_POR_MINUTO - 4);
   }
 
   get lineaAhora(): number {
@@ -161,7 +161,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   getEstadoCita(cita: ICitaBarbero): 'completada' | 'en-curso' | 'proxima' {
     const [hh, mm] = cita.hora.split(':').map(Number);
     const inicioMin = hh * 60 + mm;
-    const finMin = inicioMin + (cita.duracion_total || 30);
+    const finMin = inicioMin + Number(cita.duracion_total || 30);
     const ahoraMin = this.horaActual.getHours() * 60 + this.horaActual.getMinutes();
 
     // Citas que no han empezado → siempre gris, sin importar el estado en BD
@@ -222,6 +222,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
   abrirModalCita(cita: ICitaBarbero): void {
     this.citaSeleccionada = cita;
     this.modalCita = true;
+  }
+
+  puedeGestionarCita(cita: ICitaBarbero | null): boolean {
+    if (!cita) return false;
+    return this.getEstadoCita(cita) === 'proxima';
   }
 
   cerrarModalCita(): void {
@@ -404,6 +409,34 @@ export class AgendaComponent implements OnInit, OnDestroy {
         this.presencialGuardando = false;
       }
     });
+  }
+
+  // ─── Filtro próximas ──────────────────────────────────────
+  filtroFecha = '';
+
+  get fechasUnicas(): string[] {
+    const set = new Set(this.proximas.map(r => r.fecha.split('T')[0]));
+    return Array.from(set).sort();
+  }
+
+  get proximasFiltradas(): ICitaBarbero[] {
+    if (!this.filtroFecha) return this.proximas;
+    return this.proximas.filter(r => r.fecha.split('T')[0] === this.filtroFecha);
+  }
+
+  cantidadPorFecha(fecha: string): number {
+    return this.proximas.filter(r => r.fecha.split('T')[0] === fecha).length;
+  }
+
+  etiquetaFecha(fechaISO: string): string {
+    const fecha = fechaISO.split('T')[0];
+    const hoy = new Date();
+    const manana = new Date(); manana.setDate(hoy.getDate() + 1);
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if (fecha === fmt(hoy)) return 'Hoy';
+    if (fecha === fmt(manana)) return 'Mañana';
+    return this.formatFechaCorta(fecha);
   }
 
   // ─── Utils ────────────────────────────────────────────────

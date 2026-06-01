@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { CreditoService } from '../../../core/services/credito.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -26,19 +27,19 @@ export class CarritoComponent implements OnInit {
     { id: '1_mes',       label: '1 Mes',       desc: '1 mes'   }
   ];
 
-  imagenUrl = 'http://localhost:3001/images/productos/';
-
   constructor(
     private carritoService: CarritoService,
     private creditoService: CreditoService,
     private authService:    AuthService,
-    private router:         Router
+    private router:         Router,
+    private location:       Location
   ) {}
 
   ngOnInit(): void {
     const usuario = this.authService.getUsuario();
     if (!usuario) { this.router.navigate(['/login']); return; }
     if (usuario.rol === 'admin' || usuario.rol === 'barbero') { this.router.navigate(['/']); return; }
+
     this.carritoService.items$.subscribe(items => this.items = items);
   }
 
@@ -61,9 +62,14 @@ export class CarritoComponent implements OnInit {
   get cantidad(): number { return this.carritoService.cantidad; }
 
   getImagen(imagen?: string): string {
-    if (imagen) return `${this.imagenUrl}${imagen}`;
-    return 'assets/images/no-img.png';
+    if (!imagen) return 'assets/images/no-img.png';
+    if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('assets/')) return imagen;
+    return `http://localhost:3001/images/productos/${imagen}`;
   }
+
+  volver(): void { this.location.back(); }
+  irAlHome(): void { this.router.navigate(['/']); }
+  irAlCheckout(): void { this.router.navigate(['/checkout']); }
 
   abrirConfirmar(): void {
     if (!this.items.length) return;
@@ -98,16 +104,13 @@ export class CarritoComponent implements OnInit {
     });
   }
 
-  irAlHome(): void     { this.router.navigate(['/']); }
-  irAlCheckout(): void { this.router.navigate(['/checkout']); }
+  plazoLabel(id: string): string {
+    return this.plazos.find(p => p.id === id)?.label || id;
+  }
 
   formatCurrency(v: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency', currency: 'COP', minimumFractionDigits: 0
     }).format(v || 0);
-  }
-
-  plazoLabel(p: string): string {
-    return this.plazos.find(x => x.id === p)?.label || p;
   }
 }

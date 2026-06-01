@@ -1,16 +1,17 @@
-<nav class="navbar" [class.scrolled]="isScrolled" [class.navbar--barbero]="usuario?.rol === 'barbero'"
-  [class.navbar--fijo]="!esHome">
-
-  <!-- Topbar integrado -->
-  <div class="navbar__topbar" *ngIf="esHome && !isScrolled">
-    <i class="fas fa-map-marker-alt"></i>
-    <span>Cl. 48 # 19-55, Armenia, Quindío</span>
-    <span class="navbar__topbar-sep">·</span>
-    <i class="fas fa-clock"></i>
-    <span>Mar - Dom: 9:00am - 9:00pm</span>
-  </div>
+<nav class="navbar" *ngIf="!esPerfilCliente"
+  [class.scrolled]="isScrolled"
+  [class.navbar--barbero]="usuario?.rol === 'barbero'"
+  [class.navbar--fijo]="!esHome"
+  [class.navbar--dashboard]="usuario?.rol === 'cliente' && esDashboardCliente">
 
   <div class="container navbar__container">
+
+    <!-- Botón inicio — solo visible en móvil dashboard -->
+    <button class="navbar__dash-back"
+      *ngIf="usuario?.rol === 'cliente' && esDashboardCliente"
+      (click)="irAlInicio()">
+      <i class="fas fa-arrow-left"></i> Inicio
+    </button>
 
     <a routerLink="/" class="navbar__logo">
       <img src="assets/images/navbar/logo.png" alt="Blendlap">
@@ -20,10 +21,10 @@
 
       <!-- Links cliente en dashboard -->
       <ng-container *ngIf="usuario?.rol === 'cliente' && esDashboardCliente">
-        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'actuales'" (click)="tabCliente('actuales')"><i class="fas fa-calendar-check"></i> Actuales</a></li>
-        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'historial'" (click)="tabCliente('historial')"><i class="fas fa-history"></i> Historial</a></li>
-        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'compras'" (click)="tabCliente('compras')"><i class="fas fa-shopping-bag"></i> Compras</a></li>
-        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'creditos'" (click)="tabCliente('creditos')"><i class="fas fa-hand-holding-usd"></i> Créditos</a></li>
+        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'actuales'"
+            (click)="tabCliente('actuales')"><i class="fas fa-calendar-check"></i> Actuales</a></li>
+        <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'historial'"
+            (click)="tabCliente('historial')"><i class="fas fa-history"></i> Historial</a></li>
       </ng-container>
 
       <!-- Links públicos -->
@@ -76,6 +77,7 @@
         </button>
       </li>
 
+
       <!-- Sin sesión -->
       <li *ngIf="!usuario">
         <a routerLink="/login" class="btn-nav" (click)="closeMenu()">Iniciar Sesión</a>
@@ -94,7 +96,7 @@
           <i class="fas fa-home"></i> Inicio
         </a>
 
-        <a *ngIf="usuario.rol === 'cliente' && !esDashboardCliente" routerLink="/cliente/dashboard"
+        <a *ngIf="usuario.rol === 'cliente' && !esDashboardCliente" routerLink="/cliente/mis-citas"
           class="btn-nav btn-nav--citas" (click)="closeMenu()">
           <i class="fas fa-calendar-check"></i> Mis citas
           <span class="navbar__reservas-badge" *ngIf="reservas.length > 0">{{ reservas.length }}</span>
@@ -102,7 +104,7 @@
 
         <div class="navbar__credito-badge"
           *ngIf="usuario.rol === 'cliente' && creditosAprobados > 0 && !esDashboardCliente"
-          routerLink="/cliente/dashboard" (click)="closeMenu()" title="Tienes créditos aprobados — pasa a recoger">
+          routerLink="/cliente/mis-citas" (click)="closeMenu()" title="Tienes créditos aprobados — pasa a recoger">
           <i class="fas fa-check-circle"></i>
           <span>{{ creditosAprobados }} aprobado{{ creditosAprobados !== 1 ? 's' : '' }}</span>
         </div>
@@ -111,25 +113,245 @@
           <i class="fas fa-plus"></i> Agendar cliente
         </button>
 
-        <div class="navbar__avatar" (click)="irADashboard()">
-          <i class="fas fa-user"></i>
-        </div>
+        <!-- Dropdown de usuario -->
+        <div class="navbar__dropdown" (click)="toggleDropdown($event)">
+          <div class="navbar__dropdown-trigger">
+            <div class="navbar__avatar">
+              <img *ngIf="usuario.foto" [src]="usuario.foto | imgUrl" [alt]="usuario.nombre" />
+              <i *ngIf="!usuario.foto" class="fas fa-user"></i>
+            </div>
+            <div class="navbar__user-info">
+              <span class="navbar__nombre">{{ usuario.nombre }}</span>
+              <span class="navbar__rol">{{ usuario.rol }}</span>
+            </div>
+            <i class="fas fa-chevron-down navbar__dropdown-arrow"
+              [class.navbar__dropdown-arrow--open]="dropdownOpen"></i>
+          </div>
 
-        <div class="navbar__user-info">
-          <span class="navbar__nombre">{{ usuario.nombre }}</span>
-          <span class="navbar__rol">{{ usuario.rol }}</span>
+          <div class="navbar__dropdown-menu" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+            <!-- Cliente: navega a la página de perfil -->
+            <button *ngIf="usuario.rol === 'cliente'" class="navbar__dropdown-item" (click)="irAPerfil()">
+              <i class="fas fa-user-circle"></i> Mi perfil
+            </button>
+            <!-- Otros roles: abre modal -->
+            <button *ngIf="usuario.rol !== 'cliente'" class="navbar__dropdown-item" (click)="abrirModalPerfil()">
+              <i class="fas fa-user-circle"></i> Mi perfil
+            </button>
+            <div class="navbar__dropdown-divider"></div>
+            <button class="navbar__dropdown-item navbar__dropdown-item--danger" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+          </div>
         </div>
-
-        <button class="navbar__logout" (click)="logout()" title="Cerrar sesión">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
 
       </li>
     </ul>
 
-    <button class="navbar__hamburger" (click)="toggleMenu()" [class.active]="menuOpen">
+    <!-- Espaciador derecho para centrar el logo en dashboard (solo móvil) -->
+    <div class="navbar__spacer" *ngIf="usuario?.rol === 'cliente' && esDashboardCliente"></div>
+
+    <!-- Hamburguesa — para todas las demás páginas -->
+    <button class="navbar__hamburger"
+      *ngIf="!(usuario?.rol === 'cliente' && esDashboardCliente)"
+      (click)="toggleMenu()" [class.active]="menuOpen">
       <span></span><span></span><span></span>
     </button>
 
   </div>
+
 </nav>
+
+<!-- ── MODAL PERFIL (barbero / admin) ────────────────────── -->
+<div class="perfil-overlay" *ngIf="modalPerfil" (click)="cerrarModalPerfil()">
+  <div class="perfil-modal" (click)="$event.stopPropagation()">
+
+    <div class="perfil-modal__header">
+      <h2><i class="fas fa-user-circle"></i> Mi Perfil</h2>
+      <button class="perfil-modal__close" (click)="cerrarModalPerfil()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="perfil-modal__loading" *ngIf="perfilCargando">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando...</span>
+    </div>
+
+    <ng-container *ngIf="!perfilCargando">
+
+      <!-- Foto -->
+      <div class="perfil-modal__foto-wrap">
+        <label class="perfil-modal__foto" for="perfil-foto-input">
+          <img *ngIf="perfilFotoPreview" [src]="perfilFotoPreview" alt="Vista previa" />
+          <img *ngIf="!perfilFotoPreview && perfilFotoActual" [src]="perfilFotoActual | imgUrl" alt="Foto de perfil" />
+          <div *ngIf="!perfilFotoPreview && !perfilFotoActual" class="perfil-modal__foto-empty">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="perfil-modal__foto-overlay">
+            <i class="fas fa-camera"></i>
+          </div>
+        </label>
+        <input id="perfil-foto-input" type="file" accept="image/*" (change)="onFotoChange($event)"
+          style="display:none" />
+        <p class="perfil-modal__foto-hint">Toca para cambiar la foto</p>
+        <button *ngIf="perfilFotoPreview || perfilFotoActual" type="button"
+          class="perfil-modal__foto-quitar" (click)="quitarFoto()">
+          <i class="fas fa-trash-alt"></i> Quitar foto
+        </button>
+      </div>
+
+      <!-- Campos -->
+      <div class="perfil-modal__form">
+        <div class="perfil-modal__row">
+          <div class="perfil-modal__field">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="perfilNombre" placeholder="Tu nombre" />
+          </div>
+          <div class="perfil-modal__field">
+            <label>Apellido</label>
+            <input type="text" [(ngModel)]="perfilApellido" placeholder="Tu apellido" />
+          </div>
+        </div>
+        <div class="perfil-modal__field">
+          <label>Correo electrónico</label>
+          <input type="email" [value]="perfilCorreo" readonly class="perfil-modal__readonly" />
+        </div>
+        <div class="perfil-modal__field">
+          <label>Teléfono</label>
+          <input type="tel" [(ngModel)]="perfilTelefono" placeholder="Ej: 3001234567" />
+        </div>
+      </div>
+
+      <!-- Error / Éxito -->
+      <div class="perfil-modal__error" *ngIf="perfilError">
+        <i class="fas fa-exclamation-circle"></i> {{ perfilError }}
+      </div>
+      <div class="perfil-modal__exito" *ngIf="perfilExito">
+        <i class="fas fa-check-circle"></i> Perfil actualizado
+      </div>
+
+      <!-- Botón guardar -->
+      <button class="perfil-modal__btn" (click)="guardarPerfil()" [disabled]="perfilGuardando">
+        <i class="fas" [ngClass]="perfilGuardando ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+        {{ perfilGuardando ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+
+    </ng-container>
+  </div>
+</div>
+
+<!-- ── Modal Carrito ──────────────────────────────────────────────── -->
+<div class="cm-overlay" *ngIf="modalCarritoAbierto" (click)="cerrarModalCarrito()">
+  <div class="cm-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="cm-header">
+      <div class="cm-header__left">
+        <i class="fas fa-shopping-basket cm-header__icon"></i>
+        <h2>Mi Carrito</h2>
+        <span class="cm-badge" *ngIf="cantidadCarrito > 0">{{ cantidadCarrito }}</span>
+      </div>
+      <button class="cm-close" (click)="cerrarModalCarrito()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Éxito -->
+    <div class="cm-exito" *ngIf="exitoCredito">
+      <div class="cm-exito__circle"><i class="fas fa-check"></i></div>
+      <h3>¡Solicitud enviada!</h3>
+      <p>Nuestro equipo la revisará y te avisará cuando esté aprobada.</p>
+    </div>
+
+    <!-- Vacío -->
+    <div class="cm-vacio" *ngIf="!exitoCredito && itemsCarrito.length === 0">
+      <i class="fas fa-shopping-basket cm-vacio__icon"></i>
+      <p>Tu carrito está vacío</p>
+    </div>
+
+    <!-- Contenido -->
+    <ng-container *ngIf="!exitoCredito && itemsCarrito.length > 0">
+
+      <!-- Items -->
+      <div class="cm-items">
+        <div class="cm-item" *ngFor="let item of itemsCarrito">
+          <div class="cm-item__img">
+            <img [src]="getImagenCarrito(item.producto.imagen)" [alt]="item.producto.nombre_producto"/>
+          </div>
+          <div class="cm-item__info">
+            <p class="cm-item__nombre">{{ item.producto.nombre_producto }}</p>
+            <span class="cm-item__unit">{{ formatCurrency(item.producto.precio) }}</span>
+            <span class="cm-item__talla" *ngIf="item.talla">
+              <i class="fas fa-ruler-horizontal"></i> {{ item.talla }}
+            </span>
+          </div>
+          <div class="cm-item__right">
+            <button class="cm-item__quitar" (click)="quitarItemCarrito(item.producto.id_producto)">
+              <i class="fas fa-times"></i>
+            </button>
+            <strong class="cm-item__subtotal">{{ formatCurrency(item.producto.precio * item.cantidad) }}</strong>
+            <div class="cm-controles">
+              <button class="cm-ctrl" (click)="disminuirItemCarrito(item.producto.id_producto)">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="cm-qty">{{ item.cantidad }}</span>
+              <button class="cm-ctrl" (click)="aumentarItemCarrito(item.producto.id_producto)"
+                [disabled]="item.cantidad >= item.producto.stock">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="cm-total">
+        <span>Total</span>
+        <strong>{{ formatCurrency(totalCarrito) }}</strong>
+      </div>
+
+      <!-- Acciones -->
+      <div class="cm-actions">
+
+        <!-- Wompi -->
+        <button class="cm-btn-wompi" (click)="irAlCheckout()">
+          <i class="fas fa-lock"></i>
+          Pagar con Wompi
+          <i class="fas fa-arrow-right cm-btn-wompi__arr"></i>
+        </button>
+
+        <!-- Sep -->
+        <div class="cm-sep"><span></span><p>O PAGA CON CRÉDITO</p><span></span></div>
+
+        <!-- Plazo -->
+        <div class="cm-plazo">
+          <p class="cm-plazo__label"><i class="fas fa-calendar-alt"></i> PLAZO DE PAGO</p>
+          <div class="cm-plazos-grid">
+            <button *ngFor="let p of plazos"
+              class="cm-btn-plazo"
+              [class.cm-btn-plazo--activo]="plazoSeleccionado === p.id"
+              (click)="plazoSeleccionado = p.id">
+              <span class="cm-plazo-label">{{ p.label }}</span>
+              <span class="cm-plazo-desc">{{ p.desc }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="cm-error" *ngIf="errorCredito">
+          <i class="fas fa-exclamation-circle"></i> {{ errorCredito }}
+        </div>
+
+        <!-- Solicitar crédito -->
+        <button class="cm-btn-credito" (click)="solicitarCreditoCarrito()" [disabled]="enviandoCredito">
+          <span *ngIf="!enviandoCredito"><i class="fas fa-paper-plane"></i> Solicitar crédito</span>
+          <span *ngIf="enviandoCredito"><i class="fas fa-spinner fa-spin"></i> Enviando...</span>
+        </button>
+
+      </div>
+
+    </ng-container>
+
+  </div>
+</div>

@@ -1,0 +1,484 @@
+<!-- ── NAVBAR ──────────────────────────────────────────────────── -->
+<header class="pf-topbar">
+  <button class="pf-topbar__back" (click)="irAlInicio()">
+    <i class="fas fa-arrow-left"></i> Inicio
+  </button>
+  <div class="pf-topbar__logo">
+    <img src="assets/images/navbar/logo.png" alt="Blendlap" />
+  </div>
+  <button class="pf-topbar__logout" (click)="logout()">
+    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </button>
+</header>
+
+<!-- ── PAGE ───────────────────────────────────────────────────── -->
+<div class="pf-page">
+
+  <!-- LOADING -->
+  <div class="pf-spinner" *ngIf="perfilCargando">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>
+
+  <ng-container *ngIf="!perfilCargando">
+
+    <!-- ── HERO ──────────────────────────────────────────────── -->
+    <div class="pf-hero-card">
+      <div class="pf-hero-card__accent"></div>
+
+      <div class="pf-hero-card__left">
+        <label class="pf-avatar" for="pf-foto-hero">
+          <img *ngIf="perfilFotoPreview" [src]="perfilFotoPreview" />
+          <img *ngIf="!perfilFotoPreview && perfilFotoActual" [src]="perfilFotoActual | imgUrl" />
+          <div *ngIf="!perfilFotoPreview && !perfilFotoActual" class="pf-avatar__empty">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="pf-avatar__cam"><i class="fas fa-camera"></i></div>
+        </label>
+        <input id="pf-foto-hero" type="file" accept="image/*" (change)="onFotoChange($event)" style="display:none" />
+      </div>
+
+      <div class="pf-hero-card__info">
+        <div class="pf-hero-card__name-row">
+          <h1>{{ perfilNombre }} {{ perfilApellido }}</h1>
+          <span class="pf-tier-pill" [class]="tier">
+            <i class="fas" [ngClass]="tierIcon"></i> {{ tierLabel }}
+          </span>
+        </div>
+        <p class="pf-hero-card__email"><i class="fas fa-envelope"></i> {{ perfilCorreo }}</p>
+        <div class="pf-hero-card__meta">
+          <span *ngIf="memberDesde"><i class="fas fa-calendar-alt"></i> Cliente desde {{ memberDesde }}</span>
+          <span class="pf-sep" *ngIf="memberDesde && clienteId">·</span>
+          <span *ngIf="clienteId"><i class="fas fa-id-card"></i> {{ clienteId }}</span>
+        </div>
+      </div>
+
+      <div class="pf-hero-card__stats">
+        <div class="pf-hstat">
+          <strong>{{ citasCompletadas }}</strong>
+          <span>Citas</span>
+        </div>
+        <div class="pf-hstat__sep"></div>
+        <div class="pf-hstat">
+          <strong>{{ compras.length }}</strong>
+          <span>Compras</span>
+        </div>
+        <div class="pf-hstat__sep"></div>
+        <div class="pf-hstat">
+          <strong>{{ creditosActivos }}</strong>
+          <span>Créditos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TABS ──────────────────────────────────────────────── -->
+    <div class="pf-tabs-bar">
+      <button class="pf-tab" [class.active]="tab==='overview'" (click)="setTab('overview')">
+        <i class="fas fa-th-large"></i> Resumen
+      </button>
+      <button class="pf-tab" [class.active]="tab==='editar'" (click)="setTab('editar')">
+        <i class="fas fa-user-edit"></i> Mi información
+      </button>
+      <button class="pf-tab" [class.active]="tab==='creditos'" (click)="setTab('creditos')">
+        <i class="fas fa-hand-holding-usd"></i> Créditos
+        <span class="pf-tab__badge" *ngIf="creditosActivos > 0">{{ creditosActivos }}</span>
+      </button>
+      <button class="pf-tab" [class.active]="tab==='compras'" (click)="setTab('compras')">
+        <i class="fas fa-shopping-bag"></i> Compras
+        <span class="pf-tab__badge pf-tab__badge--gray" *ngIf="compras.length > 0">{{ compras.length }}</span>
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         OVERVIEW
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="pf-grid" *ngIf="tab==='overview'">
+
+      <!-- Historial de citas -->
+      <div class="pf-card">
+        <div class="pf-card__head">
+          <h3><i class="fas fa-history"></i> Historial de citas</h3>
+          <button class="pf-card__link" (click)="irACitas()">Ver todas <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="pf-card__body">
+          <div class="pf-loading-sm" *ngIf="cargandoReservas">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <div class="pf-empty-sm" *ngIf="!cargandoReservas && historialCitas.length === 0">
+            <i class="fas fa-scissors"></i>
+            <p>Aún no tienes citas</p>
+            <button class="pf-cta-btn" (click)="irACitas()"><i class="fas fa-plus"></i> Agendar tu primera cita</button>
+          </div>
+          <div class="pf-cita-row" *ngFor="let r of historialCitas">
+            <div class="pf-cita-row__date">
+              <span class="pf-cita-row__day">{{ formatDiaMes(r.fecha).dia }}</span>
+              <span class="pf-cita-row__mes">{{ formatDiaMes(r.fecha).mes }}</span>
+            </div>
+            <div class="pf-cita-row__info">
+              <strong>{{ r.nombre_servicio || 'Servicio' }}</strong>
+              <span><i class="fas fa-user"></i> {{ r.nombre_barbero }}</span>
+            </div>
+            <span class="pf-badge" [class.pf-badge--ok]="r.estado==='completada'"
+              [class.pf-badge--err]="r.estado==='cancelada'">
+              {{ estadoCitaLabel(r.estado) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compras recientes -->
+      <div class="pf-card">
+        <div class="pf-card__head">
+          <h3><i class="fas fa-shopping-bag"></i> Compras recientes</h3>
+          <button class="pf-card__link" (click)="abrirModalCompras()">Ver todas <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="pf-card__body">
+          <div class="pf-loading-sm" *ngIf="cargandoCompras">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <div class="pf-empty-sm" *ngIf="!cargandoCompras && comprasRecientes.length === 0">
+            <i class="fas fa-shopping-bag"></i>
+            <p>Sin compras aún</p>
+          </div>
+          <div class="pf-compra-row" *ngFor="let c of comprasRecientes">
+            <div class="pf-compra-row__icon"><i class="fas fa-box"></i></div>
+            <div class="pf-compra-row__info">
+              <strong>{{ c.items && c.items.length ? c.items[0].nombre : 'Pedido' }}</strong>
+              <span>{{ formatFechaCorta(c.fecha_creacion) }}
+                <ng-container *ngIf="c.items && c.items.length > 1"> · +{{ c.items.length - 1 }} más</ng-container>
+              </span>
+            </div>
+            <div class="pf-compra-row__right">
+              <span class="pf-badge pf-badge--sm"
+                [class.pf-badge--ok]="c.estado==='aprobado'"
+                [class.pf-badge--warn]="c.estado==='pendiente'"
+                [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='error'">
+                {{ c.estado==='aprobado' ? 'Pagado' : c.estado==='pendiente' ? 'Pendiente' : 'Rechazado' }}
+              </span>
+              <strong class="pf-compra-row__total">{{ formatCurrency(c.total) }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mis créditos -->
+      <div class="pf-card">
+        <div class="pf-card__head">
+          <h3><i class="fas fa-hand-holding-usd"></i> Mis créditos</h3>
+          <button class="pf-card__link" (click)="abrirModalCreditos()">Ver detalle <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="pf-card__body">
+          <div class="pf-loading-sm" *ngIf="cargandoCreditos">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <div class="pf-empty-sm" *ngIf="!cargandoCreditos && creditos.length === 0">
+            <i class="fas fa-hand-holding-usd"></i>
+            <p>Sin créditos solicitados</p>
+          </div>
+          <div class="pf-cred-row" *ngFor="let c of creditos.slice(0,3)">
+            <div class="pf-cred-row__dot" [class]="'dot-' + c.estado"></div>
+            <div class="pf-cred-row__info">
+              <span class="pf-badge pf-badge--sm"
+                [class.pf-badge--ok]="c.estado==='activo'" [class.pf-badge--warn]="c.estado==='pendiente'"
+                [class.pf-badge--done]="c.estado==='pagado'" [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='vencido'">
+                {{ c.estado==='activo' ? 'Aprobado' : c.estado==='pendiente' ? 'En revisión' :
+                   c.estado==='pagado' ? 'Pagado' : c.estado==='rechazado' ? 'Rechazado' : 'Vencido' }}
+              </span>
+              <span class="pf-gray">{{ c.plazo.replace('_', ' ') }}</span>
+            </div>
+            <div class="pf-cred-row__right">
+              <strong>{{ formatCurrency(c.monto_total) }}</strong>
+              <span class="pf-gray">Saldo: {{ formatCurrency(c.saldo_pendiente) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mi nivel -->
+      <div class="pf-card pf-card--tier" [class]="'tier-' + tier">
+        <div class="pf-card__head">
+          <h3><i class="fas" [ngClass]="tierIcon"></i> Mi nivel</h3>
+        </div>
+        <div class="pf-card__body pf-tier-body">
+          <div class="pf-tier-big"><i class="fas" [ngClass]="tierIcon"></i></div>
+          <div class="pf-tier-info">
+            <h4>{{ tierLabel }}</h4>
+            <p>{{ citasCompletadas }} cita{{ citasCompletadas !== 1 ? 's' : '' }} completada{{ citasCompletadas !== 1 ? 's' : '' }}</p>
+            <div class="pf-tier-bar" *ngIf="tier !== 'legendario'">
+              <div class="pf-tier-bar__fill" [class]="'fill-' + tier" [style.width.%]="tierProgress"></div>
+            </div>
+            <span class="pf-tier-next" *ngIf="tier !== 'legendario'">{{ tierProximoLabel }}</span>
+            <span class="pf-tier-max" *ngIf="tier === 'legendario'"><i class="fas fa-star"></i> Nivel máximo</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         EDITAR INFORMACIÓN
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="pf-section" *ngIf="tab==='editar'">
+      <div class="pf-section__title">
+        <h2>Editar información</h2>
+        <p>Actualiza tus datos personales</p>
+      </div>
+      <div class="pf-form-card">
+        <div class="pf-form">
+          <div class="pf-form__row">
+            <div class="pf-form__field">
+              <label>Nombre</label>
+              <input type="text" [(ngModel)]="perfilNombre" placeholder="Tu nombre" />
+            </div>
+            <div class="pf-form__field">
+              <label>Apellido</label>
+              <input type="text" [(ngModel)]="perfilApellido" placeholder="Tu apellido" />
+            </div>
+          </div>
+          <div class="pf-form__field">
+            <label>Correo electrónico</label>
+            <div class="pf-form__lock-wrap">
+              <input type="email" [value]="perfilCorreo" readonly />
+              <i class="fas fa-lock"></i>
+            </div>
+          </div>
+          <div class="pf-form__field">
+            <label>Teléfono</label>
+            <input type="tel" [(ngModel)]="perfilTelefono" placeholder="Ej: 3001234567" />
+          </div>
+
+          <div class="pf-foto-block">
+            <p class="pf-foto-block__label">Foto de perfil</p>
+            <div class="pf-foto-block__row">
+              <label class="pf-foto-thumb" for="pf-foto-form">
+                <img *ngIf="perfilFotoPreview" [src]="perfilFotoPreview" />
+                <img *ngIf="!perfilFotoPreview && perfilFotoActual" [src]="perfilFotoActual | imgUrl" />
+                <div *ngIf="!perfilFotoPreview && !perfilFotoActual" class="pf-foto-thumb__empty">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="pf-foto-thumb__hover"><i class="fas fa-camera"></i></div>
+              </label>
+              <input id="pf-foto-form" type="file" accept="image/*" (change)="onFotoChange($event)" style="display:none" />
+              <button *ngIf="perfilFotoPreview || perfilFotoActual" class="pf-btn-quitar" (click)="quitarFoto()">
+                <i class="fas fa-trash-alt"></i> Quitar foto
+              </button>
+            </div>
+          </div>
+
+          <div class="pf-alert pf-alert--err" *ngIf="perfilError">
+            <i class="fas fa-exclamation-circle"></i> {{ perfilError }}
+          </div>
+          <div class="pf-alert pf-alert--ok" *ngIf="perfilExito">
+            <i class="fas fa-check-circle"></i> Perfil actualizado correctamente
+          </div>
+
+          <button class="pf-btn-save" (click)="guardarPerfil()" [disabled]="perfilGuardando">
+            <i class="fas" [ngClass]="perfilGuardando ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+            {{ perfilGuardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         MIS CRÉDITOS (tab completo)
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="pf-section" *ngIf="tab==='creditos'">
+      <div class="pf-section__title">
+        <h2><i class="fas fa-hand-holding-usd"></i> Mis créditos</h2>
+        <p>Estado de tus solicitudes de crédito</p>
+      </div>
+      <div class="pf-loading-center" *ngIf="cargandoCreditos"><i class="fas fa-spinner fa-spin"></i></div>
+      <div class="pf-empty-page" *ngIf="!cargandoCreditos && creditos.length === 0">
+        <i class="fas fa-hand-holding-usd"></i>
+        <p>No tienes créditos aún</p>
+        <span>Solicita uno desde la tienda de productos</span>
+      </div>
+      <div class="pf-detail-list" *ngIf="!cargandoCreditos && creditos.length > 0">
+        <div class="pf-detail-card" *ngFor="let c of creditos"
+          [class.ok]="c.estado==='activo'" [class.warn]="c.estado==='pendiente'"
+          [class.err]="c.estado==='rechazado'||c.estado==='vencido'" [class.done]="c.estado==='pagado'">
+          <div class="pf-detail-card__head">
+            <span class="pf-badge"
+              [class.pf-badge--ok]="c.estado==='activo'" [class.pf-badge--warn]="c.estado==='pendiente'"
+              [class.pf-badge--done]="c.estado==='pagado'" [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='vencido'">
+              <i class="fas fa-check-circle" *ngIf="c.estado==='activo'"></i>
+              <i class="fas fa-clock" *ngIf="c.estado==='pendiente'"></i>
+              <i class="fas fa-check" *ngIf="c.estado==='pagado'"></i>
+              <i class="fas fa-times-circle" *ngIf="c.estado==='rechazado'"></i>
+              <i class="fas fa-exclamation-triangle" *ngIf="c.estado==='vencido'"></i>
+              {{ c.estado==='activo' ? 'Aprobado' : c.estado==='pendiente' ? 'En revisión' :
+                 c.estado==='pagado' ? 'Pagado' : c.estado==='rechazado' ? 'Rechazado' : 'Vencido' }}
+            </span>
+            <span class="pf-gray">{{ formatFecha(c.fecha_creacion) }}</span>
+            <span class="pf-amount">{{ formatCurrency(c.monto_total) }}</span>
+          </div>
+          <div class="pf-prod-list" *ngIf="c.productos?.length">
+            <div class="pf-prod-row" *ngFor="let p of c.productos">
+              <div class="pf-prod-row__img">
+                <img *ngIf="p.imagen" [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
+                <i *ngIf="!p.imagen" class="fas fa-box"></i>
+              </div>
+              <div class="pf-prod-row__info">
+                <span>{{ p.nombre_producto }}</span>
+                <span class="pf-gray">x{{ p.cantidad }} · {{ formatCurrency(p.precio_unitario) }}</span>
+              </div>
+              <span class="pf-amount">{{ formatCurrency(p.subtotal) }}</span>
+            </div>
+          </div>
+          <div class="pf-detail-card__kv">
+            <div class="pf-kv"><span>Saldo pendiente</span><strong>{{ formatCurrency(c.saldo_pendiente) }}</strong></div>
+            <div class="pf-kv"><span>Plazo</span><strong>{{ c.plazo.replace('_', ' ') }}</strong></div>
+            <div class="pf-kv"><span>Vence</span><strong>{{ formatFecha(c.fecha_vencimiento) }}</strong></div>
+          </div>
+          <div class="pf-detail-card__alerta ok" *ngIf="c.estado==='activo'">
+            <i class="fas fa-store"></i> Puedes pasar a recoger tus productos en tienda
+          </div>
+          <div class="pf-detail-card__alerta warn" *ngIf="c.estado==='pendiente'">
+            <i class="fas fa-hourglass-half"></i> Tu solicitud está siendo revisada
+          </div>
+          <div class="pf-detail-card__alerta err" *ngIf="c.estado==='rechazado'">
+            <i class="fas fa-times-circle"></i> Tu solicitud fue rechazada
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         MIS COMPRAS (tab completo)
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="pf-section" *ngIf="tab==='compras'">
+      <div class="pf-section__title">
+        <h2><i class="fas fa-shopping-bag"></i> Mis compras</h2>
+        <p>Historial de pedidos pagados en línea</p>
+      </div>
+      <div class="pf-loading-center" *ngIf="cargandoCompras"><i class="fas fa-spinner fa-spin"></i></div>
+      <div class="pf-empty-page" *ngIf="!cargandoCompras && compras.length === 0">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Sin compras aún</p>
+        <span>Aquí aparecerán tus pedidos pagados en línea</span>
+      </div>
+      <div class="pf-detail-list" *ngIf="!cargandoCompras && compras.length > 0">
+        <div class="pf-detail-card" *ngFor="let c of compras"
+          [class.ok]="c.estado==='aprobado'" [class.warn]="c.estado==='pendiente'"
+          [class.err]="c.estado==='rechazado'||c.estado==='error'">
+          <div class="pf-detail-card__head">
+            <span class="pf-badge"
+              [class.pf-badge--ok]="c.estado==='aprobado'" [class.pf-badge--warn]="c.estado==='pendiente'"
+              [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='error'">
+              <i class="fas fa-check-circle" *ngIf="c.estado==='aprobado'"></i>
+              <i class="fas fa-clock" *ngIf="c.estado==='pendiente'"></i>
+              <i class="fas fa-times-circle" *ngIf="c.estado==='rechazado'||c.estado==='error'"></i>
+              {{ c.estado==='aprobado' ? 'Pagado' : c.estado==='pendiente' ? 'Pendiente' : 'Rechazado' }}
+            </span>
+            <span class="pf-gray">{{ formatFecha(c.fecha_creacion) }}</span>
+            <span class="pf-amount">{{ formatCurrency(c.total) }}</span>
+          </div>
+          <div class="pf-items-list">
+            <div class="pf-item-row" *ngFor="let item of c.items">
+              <span>{{ item.nombre }}<span *ngIf="item.talla" class="pf-gray"> ({{ item.talla }})</span></span>
+              <span class="pf-gray">x{{ item.cantidad }}</span>
+              <span class="pf-amount">{{ formatCurrency(item.subtotal) }}</span>
+            </div>
+          </div>
+          <div class="pf-detail-card__ref"><i class="fas fa-receipt"></i> {{ c.referencia }}</div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
+
+<!-- ══ MODAL COMPRAS ════════════════════════════════════════════ -->
+<div class="pf-modal-overlay" *ngIf="modalCompras" (click)="cerrarModalCompras()">
+  <div class="pf-modal" (click)="$event.stopPropagation()">
+    <div class="pf-modal__head">
+      <h3><i class="fas fa-shopping-bag"></i> Mis compras</h3>
+      <button class="pf-modal__close" (click)="cerrarModalCompras()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="pf-modal__body">
+      <div class="pf-loading-center" *ngIf="cargandoCompras"><i class="fas fa-spinner fa-spin"></i></div>
+      <div class="pf-empty-page" *ngIf="!cargandoCompras && compras.length === 0">
+        <i class="fas fa-shopping-bag"></i><p>Sin compras aún</p>
+      </div>
+      <div class="pf-detail-list" *ngIf="!cargandoCompras && compras.length > 0">
+        <div class="pf-detail-card" *ngFor="let c of compras"
+          [class.ok]="c.estado==='aprobado'" [class.warn]="c.estado==='pendiente'"
+          [class.err]="c.estado==='rechazado'||c.estado==='error'">
+          <div class="pf-detail-card__head">
+            <span class="pf-badge"
+              [class.pf-badge--ok]="c.estado==='aprobado'" [class.pf-badge--warn]="c.estado==='pendiente'"
+              [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='error'">
+              {{ c.estado==='aprobado' ? 'Pagado' : c.estado==='pendiente' ? 'Pendiente' : 'Rechazado' }}
+            </span>
+            <span class="pf-gray">{{ formatFecha(c.fecha_creacion) }}</span>
+            <span class="pf-amount">{{ formatCurrency(c.total) }}</span>
+          </div>
+          <div class="pf-items-list">
+            <div class="pf-item-row" *ngFor="let item of c.items">
+              <span>{{ item.nombre }}<span *ngIf="item.talla" class="pf-gray"> ({{ item.talla }})</span></span>
+              <span class="pf-gray">x{{ item.cantidad }}</span>
+              <span class="pf-amount">{{ formatCurrency(item.subtotal) }}</span>
+            </div>
+          </div>
+          <div class="pf-detail-card__ref"><i class="fas fa-receipt"></i> {{ c.referencia }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CRÉDITOS ═══════════════════════════════════════════ -->
+<div class="pf-modal-overlay" *ngIf="modalCreditos" (click)="cerrarModalCreditos()">
+  <div class="pf-modal" (click)="$event.stopPropagation()">
+    <div class="pf-modal__head">
+      <h3><i class="fas fa-hand-holding-usd"></i> Mis créditos</h3>
+      <button class="pf-modal__close" (click)="cerrarModalCreditos()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="pf-modal__body">
+      <div class="pf-loading-center" *ngIf="cargandoCreditos"><i class="fas fa-spinner fa-spin"></i></div>
+      <div class="pf-empty-page" *ngIf="!cargandoCreditos && creditos.length === 0">
+        <i class="fas fa-hand-holding-usd"></i><p>No tienes créditos aún</p>
+      </div>
+      <div class="pf-detail-list" *ngIf="!cargandoCreditos && creditos.length > 0">
+        <div class="pf-detail-card" *ngFor="let c of creditos"
+          [class.ok]="c.estado==='activo'" [class.warn]="c.estado==='pendiente'"
+          [class.err]="c.estado==='rechazado'||c.estado==='vencido'" [class.done]="c.estado==='pagado'">
+          <div class="pf-detail-card__head">
+            <span class="pf-badge"
+              [class.pf-badge--ok]="c.estado==='activo'" [class.pf-badge--warn]="c.estado==='pendiente'"
+              [class.pf-badge--done]="c.estado==='pagado'" [class.pf-badge--err]="c.estado==='rechazado'||c.estado==='vencido'">
+              {{ c.estado==='activo' ? 'Aprobado' : c.estado==='pendiente' ? 'En revisión' :
+                 c.estado==='pagado' ? 'Pagado' : c.estado==='rechazado' ? 'Rechazado' : 'Vencido' }}
+            </span>
+            <span class="pf-gray">{{ formatFecha(c.fecha_creacion) }}</span>
+            <span class="pf-amount">{{ formatCurrency(c.monto_total) }}</span>
+          </div>
+          <div class="pf-prod-list" *ngIf="c.productos?.length">
+            <div class="pf-prod-row" *ngFor="let p of c.productos">
+              <div class="pf-prod-row__img">
+                <img *ngIf="p.imagen" [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
+                <i *ngIf="!p.imagen" class="fas fa-box"></i>
+              </div>
+              <div class="pf-prod-row__info">
+                <span>{{ p.nombre_producto }}</span>
+                <span class="pf-gray">x{{ p.cantidad }} · {{ formatCurrency(p.precio_unitario) }}</span>
+              </div>
+              <span class="pf-amount">{{ formatCurrency(p.subtotal) }}</span>
+            </div>
+          </div>
+          <div class="pf-detail-card__kv">
+            <div class="pf-kv"><span>Saldo pendiente</span><strong>{{ formatCurrency(c.saldo_pendiente) }}</strong></div>
+            <div class="pf-kv"><span>Plazo</span><strong>{{ c.plazo.replace('_', ' ') }}</strong></div>
+            <div class="pf-kv"><span>Vence</span><strong>{{ formatFecha(c.fecha_vencimiento) }}</strong></div>
+          </div>
+          <div class="pf-detail-card__alerta ok" *ngIf="c.estado==='activo'">
+            <i class="fas fa-store"></i> Puedes pasar a recoger tus productos en tienda
+          </div>
+          <div class="pf-detail-card__alerta warn" *ngIf="c.estado==='pendiente'">
+            <i class="fas fa-hourglass-half"></i> Tu solicitud está siendo revisada
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

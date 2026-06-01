@@ -5,6 +5,7 @@ import { takeUntil, timeout, take } from 'rxjs/operators';
 import { AuthService, IUsuario } from '../../../core/services/auth.service';
 import { ServicioService, IServicio } from '../../../core/services/servicio.service';
 import { ReservaService, IBarbero, ISlot } from '../../../core/services/reserva.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 type Paso = 'servicio' | 'barbero' | 'fecha' | 'confirmacion';
 
@@ -88,9 +89,8 @@ export class AgendarComponent implements OnInit, OnDestroy {
   horaSeleccionada: string = '';
 
   cargando       = false;
-  cargandoInicio = true;   // spinner inicial mientras cargan servicios
+  cargandoInicio = true;
   cargandoSlots  = false;
-  error = '';
 
   mesActual: Date = new Date();
   diasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
@@ -104,7 +104,8 @@ export class AgendarComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private servicioService: ServicioService,
-    private reservaService: ReservaService
+    private reservaService: ReservaService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -118,7 +119,6 @@ export class AgendarComponent implements OnInit, OnDestroy {
         this.horaSeleccionada       = data.hora      ?? '';
         this.pasoActual = 'confirmacion';
         sessionStorage.removeItem('reserva_pendiente');
-        this.mostrarModalPlanesInicio();
       }
     } catch {
       sessionStorage.removeItem('reserva_pendiente');
@@ -131,6 +131,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
     this.cargarServicios();
     this.cargarBarberos();
     this.cargarHorarioBarberia();
+    this.mostrarModalPlanesInicio();
 
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(p => {
       if (p['barbero']) {
@@ -182,7 +183,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
           this.cargandoInicio = false;
         },
         error: () => {
-          this.error = 'No se pudieron cargar los servicios. Verifica que el servidor esté activo.';
+          this.toast.error('Sin conexión', 'No se pudieron cargar los servicios. Verifica que el servidor esté activo.');
           this.cargandoInicio = false;
         }
       });
@@ -200,7 +201,6 @@ export class AgendarComponent implements OnInit, OnDestroy {
   toggleServicio(servicio: IServicio): void {
     const idx = this.serviciosSeleccionados.findIndex(s => s.id_servicio === servicio.id_servicio);
     this.serviciosSeleccionados = idx === -1 ? [servicio] : [];
-    this.error = '';
   }
 
   isServicioSeleccionado(servicio: IServicio): boolean {
@@ -306,7 +306,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
         this.cargandoSlots = false;
       },
       error: () => {
-        this.error = 'Error al cargar disponibilidad';
+        this.toast.error('Error', 'No se pudo cargar la disponibilidad');
         this.cargandoSlots = false;
       }
     });
@@ -352,7 +352,6 @@ export class AgendarComponent implements OnInit, OnDestroy {
     if (!usuario) return;
 
     this.cargando = true;
-    this.error = '';
 
     this.reservaService.crear({
       id_cliente: usuario.id_usuario,
@@ -363,10 +362,11 @@ export class AgendarComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.cargando = false;
-        this.router.navigate(['/cliente/dashboard']);
+        this.toast.success('¡Reserva confirmada!', 'Tu cita ha sido agendada correctamente.');
+        this.router.navigate(['/cliente/mis-citas']);
       },
       error: (err) => {
-        this.error = err.error?.mensaje || 'Error al crear la reserva';
+        this.toast.error('No se pudo confirmar', err.error?.mensaje || 'Error al crear la reserva');
         this.cargando = false;
       }
     });

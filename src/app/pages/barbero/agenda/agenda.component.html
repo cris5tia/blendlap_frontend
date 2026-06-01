@@ -93,6 +93,9 @@
                 <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
                 <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
                 <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>
+                <span class="tl-cita__completada-badge" *ngIf="getEstadoCita(cita) === 'completada'">
+                  <i class="fas fa-check-circle"></i> Completada
+                </span>
               </div>
             </div>
 
@@ -111,22 +114,42 @@
         <p>Tu agenda futura está libre</p>
       </div>
 
-      <div class="proximas-list" *ngIf="proximas.length > 0">
-        <div class="prox-item" *ngFor="let r of proximas">
-          <div class="prox-item__fecha">
-            <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
-            <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
-          </div>
-          <div class="prox-item__info">
-            <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
-            <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
-          </div>
-          <div class="prox-item__right">
-            <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
-            <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
+      <ng-container *ngIf="proximas.length > 0">
+
+        <!-- Filtro por día -->
+        <div class="prox-filtro">
+          <button class="prox-filtro__chip" [class.active]="!filtroFecha" (click)="filtroFecha = ''">
+            Todos
+            <span class="prox-filtro__count">{{ proximas.length }}</span>
+          </button>
+          <button class="prox-filtro__chip"
+            *ngFor="let f of fechasUnicas"
+            [class.active]="filtroFecha === f"
+            (click)="filtroFecha = f">
+            {{ etiquetaFecha(f) }}
+            <span class="prox-filtro__count">{{ cantidadPorFecha(f) }}</span>
+          </button>
+        </div>
+
+        <!-- Lista filtrada -->
+        <div class="proximas-list">
+          <div class="prox-item" *ngFor="let r of proximasFiltradas">
+            <div class="prox-item__fecha">
+              <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
+              <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
+            </div>
+            <div class="prox-item__info">
+              <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
+              <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
+            </div>
+            <div class="prox-item__right">
+              <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
+              <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
+            </div>
           </div>
         </div>
-      </div>
+
+      </ng-container>
 
     </ng-container>
 
@@ -170,7 +193,7 @@
         <span class="det-valor valor-precio">${{ citaSeleccionada?.precio_total | number:'1.0-0' }}</span>
       </div>
     </div>
-    <div class="modal-cita__acciones" *ngIf="getEstadoCita(citaSeleccionada!) !== 'completada'">
+    <div class="modal-cita__acciones" *ngIf="puedeGestionarCita(citaSeleccionada)">
       <button class="btn-completar" (click)="confirmarCompletar()">
         <i class="fas fa-check"></i> Completar
       </button>

@@ -12,7 +12,7 @@ export interface ICredito {
   saldo_pendiente:   number;
   plazo:             string;
   fecha_vencimiento: string;
-  estado:            'pendiente' | 'activo' | 'pagado' | 'vencido';
+  estado:            'pendiente' | 'activo' | 'pagado' | 'vencido' | 'rechazado';
   observaciones?:    string;
   fecha_creacion:    string;
   productos_nombres?: string;
