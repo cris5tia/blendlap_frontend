@@ -17,6 +17,8 @@ export class HorarioComponent implements OnInit {
   error = '';
 
   modalAgregar = false;
+  modoEdicion = false;
+  idExcepcionEditando: number | null = null;
   guardando = false;
   errorForm = '';
 
@@ -117,13 +119,30 @@ export class HorarioComponent implements OnInit {
   }
 
   abrirModalAgregar(): void {
+    this.modoEdicion = false;
+    this.idExcepcionEditando = null;
     this.nuevaExcepcion = { dia_semana: 1, hora_inicio: '', hora_fin: '', motivo: '' };
+    this.errorForm = '';
+    this.modalAgregar = true;
+  }
+
+  abrirModalEditar(exc: IExcepcion): void {
+    this.modoEdicion = true;
+    this.idExcepcionEditando = exc.id_excepcion!;
+    this.nuevaExcepcion = {
+      dia_semana: exc.dia_semana,
+      hora_inicio: exc.hora_inicio,
+      hora_fin: exc.hora_fin,
+      motivo: exc.motivo ?? ''
+    };
     this.errorForm = '';
     this.modalAgregar = true;
   }
 
   cerrarModalAgregar(): void {
     this.modalAgregar = false;
+    this.modoEdicion = false;
+    this.idExcepcionEditando = null;
     this.errorForm = '';
   }
 
@@ -138,12 +157,20 @@ export class HorarioComponent implements OnInit {
     }
     this.guardando = true;
     this.errorForm = '';
-    this.horarioService.crearExcepcion(this.nuevaExcepcion).subscribe({
+
+    const request$ = this.modoEdicion && this.idExcepcionEditando !== null
+      ? this.horarioService.actualizarExcepcion(this.idExcepcionEditando, this.nuevaExcepcion)
+      : this.horarioService.crearExcepcion(this.nuevaExcepcion);
+
+    request$.subscribe({
       next: () => {
         this.guardando = false;
         this.cerrarModalAgregar();
         this.cargarExcepciones();
-        this.toast.success('Descanso agregado', 'El bloque de descanso fue guardado correctamente.');
+        this.toast.success(
+          this.modoEdicion ? 'Descanso actualizado' : 'Descanso agregado',
+          'El bloque de descanso fue guardado correctamente.'
+        );
       },
       error: (err) => {
         this.errorForm = err.error?.mensaje || 'Error al guardar';

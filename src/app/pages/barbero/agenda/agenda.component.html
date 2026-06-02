@@ -114,7 +114,7 @@
         <p>Tu agenda futura está libre</p>
       </div>
 
-      <ng-container *ngIf="proximas.length > 0">
+      <div class="proximas-inner" *ngIf="proximas.length > 0">
 
         <!-- Filtro por día -->
         <div class="prox-filtro">
@@ -146,10 +146,15 @@
               <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
               <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
             </div>
+            <button class="prox-item__cancel-btn"
+              (click)="cancelarProxima(r)"
+              title="Cancelar cita">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
 
-      </ng-container>
+      </div>
 
     </ng-container>
 
@@ -281,12 +286,29 @@
 
         <div class="form-group">
           <label>Servicio</label>
-          <select [(ngModel)]="presencialForm.id_servicio">
-            <option [value]="0" disabled>Selecciona un servicio</option>
-            <option *ngFor="let s of servicios" [value]="s.id_servicio">
-              {{ s.nombre_servicio }} — ${{ s.precio | number:'1.0-0' }}
-            </option>
-          </select>
+          <div class="svc-select" [class.svc-select--open]="presencialDropdownAbierto">
+
+            <button type="button" class="svc-select__trigger"
+              (click)="presencialDropdownAbierto = !presencialDropdownAbierto">
+              <span class="svc-select__placeholder" *ngIf="!servicioSeleccionado">Selecciona un servicio</span>
+              <span class="svc-select__chosen" *ngIf="servicioSeleccionado">
+                <strong>{{ servicioSeleccionado.nombre_servicio }}</strong>
+                <em>${{ servicioSeleccionado.precio | number:'1.0-0' }}</em>
+              </span>
+              <i class="fas fa-chevron-down svc-select__arrow"></i>
+            </button>
+
+            <div class="svc-select__list" *ngIf="presencialDropdownAbierto">
+              <button type="button" class="svc-select__item"
+                *ngFor="let s of servicios"
+                [class.svc-select__item--active]="presencialForm.id_servicio === s.id_servicio"
+                (click)="seleccionarServicioPresencial(s)">
+                <span class="svc-select__item-nombre">{{ s.nombre_servicio }}</span>
+                <span class="svc-select__item-precio">${{ s.precio | number:'1.0-0' }}</span>
+              </button>
+            </div>
+
+          </div>
         </div>
 
         <div class="form-group">

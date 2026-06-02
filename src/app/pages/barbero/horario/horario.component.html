@@ -62,31 +62,37 @@
           [class.dia-card--hoy]="dia.dia_semana === diaHoy"
           [class.dia-card--cerrado]="!dia.activo">
 
-          <div class="dia-card__left">
-            <span class="dia-card__abrev">{{ getAbrevDia(dia.dia_semana) }}</span>
+          <!-- Encabezado: nombre + badge -->
+          <div class="dia-card__head">
             <span class="dia-card__nombre">{{ getNombreDia(dia.dia_semana) }}</span>
-          </div>
-
-          <div class="dia-card__horas" *ngIf="dia.activo">
-            <i class="fas fa-clock"></i>
-            <span>{{ formatHora(dia.hora_inicio) }}</span>
-            <span class="dia-card__sep">—</span>
-            <span>{{ formatHora(dia.hora_fin) }}</span>
-            <div class="dia-card__exc" *ngIf="excepcionesPorDia(dia.dia_semana).length > 0">
-              <span class="dia-card__exc-chip" *ngFor="let e of excepcionesPorDia(dia.dia_semana)">
-                <i class="fas fa-pause-circle"></i>
-                {{ formatHora(e.hora_inicio) }} — {{ formatHora(e.hora_fin) }}
-              </span>
-            </div>
-          </div>
-          <div class="dia-card__horas" *ngIf="!dia.activo" style="color:#bbb;font-weight:500;font-size:0.85rem">
-            —
-          </div>
-
-          <div class="dia-card__right">
-            <span class="dia-card__dur" *ngIf="dia.activo">{{ duracionHoras(dia.hora_inicio, dia.hora_fin) }}</span>
             <span class="dia-card__badge dia-card__badge--open"   *ngIf="dia.activo">Abierto</span>
             <span class="dia-card__badge dia-card__badge--closed" *ngIf="!dia.activo">Cerrado</span>
+          </div>
+
+          <!-- Cuerpo activo -->
+          <div class="dia-card__body" *ngIf="dia.activo">
+            <div class="dia-card__schedule">
+              <i class="fas fa-clock"></i>
+              <span>{{ formatHora(dia.hora_inicio) }} — {{ formatHora(dia.hora_fin) }}</span>
+              <span class="dia-card__dur">{{ duracionHoras(dia.hora_inicio, dia.hora_fin) }}</span>
+            </div>
+
+            <ng-container *ngIf="excepcionesPorDia(dia.dia_semana).length > 0">
+              <div class="dia-card__sep-line"></div>
+              <div class="dia-card__break" *ngFor="let e of excepcionesPorDia(dia.dia_semana)">
+                <div class="dia-card__break-icon"><i class="fas fa-coffee"></i></div>
+                <div class="dia-card__break-info">
+                  <span class="dia-card__break-label">Descanso</span>
+                  <span class="dia-card__break-time">{{ formatHora(e.hora_inicio) }} — {{ formatHora(e.hora_fin) }}</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Cerrado -->
+          <div class="dia-card__closed" *ngIf="!dia.activo">
+            <i class="fas fa-moon"></i>
+            <span>Día de descanso</span>
           </div>
 
         </div>
@@ -125,9 +131,14 @@
             <span class="exc-item__dur">{{ duracionHoras(exc.hora_inicio, exc.hora_fin) }}</span>
             <span class="exc-item__motivo" *ngIf="exc.motivo">{{ exc.motivo }}</span>
           </div>
-          <button class="exc-item__del" (click)="pedirConfirmarEliminar(exc.id_excepcion!)" title="Eliminar">
-            <i class="fas fa-trash-alt"></i>
-          </button>
+          <div class="exc-item__actions">
+            <button class="exc-item__edit" (click)="abrirModalEditar(exc)" title="Editar">
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="exc-item__del" (click)="pedirConfirmarEliminar(exc.id_excepcion!)" title="Eliminar">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -175,10 +186,12 @@
     </button>
 
     <div class="modal-box__head">
-      <div class="modal-box__icon"><i class="fas fa-coffee"></i></div>
+      <div class="modal-box__icon" [class.modal-box__icon--edit]="modoEdicion">
+        <i class="fas" [class.fa-coffee]="!modoEdicion" [class.fa-pencil-alt]="modoEdicion"></i>
+      </div>
       <div>
-        <h3>Agregar descanso</h3>
-        <p>Bloquea un horario en un día específico</p>
+        <h3>{{ modoEdicion ? 'Editar descanso' : 'Agregar descanso' }}</h3>
+        <p>{{ modoEdicion ? 'Modificá el horario de este bloque de descanso' : 'Bloquea un horario en un día específico' }}</p>
       </div>
     </div>
 
@@ -218,8 +231,9 @@
       <button class="btn-cancel" (click)="cerrarModalAgregar()">Cancelar</button>
       <button class="btn-save" (click)="guardarExcepcion()" [disabled]="guardando">
         <i class="fas fa-spinner fa-spin" *ngIf="guardando"></i>
-        <i class="fas fa-check" *ngIf="!guardando"></i>
-        {{ guardando ? 'Guardando...' : 'Guardar descanso' }}
+        <i class="fas fa-check"          *ngIf="!guardando && !modoEdicion"></i>
+        <i class="fas fa-pencil-alt"     *ngIf="!guardando && modoEdicion"></i>
+        {{ guardando ? 'Guardando...' : modoEdicion ? 'Guardar cambios' : 'Guardar descanso' }}
       </button>
     </div>
 

@@ -1,17 +1,21 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { AuthService, IUsuario } from '../../../core/services/auth.service';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { CarritoService } from '../../../core/services/carrito.service';
 import { CreditoService } from '../../../core/services/credito.service';
 import { TabService } from '../../../core/services/tab.service';
+import { Subject } from 'rxjs';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   isScrolled = false;
   menuOpen = false;
@@ -25,6 +29,10 @@ export class NavbarComponent implements OnInit {
 
   // Dropdown usuario
   dropdownOpen = false;
+
+  // Modal logout
+  logoutCerrando = false;
+  logoutExitoso  = false;
 
   // Modal carrito
   modalCarritoAbierto = false;
@@ -68,26 +76,34 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.authService.usuario$.subscribe(u => {
+    this.authService.usuario$.pipe(
+      distinctUntilChanged((a, b) => a?.id_usuario === b?.id_usuario && a?.rol === b?.rol),
+      takeUntil(this.destroy$)
+    ).subscribe(u => {
       this.usuario = u;
       if (u?.rol === 'cliente') {
         this.cargarReservas();
-        this.verificarCreditos();
+        // El badge de créditos no se muestra en el dashboard → carga solo fuera de él
+        if (!this.esDashboardCliente) {
+          this.verificarCreditos();
+        }
       }
     });
 
-    this.carritoService.items$.subscribe(items => {
+    this.carritoService.items$.pipe(takeUntil(this.destroy$)).subscribe(items => {
       this.cantidadCarrito = items.length;
       this.itemsCarrito = items;
     });
 
-    this.carritoService.modal$.subscribe(abierto => {
+    this.carritoService.modal$.pipe(takeUntil(this.destroy$)).subscribe(abierto => {
       this.modalCarritoAbierto = abierto;
     });
 
-    this.tabService.tab$.subscribe(tab => { this.tabActualCliente = tab; });
+    this.tabService.tab$.pipe(takeUntil(this.destroy$)).subscribe(tab => {
+      this.tabActualCliente = tab;
+    });
 
-    this.router.events.subscribe(event => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event instanceof NavigationEnd) {
         if (this.router.url.startsWith('/#')) {
           this.router.navigateByUrl('/', { replaceUrl: true });
@@ -266,9 +282,21 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.carritoService.limpiar();
     this.closeMenu();
+    this.dropdownOpen = false;
+    this.logoutCerrando = true;
+    this.logoutExitoso  = false;
+
+    setTimeout(() => {
+      this.logoutExitoso = true;
+    }, 1200);
+
+    setTimeout(() => {
+      this.authService.logout();
+      this.carritoService.limpiar();
+      this.logoutCerrando = false;
+      this.logoutExitoso  = false;
+    }, 2200);
   }
 
   irADashboard(): void {
@@ -417,5 +445,10 @@ export class NavbarComponent implements OnInit {
         this.perfilError = err.error?.mensaje || 'Error al guardar los cambios';
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

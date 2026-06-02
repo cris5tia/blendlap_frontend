@@ -62,16 +62,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
+    // Solo carga reservas al inicio — el resto es lazy
     this.cargarReservas();
-    this.cargarHorarioBarberia();
-    this.cargarCreditos();
-    this.cargarCompras();
     this.tabService.tab$.subscribe(tab => {
       this.tabActual = tab as 'actuales' | 'historial' | 'creditos' | 'compras';
       this.reservaExpandida = null;
       this.autoExpandirPrimero();
+      // Carga lazy según la pestaña que abre el usuario
+      if (tab === 'creditos' && !this.creditos.length && !this.cargandoCreditos) {
+        this.cargarCreditos();
+      }
+      if (tab === 'compras' && !this.compras.length && !this.cargandoCompras) {
+        this.cargarCompras();
+      }
     });
-    this._tick = setInterval(() => {}, 60_000);
   }
 
   cargarReservas(): void {
@@ -186,7 +190,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.editarSlots = [];
     this.editarError = '';
     this.editarMesActual = new Date();
-    this.generarCalendarioEditar();
+    // Carga el horario solo la primera vez que abre el modal
+    if (!this.horarioBarberia.length) {
+      this.cargarHorarioBarberia();
+    } else {
+      this.generarCalendarioEditar();
+    }
     this.modalEditar = true;
   }
 

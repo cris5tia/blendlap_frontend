@@ -210,6 +210,8 @@
 }
 
 @media (max-width: 768px) {
+  .footer__top { display: none; }
+
   .footer__top-content {
     flex-direction: column;
     text-align: center;

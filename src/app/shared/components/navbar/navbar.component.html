@@ -161,6 +161,23 @@
 
 </nav>
 
+<!-- ── MODAL LOGOUT ───────────────────────────────────────── -->
+<div class="logout-overlay" *ngIf="logoutCerrando">
+  <div class="logout-card">
+    <div class="logout-card__icon" [class.logout-card__icon--ok]="logoutExitoso">
+      <ng-container *ngIf="!logoutExitoso">
+        <i class="fas fa-spinner fa-spin"></i>
+      </ng-container>
+      <ng-container *ngIf="logoutExitoso">
+        <i class="fas fa-check"></i>
+      </ng-container>
+    </div>
+    <p class="logout-card__texto">
+      {{ logoutExitoso ? '¡Hasta pronto!' : 'Cerrando sesión...' }}
+    </p>
+  </div>
+</div>
+
 <!-- ── MODAL PERFIL (barbero / admin) ────────────────────── -->
 <div class="perfil-overlay" *ngIf="modalPerfil" (click)="cerrarModalPerfil()">
   <div class="perfil-modal" (click)="$event.stopPropagation()">

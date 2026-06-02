@@ -143,79 +143,105 @@ $bg:     #f7f8fa;
 }
 
 // ─── Lista de días ────────────────────────────────────────────
-.dias-grid { display: flex; flex-direction: column; }
+.dias-grid {
+  display: flex; flex-direction: column;
+  gap: 0.75rem; padding: 1rem;
+}
 
 .dia-card {
-  display: flex; align-items: center; gap: 1.25rem;
-  padding: 1.1rem 1.4rem;
-  border-bottom: 1px solid $border;
-  transition: background 0.15s;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: $bg; }
+  &:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.09); }
 
   &--hoy {
-    background: rgba($gold, 0.05);
-    .dia-card__abrev { color: darken($gold, 10%); }
-    .dia-card__nombre { color: darken($gold, 10%); }
+    border-color: rgba($gold, 0.45);
+    box-shadow: 0 2px 14px rgba($gold, 0.13);
   }
 
-  &--cerrado { opacity: 0.45; }
+  &--cerrado { opacity: 0.55; }
 
-  // columna izquierda: abrev + nombre
-  &__left {
-    display: flex; align-items: center; gap: 0.65rem;
-    min-width: 130px;
-  }
-
-  &__abrev {
-    font-family: var(--font-primary);
-    font-size: 1.05rem; font-weight: 900; color: $dark;
-    min-width: 36px;
+  // ── Encabezado ─────────────────────────────────────────────
+  &__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.1rem 0.7rem;
   }
 
   &__nombre {
-    font-size: 0.82rem; font-weight: 600; color: $gray;
-  }
-
-  // columna central: horario
-  &__horas {
-    flex: 1;
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.9rem; font-weight: 700; color: $dark;
-    i { color: $gold; font-size: 0.78rem; }
-  }
-
-  &__sep { color: #ccc; }
-
-  // columna derecha: dur + badge
-  &__right {
-    display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0;
-  }
-
-  &__dur {
-    font-size: 0.72rem; color: $gray;
-    background: $bg; border: 1px solid $border;
-    border-radius: 20px; padding: 0.18rem 0.65rem;
+    font-size: 0.92rem; font-weight: 700; color: $dark;
   }
 
   &__badge {
-    font-size: 0.65rem; font-weight: 700; border-radius: 20px;
-    padding: 0.2rem 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;
-    white-space: nowrap;
+    font-size: 0.6rem; font-weight: 700; border-radius: 20px;
+    padding: 0.22rem 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.6px; white-space: nowrap;
 
-    &--open   { background: rgba(40,167,69,0.1); color: #28a745; }
-    &--closed { background: rgba(220,53,69,0.1); color: #dc3545; }
+    &--open   { background: rgba(34,197,94,0.1);  color: #16a34a; }
+    &--closed { background: rgba(239,68,68,0.08); color: #dc2626; }
   }
 
-  &__exc { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  // ── Cuerpo ─────────────────────────────────────────────────
+  &__body {
+    display: flex; flex-direction: column; gap: 0.55rem;
+    padding: 0 1.1rem 1rem;
+  }
 
-  &__exc-chip {
-    display: flex; align-items: center; gap: 0.25rem;
-    font-size: 0.65rem; color: darken($gold, 15%);
-    background: rgba($gold, 0.1); border-radius: 20px;
-    padding: 0.18rem 0.55rem; white-space: nowrap;
-    i { font-size: 0.6rem; }
+  // Horario principal
+  &__schedule {
+    display: flex; align-items: center; gap: 0.55rem;
+    i { color: $gold; font-size: 0.82rem; flex-shrink: 0; }
+    span { font-size: 0.88rem; font-weight: 600; color: $dark; }
+  }
+
+  &__dur {
+    font-size: 0.64rem; color: $gray;
+    background: $bg; border: 1px solid $border;
+    border-radius: 20px; padding: 0.1rem 0.55rem;
+    margin-left: auto; flex-shrink: 0;
+  }
+
+  // Separador sutil
+  &__sep-line {
+    height: 1px;
+    background: linear-gradient(90deg, $border, transparent);
+    margin: 0.1rem 0;
+  }
+
+  // Descanso
+  &__break {
+    display: flex; align-items: center; gap: 0.65rem;
+  }
+
+  &__break-icon {
+    width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+    background: rgba($gold, 0.1);
+    display: flex; align-items: center; justify-content: center;
+    i { color: darken($gold, 12%); font-size: 0.75rem; }
+  }
+
+  &__break-info {
+    display: flex; flex-direction: column; gap: 0.05rem;
+  }
+
+  &__break-label {
+    font-size: 0.62rem; color: $gray;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  &__break-time {
+    font-size: 0.84rem; font-weight: 600;
+    color: darken($gold, 18%);
+  }
+
+  // Día cerrado
+  &__closed {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0 1.1rem 0.9rem; color: #ccc; font-size: 0.8rem;
+    i { font-size: 0.75rem; }
   }
 }
 
@@ -267,6 +293,19 @@ $bg:     #f7f8fa;
   }
 
   &__motivo { font-size: 0.75rem; color: $gray; font-style: italic; }
+
+  &__actions {
+    display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;
+  }
+
+  &__edit {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: none; background: rgba($gold, 0.1);
+    color: darken($gold, 15%); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; transition: all 0.2s;
+    &:hover { background: $gold; color: $dark; }
+  }
 
   &__del {
     width: 32px; height: 32px; border-radius: 8px;
@@ -355,6 +394,11 @@ $bg:     #f7f8fa;
     background: rgba(220,53,69,0.1);
     color: #dc3545;
   }
+
+  &__icon--edit {
+    background: rgba($gold, 0.12);
+    color: darken($gold, 12%);
+  }
 }
 
 .btn-cancel {
@@ -383,61 +427,20 @@ $bg:     #f7f8fa;
 
   .hor-kpi {
     padding: 0.55rem 0.75rem;
-    &__val  { font-size: 1rem; }
-    &__lbl  { font-size: 0.56rem; }
+    &__val { font-size: 1rem; }
+    &__lbl { font-size: 0.56rem; }
   }
 
-  .hor-hoy { padding: 0.7rem 1rem; }
-
+  .hor-hoy     { padding: 0.7rem 1rem; }
   .hor-card__head { padding: 0.8rem 1rem; }
 
-  .dias-grid { display: flex; flex-direction: column; }
+  .dias-grid { gap: 0.6rem; padding: 0.75rem; }
 
   .dia-card {
-    display: grid;
-    grid-template-areas:
-      "left  right"
-      "horas horas";
-    grid-template-columns: 1fr auto;
-    row-gap: 0.45rem;
-    column-gap: 0.5rem;
-    padding: 1rem 1.1rem;
-    border-bottom: 1px solid $border;
-    background: transparent;
-    border-left: none; border-right: none; border-top: none;
-    border-radius: 0;
-
-    &:last-child { border-bottom: none; }
-    &--hoy       { background: rgba($gold, 0.04); }
-    &--cerrado   { opacity: 0.5; }
-    &:hover      { background: $bg; }
-
-    &__left {
-      grid-area: left;
-      align-items: center;
-      min-width: unset;
-      gap: 0.5rem;
-    }
-
-    &__abrev { font-size: 0.95rem; min-width: unset; }
-    &__nombre { font-size: 0.78rem; }
-
-    &__horas {
-      grid-area: horas;
-      font-size: 0.85rem;
-      gap: 0.35rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    &__right {
-      grid-area: right;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    &__dur   { font-size: 0.65rem; padding: 0.1rem 0.5rem; }
-    &__badge { font-size: 0.62rem; padding: 0.14rem 0.5rem; white-space: nowrap; }
+    border-radius: 14px;
+    &__head   { padding: 0.8rem 1rem 0.6rem; }
+    &__body   { padding: 0 1rem 0.85rem; }
+    &__closed { padding: 0 1rem 0.8rem; }
   }
 }
 

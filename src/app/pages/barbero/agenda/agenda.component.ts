@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BarberoAgendaService, ICitaBarbero } from '../../../core/services/barbero-agenda.service';
 import { ReservaService } from '../../../core/services/reserva.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { timer, Subject, forkJoin } from 'rxjs';
 import { exhaustMap, takeUntil, take } from 'rxjs/operators';
 
@@ -42,6 +43,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   presencialGuardando = false;
   presencialError = '';
   presencialExitoso = false;
+  presencialDropdownAbierto = false;
   presencialMesActual: Date = new Date();
   presencialDiasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
   presencialHoy: Date = new Date();
@@ -53,6 +55,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private agendaService: BarberoAgendaService,
     private reservaService: ReservaService,
+    private toast: ToastService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -244,9 +247,15 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.modalCancelar = true;
   }
 
+  cancelarProxima(cita: ICitaBarbero): void {
+    this.citaSeleccionada = cita;
+    this.modalCancelar = true;
+  }
+
   completarCita(): void {
     if (!this.citaSeleccionada) return;
     this.procesando = true;
+    const nombre = this.citaSeleccionada.nombre_cliente;
     this.agendaService.cambiarEstado(this.citaSeleccionada.id_reserva, 'completada').subscribe({
       next: () => {
         this.procesando = false;
@@ -258,10 +267,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
         }
         this.citaSeleccionada = null;
         this.cargarDatos();
+        this.toast.success('Cita completada', `La cita de ${nombre} fue marcada como completada.`);
       },
       error: (err) => {
         this.procesando = false;
-        this.error = err.error?.mensaje || 'Error al completar cita';
+        this.toast.error('Error', err.error?.mensaje || 'No se pudo completar la cita.');
       }
     });
   }
@@ -269,6 +279,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   cancelarCita(): void {
     if (!this.citaSeleccionada) return;
     this.procesando = true;
+    const nombre = this.citaSeleccionada.nombre_cliente;
     this.agendaService.cambiarEstado(this.citaSeleccionada.id_reserva, 'cancelada').subscribe({
       next: () => {
         this.procesando = false;
@@ -280,10 +291,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
         }
         this.citaSeleccionada = null;
         this.cargarDatos();
+        this.toast.warning('Cita cancelada', `La cita de ${nombre} fue cancelada.`);
       },
       error: (err) => {
         this.procesando = false;
-        this.error = err.error?.mensaje || 'Error al cancelar cita';
+        this.toast.error('Error', err.error?.mensaje || 'No se pudo cancelar la cita.');
       }
     });
   }
@@ -294,9 +306,23 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.presencialSlots = [];
     this.presencialError = '';
     this.presencialExitoso = false;
+    this.presencialDropdownAbierto = false;
     this.presencialMesActual = new Date();
     this.generarCalendarioPresencial();
     this.modalPresencial = true;
+  }
+
+  get servicioSeleccionado(): any {
+    return this.servicios.find(s => s.id_servicio === +this.presencialForm.id_servicio) || null;
+  }
+
+  seleccionarServicioPresencial(s: any): void {
+    this.presencialForm.id_servicio = s.id_servicio;
+    this.presencialDropdownAbierto = false;
+    this.presencialForm.hora = '';
+    if (this.presencialForm.fecha) {
+      this.cargarSlotsPresencial();
+    }
   }
 
   cerrarModalPresencial(): void {
@@ -366,10 +392,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
   cargarSlotsPresencial(): void {
     if (!this.presencialForm.fecha || !this.usuario) return;
     this.presencialCargandoSlots = true;
+    const duracion = this.servicioSeleccionado?.duracion || 30;
     this.reservaService.getDisponibilidad(
       this.usuario.id_usuario,
       this.presencialForm.fecha,
-      30
+      duracion
     ).subscribe({
       next: (res) => {
         this.presencialSlots = res.data.disponible ? res.data.slots : [];
@@ -399,6 +426,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
         this.presencialGuardando = false;
         this.presencialExitoso = true;
         this.cargarDatos();
+        this.toast.success(
+          'Reserva creada',
+          `La cita de ${this.presencialForm.nombre} ${this.presencialForm.apellido} fue agendada exitosamente.`
+        );
         setTimeout(() => {
           this.presencialExitoso = false;
           this.cerrarModalPresencial();
@@ -407,6 +438,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         this.presencialError = err.error?.mensaje || 'Error al registrar';
         this.presencialGuardando = false;
+        this.toast.error('Error al agendar', err.error?.mensaje || 'No se pudo crear la reserva.');
       }
     });
   }
