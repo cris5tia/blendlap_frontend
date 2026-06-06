@@ -91,6 +91,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
   cargando       = false;
   cargandoInicio = true;
   cargandoSlots  = false;
+  errorInicio = false;
 
   mesActual: Date = new Date();
   diasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
@@ -165,6 +166,8 @@ export class AgendarComponent implements OnInit, OnDestroy {
   }
 
   cargarServicios(): void {
+    this.cargandoInicio = true;
+    this.errorInicio = false;
     this.servicioService.getAll({ activos: true })
       .pipe(timeout(8000), takeUntil(this.destroy$))
       .subscribe({
@@ -184,6 +187,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.toast.error('Sin conexión', 'No se pudieron cargar los servicios. Verifica que el servidor esté activo.');
+          this.errorInicio = true;
           this.cargandoInicio = false;
         }
       });

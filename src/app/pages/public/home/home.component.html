@@ -25,7 +25,15 @@
   <div class="container">
     <p class="section-subtitle">Conoce a los profesionales</p>
     <h2 class="section-title">Nuestro <span>Equipo</span></h2>
-    <div class="equipo__grid">
+    <div class="productos__cargando" *ngIf="cargandoBarberos">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <div class="productos__empty" *ngIf="!cargandoBarberos && errorBarberos">
+      <i class="fas fa-wifi"></i>
+      <p>No se pudo cargar el equipo</p>
+      <button class="btn-primary" type="button" (click)="cargarBarberos()">Reintentar</button>
+    </div>
+    <div class="equipo__grid" *ngIf="!cargandoBarberos && !errorBarberos">
       <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
         style="cursor:pointer">
         <div class="barbero-card__imagen">
@@ -181,7 +189,15 @@
         <i [class]="cat.icon"></i> {{ cat.nombre }}
       </button>
     </div>
-    <ng-container *ngIf="!esMobil()">
+    <div class="productos__cargando" *ngIf="cargandoServicios">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <div class="productos__empty" *ngIf="!cargandoServicios && errorServicios">
+      <i class="fas fa-wifi"></i>
+      <p>No se pudieron cargar los servicios</p>
+      <button class="btn-primary" type="button" (click)="cargarServicios()">Reintentar</button>
+    </div>
+    <ng-container *ngIf="!cargandoServicios && !errorServicios && !esMobil()">
       <div class="servicios__grid">
         <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
           <div class="servicio-card__imagen">
@@ -207,7 +223,7 @@
           [class.active]="grupoActual === i" (click)="irAGrupo(i)"></button>
       </div>
     </ng-container>
-    <ng-container *ngIf="esMobil()">
+    <ng-container *ngIf="!cargandoServicios && !errorServicios && esMobil()">
       <div class="servicios__lista-movil">
         <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
           <div class="servicio-item-movil__img">
@@ -252,8 +268,13 @@
     <div class="productos__cargando" *ngIf="cargandoProductos">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
+    <div class="productos__empty" *ngIf="!cargandoProductos && errorProductos">
+      <i class="fas fa-wifi"></i>
+      <p>No se pudieron cargar los productos</p>
+      <button class="btn-primary" type="button" (click)="cargarProductos()">Reintentar</button>
+    </div>
 
-    <div class="productos__grid" *ngIf="!cargandoProductos">
+    <div class="productos__grid" *ngIf="!cargandoProductos && !errorProductos">
       <div class="producto-card" *ngFor="let producto of productosMostrados" (click)="abrirModal(producto)">
         <div class="producto-card__imagen">
           <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto" />

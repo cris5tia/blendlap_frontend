@@ -56,6 +56,11 @@
       <i class="fas fa-spinner fa-spin"></i>
       <span>Cargando servicios...</span>
     </div>
+    <div class="ag-loading" *ngIf="!cargandoInicio && errorInicio">
+      <i class="fas fa-wifi"></i>
+      <span>No se pudieron cargar los servicios</span>
+      <button class="ag-btn-confirmar" type="button" (click)="cargarServicios()">Reintentar</button>
+    </div>
 
     <div *ngFor="let grupo of serviciosPorCategoria" class="ag-grupo">
       <div class="ag-grupo__titulo">

@@ -88,6 +88,8 @@ export class HomeComponent implements OnInit {
 
   // ─── Servicios ────────────────────────────────────────────
   servicios: IServicio[] = [];
+  cargandoServicios = false;
+  errorServicios = false;
   grupoActual = 0;
   categoriaActivaServicio = 'clasicos';
 
@@ -97,9 +99,17 @@ export class HomeComponent implements OnInit {
   ];
 
   cargarServicios(): void {
+    this.cargandoServicios = true;
+    this.errorServicios = false;
     this.servicioService.getAll({ activos: true }).subscribe({
-      next: (res) => this.servicios = res.data.sort((a, b) => Number(a.precio) - Number(b.precio)),
-      error: () => { }
+      next: (res) => {
+        this.servicios = res.data.sort((a, b) => Number(a.precio) - Number(b.precio));
+        this.cargandoServicios = false;
+      },
+      error: () => {
+        this.errorServicios = true;
+        this.cargandoServicios = false;
+      }
     });
   }
 
@@ -135,12 +145,22 @@ export class HomeComponent implements OnInit {
 
   // ─── Barberos ─────────────────────────────────────────────
   barberos: IBarbero[] = [];
+  cargandoBarberos = false;
+  errorBarberos = false;
   barberoSeleccionado: IBarbero | null = null;
 
   cargarBarberos(): void {
+    this.cargandoBarberos = true;
+    this.errorBarberos = false;
     this.barberoService.getAll().subscribe({
-      next: (res) => this.barberos = res.data,
-      error: () => { }
+      next: (res) => {
+        this.barberos = res.data;
+        this.cargandoBarberos = false;
+      },
+      error: () => {
+        this.errorBarberos = true;
+        this.cargandoBarberos = false;
+      }
     });
   }
 
@@ -165,6 +185,7 @@ export class HomeComponent implements OnInit {
   // ─── Productos ────────────────────────────────────────────
   productosDB: IProducto[] = [];
   cargandoProductos = false;
+  errorProductos = false;
   categoriaActiva = 'cuidado';
   productosVisibles = 4;
 
@@ -185,12 +206,16 @@ export class HomeComponent implements OnInit {
 
   cargarProductos(): void {
     this.cargandoProductos = true;
+    this.errorProductos = false;
     this.productoService.getAll().subscribe({
       next: (res) => {
         this.productosDB = res.data.filter(p => p.estado === 'activo');
         this.cargandoProductos = false;
       },
-      error: () => this.cargandoProductos = false
+      error: () => {
+        this.errorProductos = true;
+        this.cargandoProductos = false;
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -23,6 +23,8 @@ const DATE_FORMATS: MatDateFormats = {
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { RetryInterceptor } from './core/interceptors/retry.interceptor';
+import { WakeUpService } from './core/services/wake-up.service';
 import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './core/strategies/reuse.strategy';
 
@@ -68,6 +70,11 @@ import { TrabajaComponent } from './pages/public/nosotros/trabaja/trabaja.compon
 import { ValoresComponent } from './pages/public/nosotros/valores/valores.component';
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
 import { ToastComponent } from './shared/components/toast/toast.component';
+
+export function wakeUpBackend(wakeUpService: WakeUpService): () => Promise<void> {
+  return () => wakeUpService.wake();
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -126,7 +133,9 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   providers: [
     DatePipe,
     CurrencyPipe,
+    { provide: APP_INITIALIZER, useFactory: wakeUpBackend, deps: [WakeUpService], multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
     { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS },
