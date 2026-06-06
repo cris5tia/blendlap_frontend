@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductoService, IProducto, ICrearProducto } from '../../../core/services/producto.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 type VistaModal = 'crear' | 'editar' | 'movimiento' | 'movimientos' | null;
 
@@ -16,8 +17,6 @@ export class ProductosComponent implements OnInit {
 
   cargando = true;
   error = '';
-  exito = '';
-
   busqueda = '';
   filtroCategoria = '';
   filtroEstado = '';
@@ -30,6 +29,7 @@ export class ProductosComponent implements OnInit {
   imagenFile: File | null = null;
   imagenPreview: string | null = null;
 
+  categoriaOpen = false;
   categorias = ['barberia', 'ropa', 'accesorios', 'cuidado'];
   tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38', '40', '41', '42', '43', '44', 'Única'];
 
@@ -41,9 +41,17 @@ export class ProductosComponent implements OnInit {
     motivo: ''
   };
 
-  constructor(private productoService: ProductoService) {}
+  constructor(
+    private productoService: ProductoService,
+    private toastService: ToastService
+  ) {}
 
-  ngOnInit(): void { this.cargar(); }
+  ngOnInit(): void {
+    if (window.innerWidth <= 768) {
+      this.filtroCategoria = 'barberia';
+    }
+    this.cargar();
+  }
 
   cargar(): void {
     this.cargando = true;
@@ -53,7 +61,7 @@ export class ProductosComponent implements OnInit {
         this.filtrar();
         this.cargando = false;
       },
-      error: () => { this.error = 'Error al cargar productos'; this.cargando = false; }
+      error: () => { this.toastService.error('Error al cargar productos'); this.cargando = false; }
     });
   }
 
@@ -146,6 +154,7 @@ export class ProductosComponent implements OnInit {
   cerrarModal(): void {
     this.modalVista = null;
     this.productoSeleccionado = null;
+    this.categoriaOpen = false;
     this.limpiarImagen();
     this.error = '';
   }
@@ -168,11 +177,10 @@ export class ProductosComponent implements OnInit {
 
     op.subscribe({
       next: () => {
-        this.exito = esEditar ? 'Producto actualizado' : 'Producto creado';
+        this.toastService.success(esEditar ? 'Producto actualizado' : 'Producto creado');
         this.cerrarModal();
         this.cargar();
         this.guardando = false;
-        setTimeout(() => this.exito = '', 3000);
       },
       error: (err) => {
         this.error = err.error?.mensaje || 'Error al guardar';
@@ -185,12 +193,11 @@ export class ProductosComponent implements OnInit {
     this.guardando = true;
     this.productoService.registrarMovimiento(this.movimientoForm).subscribe({
       next: (res) => {
-        this.exito = `Movimiento registrado. Stock actual: ${res.stock_actual}`;
-        if (res.alerta_stock_bajo) this.exito += ' ⚠️ Stock bajo';
+        const msg = `Stock actual: ${res.stock_actual}` + (res.alerta_stock_bajo ? ' — stock bajo' : '');
+        this.toastService.success('Movimiento registrado', msg);
         this.cerrarModal();
         this.cargar();
         this.guardando = false;
-        setTimeout(() => this.exito = '', 4000);
       },
       error: (err) => {
         this.error = err.error?.mensaje || 'Error al registrar movimiento';
@@ -203,11 +210,10 @@ export class ProductosComponent implements OnInit {
     if (!confirm(`¿Eliminar "${p.nombre_producto}"?`)) return;
     this.productoService.delete(p.id_producto).subscribe({
       next: () => {
-        this.exito = 'Producto eliminado';
+        this.toastService.success('Producto eliminado');
         this.cargar();
-        setTimeout(() => this.exito = '', 3000);
       },
-      error: (err) => this.error = err.error?.mensaje || 'Error al eliminar'
+      error: (err) => this.toastService.error('Error al eliminar', err?.error?.mensaje || 'Error inesperado')
     });
   }
 

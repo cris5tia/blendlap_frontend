@@ -76,6 +76,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.authService.logoutRequested$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.logout();
+    });
+
     this.authService.usuario$.pipe(
       distinctUntilChanged((a, b) => a?.id_usuario === b?.id_usuario && a?.rol === b?.rol),
       takeUntil(this.destroy$)

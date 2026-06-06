@@ -31,13 +31,6 @@
     </div>
   </div>
 
-  <!-- Alertas -->
-  <div class="alerta-exito" *ngIf="exito"><i class="fas fa-check-circle"></i> {{ exito }}</div>
-  <div class="alerta-error" *ngIf="error">
-    <span><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-    <button (click)="error=''"><i class="fas fa-times"></i></button>
-  </div>
-
   <!-- Pestañas -->
   <div class="tabs">
     <button class="tab" [class.tab-activa]="tabActiva === 'pendientes'" (click)="tabActiva = 'pendientes'">
@@ -63,209 +56,225 @@
 
   <!-- ══ SOLICITUDES PENDIENTES ══ -->
   <div *ngIf="tabActiva === 'pendientes'">
-    <div class="tabla-wrap" *ngIf="!cargando; else loader">
-      <table class="tabla" *ngIf="creditosPendientes.length; else vacioPendientes">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Productos</th>
-            <th>Monto</th>
-            <th>Plazo</th>
-            <th>Vencería</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of creditosPendientes">
-            <td class="id-col">{{ c.id_credito }}</td>
-            <td>
-              <div class="cliente-info">
-                <span class="nombre">{{ c.nombre_cliente }}</span>
-                <span class="telefono">{{ c.telefono_cliente }}</span>
-              </div>
-            </td>
-            <td class="detalle-col">{{ c.productos_nombres }}</td>
-            <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
-            <td>{{ plazoLabel(c.plazo) }}</td>
-            <td>{{ c.fecha_vencimiento | date:'dd/MM/yyyy' }}</td>
-            <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn-icon btn-aprobar" title="Aprobar / Rechazar" (click)="abrirAprobar(c)">
-                <i class="fas fa-check-double"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #vacioPendientes>
-        <div class="estado-vacio">
-          <i class="fas fa-check-circle"></i>
-          <p>Sin solicitudes pendientes</p>
+    <div *ngIf="!cargando; else loader">
+
+      <ng-container *ngIf="creditosPendientes.length; else vacioPendientes">
+
+        <!-- Tabla (desktop) -->
+        <div class="tabla-wrap tabla-desktop">
+          <table class="tabla">
+            <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Monto</th><th>Plazo</th><th>Vencería</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let c of creditosPendientes">
+                <td class="id-col">{{ c.id_credito }}</td>
+                <td><div class="cliente-info"><span class="nombre">{{ c.nombre_cliente }}</span><span class="telefono">{{ c.telefono_cliente }}</span></div></td>
+                <td class="detalle-col">{{ c.productos_nombres }}</td>
+                <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
+                <td>{{ plazoLabel(c.plazo) }}</td>
+                <td>{{ c.fecha_vencimiento | date:'dd/MM/yyyy' }}</td>
+                <td class="acciones-col">
+                  <button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button>
+                  <button class="btn-icon btn-aprobar" (click)="abrirAprobar(c)"><i class="fas fa-check-double"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
+        <!-- Cards (móvil) -->
+        <div class="cards-mobile">
+          <div class="credito-card" *ngFor="let c of creditosPendientes">
+            <div class="card-top">
+              <span class="card-id">#{{ c.id_credito }}</span>
+              <span class="card-cliente-nombre">{{ c.nombre_cliente }}</span>
+              <div class="card-acciones">
+                <button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button>
+                <button class="btn-icon btn-aprobar" (click)="abrirAprobar(c)"><i class="fas fa-check-double"></i></button>
+              </div>
+            </div>
+            <p class="card-telefono">{{ c.telefono_cliente }}</p>
+            <p class="card-productos">{{ c.productos_nombres }}</p>
+            <div class="card-financiero">
+              <div class="card-dato">
+                <span class="label">Monto</span>
+                <strong>{{ formatCurrency(c.monto_total) }}</strong>
+              </div>
+              <div class="card-dato">
+                <span class="label">Plazo</span>
+                <strong>{{ plazoLabel(c.plazo) }}</strong>
+              </div>
+              <div class="card-dato">
+                <span class="label">Vencería</span>
+                <strong>{{ c.fecha_vencimiento | date:'dd/MM/yy' }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+      <ng-template #vacioPendientes>
+        <div class="estado-vacio"><i class="fas fa-check-circle"></i><p>Sin solicitudes pendientes</p></div>
       </ng-template>
     </div>
   </div>
 
   <!-- ══ ACTIVOS ══ -->
   <div *ngIf="tabActiva === 'activos'">
-    <div class="tabla-wrap" *ngIf="!cargando; else loader">
-      <table class="tabla" *ngIf="creditosActivos.length; else vacioActivos">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Productos</th>
-            <th>Monto</th>
-            <th>Saldo</th>
-            <th>Plazo</th>
-            <th>Vencimiento</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of creditosActivos" [class.fila-vencida]="c.estado === 'vencido'">
-            <td class="id-col">{{ c.id_credito }}</td>
-            <td>
-              <div class="cliente-info">
-                <span class="nombre">{{ c.nombre_cliente }}</span>
-                <span class="telefono">{{ c.telefono_cliente }}</span>
-              </div>
-            </td>
-            <td class="detalle-col">{{ c.productos_nombres }}</td>
-            <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
-            <td class="saldo-col" [class.saldo-cero]="c.saldo_pendiente <= 0">
-              {{ formatCurrency(c.saldo_pendiente) }}
-            </td>
-            <td>{{ plazoLabel(c.plazo) }}</td>
-            <td class="vencimiento-col">
-              <span [class.vencido-text]="diasRestantes(c.fecha_vencimiento) < 0"
-                [class.proximo-text]="diasRestantes(c.fecha_vencimiento) >= 0 && diasRestantes(c.fecha_vencimiento) <= 3">
-                {{ c.fecha_vencimiento | date:'dd/MM/yyyy' }}
-              </span>
-              <span class="dias-badge" *ngIf="c.estado === 'activo'">
-                <ng-container *ngIf="diasRestantes(c.fecha_vencimiento) >= 0">
-                  {{ diasRestantes(c.fecha_vencimiento) }}d
-                </ng-container>
-                <ng-container *ngIf="diasRestantes(c.fecha_vencimiento) < 0">
-                  Vencido
-                </ng-container>
-              </span>
-            </td>
-            <td>
-              <span class="badge" [ngClass]="estadoClass(c.estado)">
-                {{ c.estado | titlecase }}
-              </span>
-            </td>
-            <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn-icon btn-abonar" title="Registrar abono" (click)="abrirAbonar(c)">
-                <i class="fas fa-hand-holding-usd"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #vacioActivos>
-        <div class="estado-vacio">
-          <i class="fas fa-box-open"></i>
-          <p>No hay créditos activos</p>
+    <div *ngIf="!cargando; else loader">
+
+      <ng-container *ngIf="creditosActivos.length; else vacioActivos">
+
+        <!-- Tabla (desktop) -->
+        <div class="tabla-wrap tabla-desktop">
+          <table class="tabla">
+            <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Monto</th><th>Saldo</th><th>Plazo</th><th>Vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let c of creditosActivos" [class.fila-vencida]="c.estado === 'vencido'">
+                <td class="id-col">{{ c.id_credito }}</td>
+                <td><div class="cliente-info"><span class="nombre">{{ c.nombre_cliente }}</span><span class="telefono">{{ c.telefono_cliente }}</span></div></td>
+                <td class="detalle-col">{{ c.productos_nombres }}</td>
+                <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
+                <td class="saldo-col" [class.saldo-cero]="c.saldo_pendiente <= 0">{{ formatCurrency(c.saldo_pendiente) }}</td>
+                <td>{{ plazoLabel(c.plazo) }}</td>
+                <td class="vencimiento-col">
+                  <span [class.vencido-text]="diasRestantes(c.fecha_vencimiento) < 0" [class.proximo-text]="diasRestantes(c.fecha_vencimiento) >= 0 && diasRestantes(c.fecha_vencimiento) <= 3">{{ c.fecha_vencimiento | date:'dd/MM/yyyy' }}</span>
+                  <span class="dias-badge" *ngIf="c.estado === 'activo'">
+                    <ng-container *ngIf="diasRestantes(c.fecha_vencimiento) >= 0">{{ diasRestantes(c.fecha_vencimiento) }}d</ng-container>
+                    <ng-container *ngIf="diasRestantes(c.fecha_vencimiento) < 0">Vencido</ng-container>
+                  </span>
+                </td>
+                <td><span class="badge" [ngClass]="estadoClass(c.estado)">{{ c.estado | titlecase }}</span></td>
+                <td class="acciones-col">
+                  <button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button>
+                  <button class="btn-icon btn-abonar" (click)="abrirAbonar(c)"><i class="fas fa-hand-holding-usd"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
+        <!-- Cards (móvil) -->
+        <div class="cards-mobile">
+          <div class="credito-card" *ngFor="let c of creditosActivos" [class.card-vencida]="c.estado === 'vencido'">
+            <div class="card-top">
+              <span class="card-id">#{{ c.id_credito }}</span>
+              <span class="card-cliente-nombre">{{ c.nombre_cliente }}</span>
+              <span class="badge" [ngClass]="estadoClass(c.estado)">{{ c.estado | titlecase }}</span>
+              <div class="card-acciones">
+                <button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button>
+                <button class="btn-icon btn-abonar" (click)="abrirAbonar(c)"><i class="fas fa-hand-holding-usd"></i></button>
+              </div>
+            </div>
+            <p class="card-telefono">{{ c.telefono_cliente }}</p>
+            <p class="card-productos">{{ c.productos_nombres }}</p>
+            <div class="card-financiero">
+              <div class="card-dato">
+                <span class="label">Monto</span>
+                <strong>{{ formatCurrency(c.monto_total) }}</strong>
+              </div>
+              <div class="card-dato">
+                <span class="label">Saldo</span>
+                <strong [class.text-verde]="c.saldo_pendiente <= 0" [class.text-rojo]="c.saldo_pendiente > 0">{{ formatCurrency(c.saldo_pendiente) }}</strong>
+              </div>
+              <div class="card-dato">
+                <span class="label">Vence</span>
+                <strong [class.vencido-text]="diasRestantes(c.fecha_vencimiento) < 0">{{ c.fecha_vencimiento | date:'dd/MM/yy' }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+      <ng-template #vacioActivos>
+        <div class="estado-vacio"><i class="fas fa-box-open"></i><p>No hay créditos activos</p></div>
       </ng-template>
     </div>
   </div>
 
   <!-- ══ PAGADOS ══ -->
   <div *ngIf="tabActiva === 'pagados'">
-    <div class="tabla-wrap" *ngIf="!cargando; else loader">
-      <table class="tabla" *ngIf="creditosPagados.length; else vacioPagados">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Productos</th>
-            <th>Monto</th>
-            <th>Plazo</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of creditosPagados">
-            <td class="id-col">{{ c.id_credito }}</td>
-            <td>
-              <div class="cliente-info">
-                <span class="nombre">{{ c.nombre_cliente }}</span>
-                <span class="telefono">{{ c.telefono_cliente }}</span>
-              </div>
-            </td>
-            <td class="detalle-col">{{ c.productos_nombres }}</td>
-            <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
-            <td>{{ plazoLabel(c.plazo) }}</td>
-            <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
-            <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #vacioPagados>
-        <div class="estado-vacio">
-          <i class="fas fa-check-circle"></i>
-          <p>No hay créditos pagados aún</p>
+    <div *ngIf="!cargando; else loader">
+      <ng-container *ngIf="creditosPagados.length; else vacioPagados">
+        <div class="tabla-wrap tabla-desktop">
+          <table class="tabla">
+            <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Monto</th><th>Plazo</th><th>Fecha</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let c of creditosPagados">
+                <td class="id-col">{{ c.id_credito }}</td>
+                <td><div class="cliente-info"><span class="nombre">{{ c.nombre_cliente }}</span><span class="telefono">{{ c.telefono_cliente }}</span></div></td>
+                <td class="detalle-col">{{ c.productos_nombres }}</td>
+                <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
+                <td>{{ plazoLabel(c.plazo) }}</td>
+                <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+                <td class="acciones-col"><button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <div class="cards-mobile">
+          <div class="credito-card" *ngFor="let c of creditosPagados">
+            <div class="card-top">
+              <span class="card-id">#{{ c.id_credito }}</span>
+              <span class="card-cliente-nombre">{{ c.nombre_cliente }}</span>
+              <span class="badge badge-success">Pagado</span>
+              <div class="card-acciones"><button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button></div>
+            </div>
+            <p class="card-telefono">{{ c.telefono_cliente }}</p>
+            <p class="card-productos">{{ c.productos_nombres }}</p>
+            <div class="card-financiero">
+              <div class="card-dato"><span class="label">Monto</span><strong>{{ formatCurrency(c.monto_total) }}</strong></div>
+              <div class="card-dato"><span class="label">Plazo</span><strong>{{ plazoLabel(c.plazo) }}</strong></div>
+              <div class="card-dato"><span class="label">Fecha</span><strong>{{ c.fecha_creacion | date:'dd/MM/yy' }}</strong></div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #vacioPagados>
+        <div class="estado-vacio"><i class="fas fa-check-circle"></i><p>No hay créditos pagados aún</p></div>
       </ng-template>
     </div>
   </div>
 
   <!-- ══ RECHAZADOS ══ -->
   <div *ngIf="tabActiva === 'rechazados'">
-    <div class="tabla-wrap" *ngIf="!cargando; else loader">
-      <table class="tabla" *ngIf="creditosRechazados.length; else vacioRechazados">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Productos</th>
-            <th>Monto</th>
-            <th>Plazo</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of creditosRechazados" class="fila-rechazada">
-            <td class="id-col">{{ c.id_credito }}</td>
-            <td>
-              <div class="cliente-info">
-                <span class="nombre">{{ c.nombre_cliente }}</span>
-                <span class="telefono">{{ c.telefono_cliente }}</span>
-              </div>
-            </td>
-            <td class="detalle-col">{{ c.productos_nombres }}</td>
-            <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
-            <td>{{ plazoLabel(c.plazo) }}</td>
-            <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
-            <td class="acciones-col">
-              <button class="btn-icon btn-ver" title="Ver detalle" (click)="verDetalle(c.id_credito)">
-                <i class="fas fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #vacioRechazados>
-        <div class="estado-vacio">
-          <i class="fas fa-check-circle"></i>
-          <p>Sin solicitudes rechazadas</p>
+    <div *ngIf="!cargando; else loader">
+      <ng-container *ngIf="creditosRechazados.length; else vacioRechazados">
+        <div class="tabla-wrap tabla-desktop">
+          <table class="tabla">
+            <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Monto</th><th>Plazo</th><th>Fecha</th><th>Acciones</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let c of creditosRechazados" class="fila-rechazada">
+                <td class="id-col">{{ c.id_credito }}</td>
+                <td><div class="cliente-info"><span class="nombre">{{ c.nombre_cliente }}</span><span class="telefono">{{ c.telefono_cliente }}</span></div></td>
+                <td class="detalle-col">{{ c.productos_nombres }}</td>
+                <td class="monto-col">{{ formatCurrency(c.monto_total) }}</td>
+                <td>{{ plazoLabel(c.plazo) }}</td>
+                <td>{{ c.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+                <td class="acciones-col"><button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <div class="cards-mobile">
+          <div class="credito-card card-rechazada" *ngFor="let c of creditosRechazados">
+            <div class="card-top">
+              <span class="card-id">#{{ c.id_credito }}</span>
+              <span class="card-cliente-nombre">{{ c.nombre_cliente }}</span>
+              <span class="badge badge-rechazado">Rechazado</span>
+              <div class="card-acciones"><button class="btn-icon btn-ver" (click)="verDetalle(c.id_credito)"><i class="fas fa-eye"></i></button></div>
+            </div>
+            <p class="card-telefono">{{ c.telefono_cliente }}</p>
+            <p class="card-productos">{{ c.productos_nombres }}</p>
+            <div class="card-financiero">
+              <div class="card-dato"><span class="label">Monto</span><strong>{{ formatCurrency(c.monto_total) }}</strong></div>
+              <div class="card-dato"><span class="label">Plazo</span><strong>{{ plazoLabel(c.plazo) }}</strong></div>
+              <div class="card-dato"><span class="label">Fecha</span><strong>{{ c.fecha_creacion | date:'dd/MM/yy' }}</strong></div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #vacioRechazados>
+        <div class="estado-vacio"><i class="fas fa-check-circle"></i><p>Sin solicitudes rechazadas</p></div>
       </ng-template>
     </div>
   </div>
@@ -455,6 +464,7 @@
 
         <div class="detalle-seccion" *ngIf="creditoDetalle.abonos?.length">
           <h3>Historial de abonos</h3>
+          <div class="tabla-mini-wrap">
           <table class="tabla-mini">
             <thead>
               <tr>
@@ -475,6 +485,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
 
         <div class="detalle-seccion" *ngIf="creditoDetalle.observaciones">

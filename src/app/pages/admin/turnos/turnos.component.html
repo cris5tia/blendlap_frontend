@@ -12,13 +12,7 @@
         </button>
     </div>
 
-    <!-- Mensajes -->
-    <div class="alert alert--success" *ngIf="exito">
-        <i class="fas fa-check-circle"></i> {{ exito }}
-    </div>
-    <div class="alert alert--error" *ngIf="error">
-        <i class="fas fa-exclamation-circle"></i> {{ error }}
-    </div>
+
 
     <!-- Resumen -->
     <div class="resumen-horario">
@@ -69,14 +63,14 @@
                 <div class="hora-inputs">
                     <div class="hora-group">
                         <label>Apertura</label>
-                        <input type="time" [(ngModel)]="dia.hora_inicio" (change)="guardarDia(dia)" />
+                        <app-time-select [(ngModel)]="dia.hora_inicio" (ngModelChange)="guardarDia(dia)"></app-time-select>
                     </div>
                     <div class="hora-separator">
                         <i class="fas fa-arrow-right"></i>
                     </div>
                     <div class="hora-group">
                         <label>Cierre</label>
-                        <input type="time" [(ngModel)]="dia.hora_fin" (change)="guardarDia(dia)" />
+                        <app-time-select [(ngModel)]="dia.hora_fin" (ngModelChange)="guardarDia(dia)"></app-time-select>
                     </div>
                 </div>
 

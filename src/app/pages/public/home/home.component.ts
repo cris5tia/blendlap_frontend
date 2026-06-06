@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild, OnInit, HostListener } from '@angular
 import { ServicioService, IServicio } from '../../../core/services/servicio.service';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
-import { CarritoService } from '../../../core/services/carrito.service';
+import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { ResenaService } from '../../../core/services/resena.service';
@@ -33,6 +33,7 @@ export class HomeComponent implements OnInit {
     this.cargarBarberos();
     this.cargarProductos();
     this.verificarProductoPendiente();
+    this.carritoService.items$.subscribe(items => this.itemsCarrito = items);
   }
 
   mostrarScrollTop = false;
@@ -170,11 +171,9 @@ export class HomeComponent implements OnInit {
   tallaSeleccionada = '';
   tallaElegida = '';
 
-  // Toast confirmación
-  toastVisible = false;
-  toastNombre = '';
-  toastImagen = '';
-  private toastTimer: any;
+  // Modal carrito confirmación
+  modalCarritoVisible = false;
+  itemsCarrito: IItemCarrito[] = [];
 
   categorias = [
   { id: 'cuidado',    nombre: 'Cuidado',     icon: 'fas fa-leaf' },
@@ -281,25 +280,34 @@ export class HomeComponent implements OnInit {
 
     this.carritoService.agregar(producto, 1, this.tallaElegida || undefined);
     this.cerrarModal();
-    this.mostrarToast(producto);
+    this.modalCarritoVisible = true;
+    document.body.style.overflow = 'hidden';
   }
 
-  private mostrarToast(producto: IProducto): void {
-    this.toastNombre = producto.nombre_producto;
-    this.toastImagen = this.getImagenProducto(producto);
-    this.toastVisible = true;
-    clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => { this.toastVisible = false; }, 2500);
+  cerrarModalCarrito(): void {
+    this.modalCarritoVisible = false;
+    document.body.style.overflow = 'auto';
   }
 
-  cerrarToast(): void {
-    this.toastVisible = false;
-    clearTimeout(this.toastTimer);
-  }
-
-  irAlCarrito(): void {
-    this.cerrarToast();
+  irAlCarritoModal(): void {
+    this.cerrarModalCarrito();
     this.carritoService.abrirModal();
+  }
+
+  aumentarItemModal(id: number): void {
+    const item = this.itemsCarrito.find(i => i.producto.id_producto === id);
+    if (item) this.carritoService.cambiarCantidad(id, item.cantidad + 1);
+  }
+
+  disminuirItemModal(id: number): void {
+    const item = this.itemsCarrito.find(i => i.producto.id_producto === id);
+    if (item) this.carritoService.cambiarCantidad(id, item.cantidad - 1);
+  }
+
+  formatPrecio(v: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency', currency: 'COP', minimumFractionDigits: 0
+    }).format(v || 0);
   }
 
   // ─── Razones ──────────────────────────────────────────────

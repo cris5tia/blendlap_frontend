@@ -83,8 +83,13 @@
 // ─── Grid ────────────────────────────────────────────────────
 .barberos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1.25rem;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
 }
 
 .barberos-empty {
@@ -297,13 +302,13 @@
     width: 100%;
     max-width: 520px;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.25s ease;
+    overflow: hidden;
 
-    &--sm {
-        max-width: 400px;
-    }
+    &--sm { max-width: 400px; }
 
     &__header {
         display: flex;
@@ -311,14 +316,10 @@
         justify-content: space-between;
         padding: 1.25rem 1.5rem;
         border-bottom: 1px solid #f1f3f5;
-        position: sticky;
-        top: 0;
         background: var(--color-white);
-        z-index: 1;
+        flex-shrink: 0;
 
-        &--danger .modal__title {
-            color: #dc3545;
-        }
+        &--danger .modal__title { color: #dc3545; }
     }
 
     &__title {
@@ -330,11 +331,7 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
-
-        i {
-            color: var(--color-accent);
-            font-size: 0.9rem;
-        }
+        i { color: var(--color-accent); font-size: 0.9rem; }
     }
 
     &__close {
@@ -350,24 +347,34 @@
         justify-content: center;
         font-size: 0.85rem;
         transition: var(--transition);
+        flex-shrink: 0;
+        &:hover { background: #dc3545; color: #fff; }
+    }
 
-        &:hover {
-            background: #dc3545;
-            color: #fff;
-        }
+    // El form ocupa el espacio restante y hace scroll internamente
+    &__form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
     }
 
     &__body {
         padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
     }
 
+    // Footer siempre pegado al fondo, nunca scrollea
     &__footer {
         display: flex;
         justify-content: flex-end;
         gap: 0.75rem;
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.5rem;
         border-top: 1px solid #f1f3f5;
-        margin-top: 0;
+        background: var(--color-white);
+        flex-shrink: 0;
     }
 
     &__confirm-text {
@@ -375,10 +382,7 @@
         font-size: 0.92rem;
         line-height: 1.6;
         margin: 0;
-
-        strong {
-            color: var(--color-primary);
-        }
+        strong { color: var(--color-primary); }
     }
 }
 
@@ -427,6 +431,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
 }
 
 .required {
@@ -681,4 +689,20 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+// ─── Responsive ──────────────────────────────────────────────
+@media (max-width: 768px) {
+    .page-header__title { font-size: 1.3rem; }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-box { min-width: 0; width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .barbero-card__foto { height: 160px; }
 }

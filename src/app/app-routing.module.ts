@@ -24,6 +24,7 @@ import { StatsComponent } from './pages/barbero/stats/stats.component';
 import { HorarioComponent } from './pages/barbero/horario/horario.component';
 import { BarberoLayoutComponent } from './layouts/barbero-layout/barbero-layout.component';
 import { CreditosComponent } from './pages/admin/creditos/creditos.component';
+import { CierreCajaComponent } from './pages/admin/cierre-caja/cierre-caja.component';
 import { ClienteLayoutComponent } from './layouts/cliente-layout/cliente-layout.component';
 import { HistoriaComponent } from './pages/public/nosotros/historia/historia.component';
 import { RecuperarPasswordComponent } from './pages/public/recuperar-password/recuperar-password.component';
@@ -70,7 +71,8 @@ const routes: Routes = [
       { path: 'reportes',  component: ReportesComponent  },
       { path: 'barberos',  component: BarberosComponent  },
       { path: 'gastos',    component: GastosComponent    },
-      { path: 'creditos',  component: CreditosComponent  }
+      { path: 'creditos',    component: CreditosComponent   },
+      { path: 'cierre-caja', component: CierreCajaComponent }
     ]
   },
 

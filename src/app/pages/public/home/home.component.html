@@ -43,25 +43,6 @@
         <div class="barbero-card__body">
           <p class="barbero-card__cargo">{{ barbero.titulo || 'Barbero' }}</p>
           <h3>{{ barbero.nombre }} {{ barbero.apellido }}</h3>
-          <div class="barbero-card__rating" [class.barbero-card__rating--clickable]="barbero.promedio_estrellas > 0"
-            (click)="barbero.promedio_estrellas > 0 && abrirModalResenas(barbero, $event)">
-            <ng-container *ngIf="barbero.promedio_estrellas > 0">
-              <div class="estrellas">
-                <i class="fas fa-star" *ngFor="let s of getEstrellas(barbero.promedio_estrellas)"></i>
-                <i class="fas fa-star-half-alt" *ngIf="barbero.promedio_estrellas % 1 >= 0.5"></i>
-              </div>
-              <span class="rating-num">{{ barbero.promedio_estrellas | number:'1.1-1' }}</span>
-              <span class="rating-count">({{ barbero.total_resenas }} reseñas)</span>
-            </ng-container>
-            <ng-container *ngIf="!barbero.promedio_estrellas || barbero.promedio_estrellas === 0">
-              <div class="estrellas estrellas--vacias">
-                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-count rating-count--vacio">Sin reseñas</span>
-            </ng-container>
-          </div>
           <div class="barbero-card__specs" *ngIf="barbero.especialidades">
             <span *ngFor="let esp of barbero.especialidades.split(',')" class="spec-tag">
               {{ esp.trim() }}
@@ -83,6 +64,11 @@
               </div>
             </div>
           </div>
+          <a class="btn-primary barbero-card__btn-agendar" routerLink="/agendar"
+            [queryParams]="{ barbero: barbero.id_usuario }"
+            (click)="$event.stopPropagation()">
+            <i class="fas fa-calendar-check"></i> Agendar con él
+          </a>
         </div>
         <div class="barbero-card__badge-movil" *ngIf="barbero.experiencia">
           <span>{{ barbero.experiencia }}</span>
@@ -110,12 +96,6 @@
       <p class="modal__titulo">{{ barberoSeleccionado.titulo || 'Barbero' }}</p>
       <h2>{{ barberoSeleccionado.nombre }} {{ barberoSeleccionado.apellido }}</h2>
       <p class="modal__desc">{{ barberoSeleccionado.descripcion }}</p>
-      <div class="modal__rating" *ngIf="barberoSeleccionado.promedio_estrellas > 0"
-        (click)="abrirModalResenas(barberoSeleccionado, $event)">
-        <i class="fas fa-star" *ngFor="let s of getEstrellas(barberoSeleccionado.promedio_estrellas)"></i>
-        <span>{{ barberoSeleccionado.promedio_estrellas | number:'1.1-1' }}</span>
-        <span class="modal__resenas">({{ barberoSeleccionado.total_resenas }} reseñas)</span>
-      </div>
       <div class="modal__specs" *ngIf="barberoSeleccionado.especialidades">
         <span *ngFor="let esp of barberoSeleccionado.especialidades.split(',')" class="spec-tag">
           {{ esp.trim() }}
@@ -137,9 +117,13 @@
           </div>
         </div>
       </div>
-      <a routerLink="/agendar" [queryParams]="{ barbero: barberoSeleccionado.id_usuario }" class="btn-primary modal__btn" (click)="cerrarModalBarbero()">
-        <i class="fas fa-calendar-check"></i> Agendar con él
-      </a>
+      <button class="btn-primary modal__btn" *ngIf="barberoSeleccionado.total_resenas > 0"
+        (click)="abrirModalResenas(barberoSeleccionado, $event)">
+        <i class="fas fa-comment-alt"></i> Ver reseñas
+      </button>
+      <p class="modal__sin-resenas" *ngIf="!barberoSeleccionado.total_resenas">
+        <i class="fas fa-comment-slash"></i> Sin reseñas aún
+      </p>
     </div>
   </div>
 </div>
@@ -471,16 +455,52 @@
   </div>
 </section>
 
-<!-- ─── TOAST CARRITO ─────────────────────────────────────────── -->
-<div class="cart-toast" [class.cart-toast--visible]="toastVisible">
-  <div class="cart-toast__check"><i class="fas fa-check"></i></div>
-  <img class="cart-toast__img" [src]="toastImagen" [alt]="toastNombre" />
-  <div class="cart-toast__info">
-    <span class="cart-toast__label">¡Agregado al carrito!</span>
-    <span class="cart-toast__nombre">{{ toastNombre }}</span>
-    <button class="cart-toast__ir" (click)="irAlCarrito()">Ver carrito</button>
+<!-- ─── MODAL CARRITO ─────────────────────────────────────────── -->
+<div class="mc-overlay" *ngIf="modalCarritoVisible" (click)="cerrarModalCarrito()">
+  <div class="mc" (click)="$event.stopPropagation()">
+
+    <div class="mc__header">
+      <div class="mc__header-left">
+        <div class="mc__check"><i class="fas fa-check"></i></div>
+        <span class="mc__titulo">Producto agregado a tu Carro</span>
+      </div>
+      <button class="mc__cerrar" (click)="cerrarModalCarrito()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="mc__items">
+      <div class="mc__item" *ngFor="let item of itemsCarrito">
+        <div class="mc__item-img-wrap">
+          <img [src]="getImagenProducto(item.producto)" [alt]="item.producto.nombre_producto" class="mc__item-img" />
+          <span class="mc__item-badge">{{ item.cantidad }}</span>
+        </div>
+        <div class="mc__item-info">
+          <span class="mc__item-nombre">{{ item.producto.nombre_producto }}</span>
+          <span class="mc__item-talla" *ngIf="item.talla">Talla: {{ item.talla }}</span>
+          <span class="mc__item-precio">{{ formatPrecio(item.producto.precio) }}</span>
+        </div>
+        <div class="mc__item-ctrl">
+          <button class="mc__ctrl-btn" (click)="disminuirItemModal(item.producto.id_producto!)">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="mc__ctrl-num">{{ item.cantidad }}</span>
+          <button class="mc__ctrl-btn" (click)="aumentarItemModal(item.producto.id_producto!)"
+            [disabled]="item.cantidad >= item.producto.stock">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc__footer">
+      <button class="mc__btn-seguir" (click)="cerrarModalCarrito()">Seguir comprando</button>
+      <button class="mc__btn-ir" (click)="irAlCarritoModal()">
+        <i class="fas fa-shopping-basket"></i> Ir al Carro
+      </button>
+    </div>
+
   </div>
-  <button class="cart-toast__close" (click)="cerrarToast()"><i class="fas fa-times"></i></button>
 </div>
 
 <!-- ─── SCROLL TOP ───────────────────────────────────────────── -->

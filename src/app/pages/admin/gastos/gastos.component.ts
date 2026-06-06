@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GastoService, IGasto, IEstadisticasGasto } from '../../../core/services/gasto.service';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexLegend,
   ApexDataLabels, ApexTooltip, ApexPlotOptions, ApexFill, ApexStroke,
@@ -40,7 +41,9 @@ export type BarChartOptions = {
 })
 export class GastosComponent implements OnInit {
 
-  vistaActiva: 'dashboard' | 'lista' = 'dashboard';
+  modalTodos = false;
+  categoriaOpen = false;
+  categoriaFiltroOpen = false;
 
   stats: IEstadisticasGasto | null = null;
   cargandoStats = false;
@@ -85,7 +88,10 @@ export class GastosComponent implements OnInit {
   barOptions: Partial<BarChartOptions> = {};
   barListo = false;
 
-  constructor(private gastoService: GastoService) {}
+  constructor(
+    private gastoService: GastoService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.cargarStats();
@@ -282,7 +288,7 @@ export class GastosComponent implements OnInit {
     this.cargando = true;
     this.gastoService.getAll(this.filtros).subscribe({
       next: (res) => { this.gastos = res.data; this.cargando = false; },
-      error: () => { this.error = 'Error al cargar gastos'; this.cargando = false; }
+      error: () => { this.toastService.error('Error al cargar gastos'); this.cargando = false; }
     });
   }
 
@@ -312,7 +318,7 @@ export class GastosComponent implements OnInit {
     this.error        = '';
   }
 
-  cerrarModal(): void { this.modalVisible = false; }
+  cerrarModal(): void { this.modalVisible = false; this.categoriaOpen = false; }
 
   guardar(): void {
     if (!this.formulario.nombre || !this.formulario.categoria ||
@@ -353,7 +359,7 @@ export class GastosComponent implements OnInit {
         this.gastoAEliminar = null;
         this.cargarStats();
       },
-      error: () => { this.error = 'Error al eliminar'; this.eliminando = false; }
+      error: () => { this.toastService.error('Error al eliminar'); this.eliminando = false; }
     });
   }
 

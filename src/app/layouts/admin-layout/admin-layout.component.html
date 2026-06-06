@@ -1,69 +1,90 @@
 <div class="admin-layout">
 
+    <!-- Overlay móvil -->
+    <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <aside class="sidebar" [class.collapsed]="sidebarCollapsed" [class.open]="sidebarOpen">
 
         <div class="sidebar__logo">
             <img src="/assets/images/navbar/logo.png" alt="Blendlap">
         </div>
 
+        <!-- Usuario (solo visible en móvil) -->
+        <div class="sidebar__usuario" *ngIf="usuario && (sidebarOpen)">
+            <div class="sidebar__usuario-avatar">
+                <img *ngIf="usuario.foto" [src]="usuario.foto | imgUrl" [alt]="usuario.nombre" />
+                <i *ngIf="!usuario.foto" class="fas fa-user"></i>
+            </div>
+            <div class="sidebar__usuario-info">
+                <span class="sidebar__usuario-nombre">{{ usuario.nombre }}</span>
+                <span class="sidebar__usuario-rol">{{ usuario.rol }}</span>
+            </div>
+        </div>
+
         <!-- Nav -->
         <nav class="sidebar__nav">
-            <a routerLink="/admin/dashboard" routerLinkActive="active" class="sidebar__item">
+            <a routerLink="/admin/dashboard" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-chart-line"></i>
-                <span *ngIf="!sidebarCollapsed">Dashboard</span>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Dashboard</span>
             </a>
-            <a routerLink="/admin/reservas" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-calendar-check"></i>
-                <span *ngIf="!sidebarCollapsed">Reservas</span>
-            </a>
-            <a routerLink="/admin/clientes" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-users"></i>
-                <span *ngIf="!sidebarCollapsed">Clientes</span>
-            </a>
-            <a routerLink="/admin/barberos" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-user-tie"></i>
-                <span *ngIf="!sidebarCollapsed">Barberos</span>
-            </a>
-            <a routerLink="/admin/servicios" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-cut"></i>
-                <span *ngIf="!sidebarCollapsed">Servicios</span>
-            </a>
-            <a routerLink="/admin/productos" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-box"></i>
-                <span *ngIf="!sidebarCollapsed">Productos</span>
-            </a>
-            <a routerLink="/admin/ventas" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-cash-register"></i>
-                <span *ngIf="!sidebarCollapsed">Ventas</span>
-            </a>
-            <a routerLink="/admin/gastos" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-receipt"></i>
-                <span *ngIf="!sidebarCollapsed">Gastos</span>
-            </a>
-            <a routerLink="/admin/turnos" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-clock"></i>
-                <span *ngIf="!sidebarCollapsed">Turnos</span>
-            </a>
-            <a routerLink="/admin/reportes" routerLinkActive="active" class="sidebar__item">
-                <i class="fas fa-chart-bar"></i>
-                <span *ngIf="!sidebarCollapsed">Reportes</span>
-            </a>
-            <a routerLink="/admin/creditos" routerLinkActive="active" class="sidebar__item">
+            <a routerLink="/admin/creditos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-hand-holding-usd"></i>
-                <span *ngIf="!sidebarCollapsed">Créditos</span>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Créditos</span>
             </a>
+            <a routerLink="/admin/ventas" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-cash-register"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Ventas</span>
+            </a>
+            <a routerLink="/admin/reportes" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-chart-bar"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Reportes</span>
+            </a>
+            <a routerLink="/admin/reservas" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-calendar-check"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Reservas</span>
+            </a>
+            <a routerLink="/admin/clientes" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-users"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Clientes</span>
+            </a>
+            <a routerLink="/admin/barberos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-user-tie"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Barberos</span>
+            </a>
+            <a routerLink="/admin/servicios" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-cut"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Servicios</span>
+            </a>
+            <a routerLink="/admin/productos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-box"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Productos</span>
+            </a>
+            <a routerLink="/admin/gastos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-receipt"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Gastos</span>
+            </a>
+            <a routerLink="/admin/turnos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-clock"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Turnos</span>
+            </a>
+            
+            
         </nav>
 
         <!-- Footer sidebar -->
         <div class="sidebar__footer">
-            <a routerLink="/" class="sidebar__home">
-                <i class="fas fa-home"></i>
-                <span *ngIf="!sidebarCollapsed">Ver sitio</span>
+            <a routerLink="/admin/cierre-caja" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-cash-register"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Cierre de Caja</span>
             </a>
-            <button class="sidebar__item" (click)="logout()">
+            <a routerLink="/" class="sidebar__item" (click)="closeSidebar()">
+                <i class="fas fa-home"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Ver sitio</span>
+            </a>
+            <button class="sidebar__item sidebar__item--danger" (click)="logout()">
                 <i class="fas fa-sign-out-alt"></i>
-                <span *ngIf="!sidebarCollapsed">Cerrar sesión</span>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Cerrar sesión</span>
             </button>
         </div>
 
@@ -72,20 +93,27 @@
     <!-- Main -->
     <div class="admin-main" [class.expanded]="sidebarCollapsed">
 
-        <!-- Topbar -->
+        <!-- Topbar: 3 columnas [hamburguesa | LOGO | vacío] -->
         <header class="topbar">
-            <button class="topbar__toggle" (click)="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="topbar__start">
+                <button class="topbar__toggle" (click)="toggleSidebar()" aria-label="Menú">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
-            <div class="topbar__right">
-                <div class="topbar__usuario">
+            <div class="topbar__logo">
+                <img src="/assets/images/navbar/logo.png" alt="Blendlap">
+            </div>
+
+            <div class="topbar__end">
+                <div class="topbar__user" *ngIf="usuario">
                     <div class="topbar__avatar">
-                        <i class="fas fa-user"></i>
+                        <img *ngIf="usuario.foto" [src]="usuario.foto | imgUrl" [alt]="usuario.nombre" />
+                        <i *ngIf="!usuario.foto" class="fas fa-user"></i>
                     </div>
-                    <div class="topbar__info" *ngIf="usuario">
-                        <span class="topbar__nombre">{{ usuario.nombre }} {{ usuario.apellido }}</span>
-                        <span class="topbar__rol">Administrador</span>
+                    <div class="topbar__info">
+                        <span class="topbar__nombre">{{ usuario.nombre }}</span>
+                        <span class="topbar__rol">{{ usuario.rol }}</span>
                     </div>
                 </div>
             </div>

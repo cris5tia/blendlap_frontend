@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ServicioService, IServicio } from '../../../core/services/servicio.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-servicios',
@@ -15,7 +16,6 @@ export class ServiciosComponent implements OnInit {
   busqueda = '';
   filtroEstado: 'todos' | 'activo' | 'inactivo' = 'activo';
   cargando = false;
-  error = '';
 
   modalVisible = false;
   editando = false;
@@ -26,10 +26,15 @@ export class ServiciosComponent implements OnInit {
   servicioAEliminar: IServicio | null = null;
   eliminando = false;
 
+  categoriaOpen = false;
+
   archivoSeleccionado: File | null = null;
   previewImagen: string = '';
 
-  constructor(private servicioService: ServicioService) { }
+  constructor(
+    private servicioService: ServicioService,
+    private toastService: ToastService
+  ) { }
 
   ngOnInit(): void {
     this.cargarServicios();
@@ -37,7 +42,6 @@ export class ServiciosComponent implements OnInit {
 
   cargarServicios(): void {
     this.cargando = true;
-    this.error = '';
     this.servicioService.getAll().subscribe({
       next: (res) => {
         this.servicios = res.data;
@@ -45,7 +49,7 @@ export class ServiciosComponent implements OnInit {
         this.cargando = false;
       },
       error: () => {
-        this.error = 'Error al cargar los servicios';
+        this.toastService.error('Error al cargar los servicios');
         this.cargando = false;
       }
     });
@@ -95,7 +99,7 @@ export class ServiciosComponent implements OnInit {
 
     this.archivoSeleccionado = input.files[0];
     if (this.archivoSeleccionado.size > 5 * 1024 * 1024) {
-      this.error = 'La imagen no puede pesar mas de 5MB';
+      this.toastService.error('La imagen no puede pesar más de 5MB');
       this.archivoSeleccionado = null;
       return;
     }
@@ -124,9 +128,10 @@ export class ServiciosComponent implements OnInit {
           this.filtrar();
           this.guardando = false;
           this.cerrarModal();
+          this.toastService.success('Servicio actualizado');
         },
         error: () => {
-          this.error = 'Error al actualizar el servicio';
+          this.toastService.error('Error al actualizar el servicio');
           this.guardando = false;
         }
       });
@@ -137,9 +142,10 @@ export class ServiciosComponent implements OnInit {
           this.filtrar();
           this.guardando = false;
           this.cerrarModal();
+          this.toastService.success('Servicio creado');
         },
         error: () => {
-          this.error = 'Error al crear el servicio';
+          this.toastService.error('Error al crear el servicio');
           this.guardando = false;
         }
       });
@@ -164,7 +170,7 @@ export class ServiciosComponent implements OnInit {
         this.servicioAEliminar = null;
       },
       error: () => {
-        this.error = 'Error al eliminar el servicio';
+        this.toastService.error('Error al eliminar el servicio');
         this.eliminando = false;
       }
     });

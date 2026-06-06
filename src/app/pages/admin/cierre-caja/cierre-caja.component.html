@@ -1,0 +1,452 @@
+<div class="cc-page" id="cc-print-area">
+
+  <!-- ══ HEADER (solo pantalla) ══ -->
+  <div class="cc-header no-print">
+    <div class="cc-header__left">
+      <h1 class="cc-header__title">
+        <i class="fas fa-cash-register"></i> Cierre de Caja
+      </h1>
+      <p class="cc-header__sub">Resumen diario de operaciones</p>
+    </div>
+    <div class="cc-header__actions">
+      <app-mat-date [(ngModel)]="fecha" (ngModelChange)="cargarTodo()"></app-mat-date>
+      <button class="btn-exportar" (click)="exportarPDF()" [disabled]="cargando || (!reservas.length && !ventas.length && !creditos.length)">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Cargando -->
+  <div class="cc-cargando no-print" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Generando cierre...
+  </div>
+
+  <!-- Sin datos del día -->
+  <div class="cc-vacio-total" *ngIf="!cargando && resumen && !reservas.length && !ventas.length && !creditos.length">
+    <i class="fas fa-store-slash"></i>
+    <h3>Sin operaciones el {{ formatFechaLarga(fecha) }}</h3>
+    <p>No se registraron servicios, ventas ni créditos para esta fecha.</p>
+  </div>
+
+  <!-- ══ CONTENIDO (solo si hay datos) ══ -->
+  <ng-container *ngIf="!cargando && resumen && (reservas.length || ventas.length || creditos.length)">
+
+    <!-- ── Encabezado PDF (solo en impresión) ── -->
+    <div class="pdf-header print-only">
+      <div class="pdf-header__logo">
+        <img src="/assets/images/navbar/logo.png" alt="Blendlap" />
+        <span class="pdf-header__marca">BLENDLAP</span>
+      </div>
+      <div class="pdf-header__info">
+        <h1>Cierre de Caja Diario</h1>
+        <p class="pdf-header__fecha">{{ formatFechaLarga(fecha) }}</p>
+      </div>
+      <div class="pdf-header__total">
+        <span class="pdf-header__total-label">Total del día</span>
+        <span class="pdf-header__total-val">{{ formatCurrency(totalDia) }}</span>
+      </div>
+    </div>
+
+    <!-- ══ KPIs: solo muestra los que tienen datos ══ -->
+    <div class="cc-kpis" [class.cc-kpis--1]="activosCount === 1" [class.cc-kpis--2]="activosCount === 2" [class.cc-kpis--3]="activosCount === 3">
+
+      <div class="cc-kpi cc-kpi--reservas" *ngIf="reservas.length">
+        <div class="cc-kpi__icon"><i class="fas fa-calendar-check"></i></div>
+        <div class="cc-kpi__data">
+          <span class="cc-kpi__val">{{ reservas.length }}</span>
+          <span class="cc-kpi__label">Servicios realizados</span>
+          <span class="cc-kpi__monto">{{ formatCurrency(totalReservas) }}</span>
+        </div>
+      </div>
+
+      <div class="cc-kpi cc-kpi--ventas" *ngIf="ventas.length">
+        <div class="cc-kpi__icon"><i class="fas fa-shopping-bag"></i></div>
+        <div class="cc-kpi__data">
+          <span class="cc-kpi__val">{{ ventas.length }}</span>
+          <span class="cc-kpi__label">Ventas de productos</span>
+          <span class="cc-kpi__monto">{{ formatCurrency(totalVentas) }}</span>
+        </div>
+      </div>
+
+      <div class="cc-kpi cc-kpi--creditos" *ngIf="creditos.length">
+        <div class="cc-kpi__icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="cc-kpi__data">
+          <span class="cc-kpi__val">{{ creditos.length }}</span>
+          <span class="cc-kpi__label">Créditos aprobados</span>
+          <span class="cc-kpi__monto">{{ formatCurrency(totalCreditos) }}</span>
+        </div>
+      </div>
+
+      <div class="cc-kpi cc-kpi--total">
+        <div class="cc-kpi__icon"><i class="fas fa-dollar-sign"></i></div>
+        <div class="cc-kpi__data">
+          <span class="cc-kpi__val cc-kpi__val--big">{{ formatCurrency(totalDia) }}</span>
+          <span class="cc-kpi__label">Total del día</span>
+          <span class="cc-kpi__sub">{{ resumen.cantidad_ventas }} transacciones</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ MÉTODOS DE PAGO ══ -->
+    <div class="cc-card" *ngIf="metodos.length">
+      <div class="cc-card__titulo">
+        <i class="fas fa-credit-card"></i> Desglose por método de pago
+      </div>
+      <div class="cc-metodos">
+        <div class="cc-metodo" *ngFor="let m of metodos">
+          <div class="cc-metodo__fila">
+            <span class="cc-metodo__ic" [ngClass]="'met-' + m.cls"><i [class]="m.icon"></i></span>
+            <span class="cc-metodo__nombre">{{ m.nombre }}</span>
+            <span class="cc-metodo__monto">{{ formatCurrency(m.monto) }}</span>
+            <span class="cc-metodo__pct">{{ m.pct }}%</span>
+          </div>
+          <div class="cc-metodo__bar">
+            <div class="cc-metodo__fill" [ngClass]="'fill-' + m.cls" [style.width.%]="m.pct"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DISTRIBUCIÓN DEL DÍA (barberos + resumen) ══ -->
+    <div class="cc-distribucion" *ngIf="porBarbero.length">
+      <div class="cc-distribucion__titulo">
+        <i class="fas fa-hand-holding-usd"></i> Distribución del día
+        <span class="cc-card__sub-label" *ngIf="hayComisiones">incl. comisiones</span>
+      </div>
+
+      <!-- Tabla desktop -->
+      <div class="cc-tabla-wrap tabla-desktop">
+        <table class="cc-tabla">
+          <thead>
+            <tr>
+              <th>Barbero</th>
+              <th class="text-center">Servicios</th>
+              <th class="text-right">Total bruto</th>
+              <th class="text-center" *ngIf="hayComisiones">Comisión</th>
+              <th class="text-right" *ngIf="hayComisiones">Pago barbero</th>
+              <th class="text-right" *ngIf="hayComisiones">Para el local</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of porBarbero">
+              <td>
+                <div class="cc-barbero">
+                  <div class="cc-barbero__avatar">
+                    <img *ngIf="b.foto" [src]="b.foto | imgUrl" [alt]="b.nombre" />
+                    <span *ngIf="!b.foto">{{ b.nombre.charAt(0) }}</span>
+                  </div>
+                  <span>{{ b.nombre }}</span>
+                </div>
+              </td>
+              <td class="text-center"><span class="cc-badge">{{ b.servicios }}</span></td>
+              <td class="text-right cc-monto-verde">{{ formatCurrency(b.totalBruto) }}</td>
+              <ng-container *ngIf="hayComisiones">
+                <td class="text-center">
+                  <span class="cc-comision-badge" *ngIf="b.comisionPct > 0">{{ b.comisionPct }}%</span>
+                  <span class="cc-sin-comision" *ngIf="b.comisionPct === 0">—</span>
+                </td>
+                <td class="text-right" [class.cc-monto-rojo]="b.comisionPct > 0">
+                  {{ b.comisionPct > 0 ? formatCurrency(b.pagoComision) : '—' }}
+                </td>
+                <td class="text-right cc-monto-primary">{{ formatCurrency(b.ingresoLocal) }}</td>
+              </ng-container>
+            </tr>
+          </tbody>
+          <tfoot *ngIf="hayComisiones">
+            <tr class="cc-tabla__total">
+              <td colspan="2"><strong>Totales</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(totalReservas) }}</strong></td>
+              <td></td>
+              <td class="text-right cc-monto-rojo"><strong>{{ formatCurrency(totalComisiones) }}</strong></td>
+              <td class="text-right cc-monto-primary"><strong>{{ formatCurrency(ingresoNetoLocal) }}</strong></td>
+            </tr>
+          </tfoot>
+          <tfoot *ngIf="!hayComisiones">
+            <tr class="cc-tabla__total">
+              <td colspan="2"><strong>Total</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(totalReservas) }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Cards móvil -->
+      <div class="cards-mobile">
+        <div class="cc-item-card cc-item-card--barbero" *ngFor="let b of porBarbero">
+          <div class="cc-item-card__top">
+            <div class="cc-barbero__avatar">
+              <img *ngIf="b.foto" [src]="b.foto | imgUrl" [alt]="b.nombre" />
+              <span *ngIf="!b.foto">{{ b.nombre.charAt(0) }}</span>
+            </div>
+            <span class="cc-item-card__nombre">{{ b.nombre }}</span>
+            <span class="cc-badge">{{ b.servicios }} serv.</span>
+          </div>
+          <div class="cc-barbero-row">
+            <div class="cc-barbero-dato">
+              <span class="label">Total bruto</span>
+              <strong class="cc-monto-verde">{{ formatCurrency(b.totalBruto) }}</strong>
+            </div>
+            <div class="cc-barbero-dato">
+              <span class="label">Comisión {{ b.comisionPct }}%</span>
+              <strong [class.cc-monto-rojo]="b.comisionPct > 0">
+                {{ b.comisionPct > 0 ? formatCurrency(b.pagoComision) : '—' }}
+              </strong>
+            </div>
+            <div class="cc-barbero-dato">
+              <span class="label">Para el local</span>
+              <strong class="cc-monto-primary">{{ formatCurrency(b.ingresoLocal) }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de totales -->
+      <div class="cc-dist-resumen">
+        <div class="cc-dist-resumen__fila" *ngIf="hayComisiones">
+          <span><i class="fas fa-cut"></i> Total a pagar a barberos</span>
+          <strong class="cc-monto-rojo">{{ formatCurrency(totalComisiones) }}</strong>
+        </div>
+        <div class="cc-dist-resumen__fila">
+          <span><i class="fas fa-scissors"></i> Local por servicios</span>
+          <strong>{{ formatCurrency(ingresoNetoLocal) }}</strong>
+        </div>
+        <div class="cc-dist-resumen__fila" *ngIf="totalVentas > 0">
+          <span><i class="fas fa-shopping-bag"></i> Ventas de productos</span>
+          <strong>{{ formatCurrency(totalVentas) }}</strong>
+        </div>
+        <div class="cc-dist-resumen__total">
+          <span><i class="fas fa-store"></i> Total neto para el local</span>
+          <strong>{{ formatCurrency(ingresoNetoLocal + totalVentas) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ABONOS DE CRÉDITOS DEL DÍA ══ -->
+    <div class="cc-card" *ngIf="abonos.length">
+      <div class="cc-card__titulo">
+        <i class="fas fa-hand-holding-usd"></i> Abonos de créditos recibidos
+        <span class="cc-card__count">{{ abonos.length }}</span>
+      </div>
+      <div class="cc-tabla-wrap tabla-desktop">
+        <table class="cc-tabla">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Productos</th>
+              <th>Método</th>
+              <th class="text-right">Abono</th>
+              <th class="text-right">Saldo pendiente</th>
+              <th class="text-center">Estado crédito</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of abonos">
+              <td><strong>{{ a.nombre_cliente }}</strong></td>
+              <td class="cc-productos-col">{{ a.productos_nombres }}</td>
+              <td>
+                <span class="badge" [ngClass]="metodoBadgeClass(a.abono_metodo)">
+                  {{ metodoPagoLabel(a.abono_metodo) }}
+                </span>
+              </td>
+              <td class="text-right cc-monto-verde">{{ formatCurrency(a.abono_monto) }}</td>
+              <td class="text-right" [class.cc-monto-rojo]="a.saldo_pendiente > 0">
+                {{ formatCurrency(a.saldo_pendiente) }}
+              </td>
+              <td class="text-center">
+                <span class="badge"
+                  [ngClass]="a.credito_estado === 'pagado' ? 'badge-success' : a.credito_estado === 'vencido' ? 'badge-danger' : 'badge-warning'">
+                  {{ a.credito_estado | titlecase }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cc-tabla__total">
+              <td colspan="3"><strong>Total abonado hoy</strong></td>
+              <td class="text-right cc-monto-verde"><strong>{{ formatCurrency(totalAbonadoHoy) }}</strong></td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cards-mobile">
+        <div class="cc-item-card" *ngFor="let a of abonos">
+          <div class="cc-item-card__top">
+            <span class="cc-item-card__nombre">{{ a.nombre_cliente }}</span>
+            <span class="badge"
+              [ngClass]="a.credito_estado === 'pagado' ? 'badge-success' : 'badge-warning'">
+              {{ a.credito_estado | titlecase }}
+            </span>
+          </div>
+          <div class="cc-item-card__mid">
+            <span>{{ a.productos_nombres }}</span>
+          </div>
+          <div class="cc-item-card__foot">
+            <span class="cc-item-card__servicio">Saldo: {{ formatCurrency(a.saldo_pendiente) }}</span>
+            <span class="cc-item-card__total cc-monto-verde">{{ formatCurrency(a.abono_monto) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RESERVAS DEL DÍA ══ -->
+    <div class="cc-card" *ngIf="reservas.length">
+      <div class="cc-card__titulo">
+        <i class="fas fa-calendar-alt"></i> Servicios realizados del día
+        <span class="cc-card__count">{{ reservas.length }}</span>
+      </div>
+      <div class="cc-tabla-wrap tabla-desktop">
+        <table class="cc-tabla">
+          <thead>
+            <tr><th>#</th><th>Cliente</th><th>Barbero</th><th>Hora</th><th>Servicio</th><th class="text-right">Total</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of reservas">
+              <td class="cc-id">{{ r.id_reserva }}</td>
+              <td>{{ r.nombre_cliente }}</td>
+              <td>{{ r.nombre_barbero }}</td>
+              <td class="nowrap">{{ r.hora }}</td>
+              <td>{{ r.nombre_servicio || '—' }}</td>
+              <td class="text-right cc-monto-verde">{{ formatCurrency(r.precio_total || 0) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cc-tabla__total">
+              <td colspan="5"><strong>Total servicios</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(totalReservas) }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cards-mobile">
+        <div class="cc-item-card" *ngFor="let r of reservas">
+          <div class="cc-item-card__top">
+            <span class="cc-id">#{{ r.id_reserva }}</span>
+            <span class="cc-item-card__nombre">{{ r.nombre_cliente }}</span>
+          </div>
+          <div class="cc-item-card__mid">
+            <span><i class="fas fa-cut"></i> {{ r.nombre_barbero }}</span>
+            <span><i class="fas fa-clock"></i> {{ r.hora }}</span>
+          </div>
+          <div class="cc-item-card__foot">
+            <span class="cc-item-card__servicio">{{ r.nombre_servicio || '—' }}</span>
+            <span class="cc-item-card__total">{{ formatCurrency(r.precio_total || 0) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VENTAS DEL DÍA ══ -->
+    <div class="cc-card" *ngIf="ventas.length">
+      <div class="cc-card__titulo">
+        <i class="fas fa-shopping-bag"></i> Ventas de productos
+        <span class="cc-card__count">{{ ventas.length }}</span>
+      </div>
+      <div class="cc-tabla-wrap tabla-desktop">
+        <table class="cc-tabla">
+          <thead>
+            <tr><th>#</th><th>Cajero</th><th>Hora</th><th>Método</th><th class="text-right">Total</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of ventas">
+              <td class="cc-id">{{ v.id_venta }}</td>
+              <td>{{ v.nombre_cajero || '—' }}</td>
+              <td class="nowrap">{{ v.fecha | date:'HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">{{ metodoPagoLabel(v.metodo_pago) }}</span></td>
+              <td class="text-right cc-monto-verde">{{ formatCurrency(v.total) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cc-tabla__total">
+              <td colspan="4"><strong>Total ventas</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(totalVentas) }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cards-mobile">
+        <div class="cc-item-card" *ngFor="let v of ventas">
+          <div class="cc-item-card__top">
+            <span class="cc-id">#{{ v.id_venta }}</span>
+            <span class="cc-item-card__nombre">{{ v.nombre_cajero || '—' }}</span>
+            <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">{{ metodoPagoLabel(v.metodo_pago) }}</span>
+          </div>
+          <div class="cc-item-card__foot">
+            <span class="cc-item-card__servicio">{{ v.fecha | date:'HH:mm' }}</span>
+            <span class="cc-item-card__total">{{ formatCurrency(v.total) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CRÉDITOS APROBADOS ══ -->
+    <div class="cc-card" *ngIf="creditos.length">
+      <div class="cc-card__titulo">
+        <i class="fas fa-hand-holding-usd"></i> Créditos aprobados hoy
+        <span class="cc-card__count">{{ creditos.length }}</span>
+      </div>
+      <div class="cc-tabla-wrap tabla-desktop">
+        <table class="cc-tabla">
+          <thead>
+            <tr><th>#</th><th>Cliente</th><th>Productos</th><th>Plazo</th><th class="text-right">Monto</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of creditos">
+              <td class="cc-id">{{ c.id_credito }}</td>
+              <td>
+                <div class="cc-cliente-info">
+                  <span>{{ c.nombre_cliente }}</span>
+                  <span class="cc-tel">{{ c.telefono_cliente }}</span>
+                </div>
+              </td>
+              <td class="cc-productos-col">{{ c.productos_nombres }}</td>
+              <td>{{ c.plazo }}</td>
+              <td class="text-right cc-monto-azul">{{ formatCurrency(c.monto_total) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cc-tabla__total">
+              <td colspan="4"><strong>Total créditos</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(totalCreditos) }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cards-mobile">
+        <div class="cc-item-card" *ngFor="let c of creditos">
+          <div class="cc-item-card__top">
+            <span class="cc-id">#{{ c.id_credito }}</span>
+            <span class="cc-item-card__nombre">{{ c.nombre_cliente }}</span>
+          </div>
+          <div class="cc-item-card__mid">
+            <span>{{ c.telefono_cliente }}</span>
+            <span>Plazo: {{ c.plazo }}</span>
+          </div>
+          <div class="cc-item-card__foot">
+            <span class="cc-item-card__servicio">{{ c.productos_nombres }}</span>
+            <span class="cc-item-card__total cc-monto-azul">{{ formatCurrency(c.monto_total) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Firma (solo en impresión) ── -->
+    <div class="pdf-firma print-only">
+      <div class="pdf-firma__item">
+        <div class="pdf-firma__linea"></div>
+        <span>Responsable del cierre</span>
+      </div>
+      <div class="pdf-firma__item">
+        <div class="pdf-firma__linea"></div>
+        <span>Gerencia / Propietario</span>
+      </div>
+      <div class="pdf-firma__item">
+        <div class="pdf-firma__linea"></div>
+        <span>Sello</span>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

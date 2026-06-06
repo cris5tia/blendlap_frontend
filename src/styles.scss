@@ -27,6 +27,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -34,6 +35,7 @@ body {
   color: var(--color-text);
   background-color: var(--color-white);
   overflow-x: hidden;
+  min-width: 0;
 }
 
 // ─── Tipografía ──────────────────────────────────────────────
@@ -144,5 +146,80 @@ img {
   }
   .container {
     padding: 0 16px;
+  }
+}
+
+// ─── Angular Material Datepicker — overrides del tema ────────
+// El panel se renderiza en document.body vía CDK overlay,
+// por eso los estilos van aquí (globales), no en el componente.
+
+.mat-datepicker-content {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+// Cabecera del calendario (mes/año + flechas)
+.mat-calendar-header {
+  background: #1a1a1a !important;
+  border-radius: 8px 8px 0 0;
+  padding: 4px 8px 0 !important;
+}
+
+.mat-calendar-period-button {
+  color: #fff !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.mat-calendar-arrow { fill: #fff !important; }
+
+.mat-calendar-previous-button,
+.mat-calendar-next-button {
+  color: #fff !important;
+}
+
+// Nombres de día de la semana
+.mat-calendar-table-header th {
+  color: #9e9e9e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.mat-calendar-table-header-divider { display: none; }
+
+// Día de hoy (sin seleccionar)
+.mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+  border-color: #FBC447 !important;
+  color: #FBC447 !important;
+  font-weight: 700;
+}
+
+// Día seleccionado
+.mat-calendar-body-selected {
+  background-color: #1a1a1a !important;
+  color: #fff !important;
+}
+
+// Hover sobre un día
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover
+  > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+  background-color: rgba(251, 196, 71, 0.15) !important;
+}
+
+// Días fuera del mes
+.mat-calendar-body-cell-content.mat-calendar-body-hidden-label {
+  opacity: 0.35;
+}
+
+// Responsivo móvil: el panel no se desborda
+@media (max-width: 480px) {
+  .mat-datepicker-content {
+    max-width: calc(100vw - 32px) !important;
+  }
+  .mat-calendar {
+    width: 100% !important;
   }
 }

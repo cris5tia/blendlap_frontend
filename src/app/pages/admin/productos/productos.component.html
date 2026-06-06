@@ -11,23 +11,16 @@
     </button>
   </div>
 
-  <!-- Alertas -->
-  <div class="alert-success" *ngIf="exito"><i class="fas fa-check-circle"></i> {{ exito }}</div>
-  <div class="alert-error"   *ngIf="error && !modalVista"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
   <div class="alert-warning" *ngIf="stockBajoCount > 0">
     <i class="fas fa-exclamation-triangle"></i>
     {{ stockBajoCount }} producto{{ stockBajoCount !== 1 ? 's' : '' }} con stock bajo o agotado
   </div>
 
-  <!-- Tabs de categoría -->
+  <!-- Tabs de categoría (sin Todos) -->
   <div class="cat-tabs">
-    <button class="cat-tab" [class.active]="filtroCategoria === ''" (click)="setCategoria('')">
-      <i class="fas fa-th-large"></i>
-      Todos
-      <span class="cat-tab__count">{{ productos.length }}</span>
-    </button>
     <button class="cat-tab cat-tab--{{ c }}" *ngFor="let c of categorias"
-      [class.active]="filtroCategoria === c" (click)="setCategoria(c)">
+      [class.active]="filtroCategoria === c"
+      (click)="setCategoria(filtroCategoria === c ? '' : c)">
       <i class="fas {{ categoriaIcon(c) }}"></i>
       {{ categoriaLabel(c) }}
       <span class="cat-tab__count">{{ countByCategoria(c) }}</span>
@@ -121,11 +114,23 @@
           <label>Nombre *</label>
           <input type="text" [(ngModel)]="form.nombre_producto" placeholder="Nombre del producto" />
         </div>
-        <div class="form-group">
+        <div class="form-group form-group--full">
           <label>Categoría *</label>
-          <select [(ngModel)]="form.categoria">
-            <option *ngFor="let c of categorias" [value]="c">{{ categoriaLabel(c) }}</option>
-          </select>
+          <div class="custom-select" [class.custom-select--open]="categoriaOpen">
+            <button type="button" class="custom-select__trigger"
+              (click)="categoriaOpen = !categoriaOpen">
+              <span>{{ form.categoria ? categoriaLabel(form.categoria) : 'Seleccionar...' }}</span>
+              <i class="fas fa-chevron-down custom-select__arrow"></i>
+            </button>
+            <div class="custom-select__menu" *ngIf="categoriaOpen">
+              <button type="button" class="custom-select__option"
+                *ngFor="let c of categorias"
+                [class.custom-select__option--activo]="form.categoria === c"
+                (click)="form.categoria = c; categoriaOpen = false">
+                {{ categoriaLabel(c) }}
+              </button>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label>Precio (COP) *</label>
@@ -210,9 +215,8 @@
       </div>
     </div>
     <div class="modal__footer">
-      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarMovimiento()" [disabled]="guardando">
-        {{ guardando ? 'Registrando...' : 'Registrar' }}
+      <button class="btn-primary" (click)="guardarMovimiento()" [disabled]="guardando" style="width:100%">
+        {{ guardando ? 'Registrando...' : 'Registrar movimiento' }}
       </button>
     </div>
   </div>
@@ -309,16 +313,15 @@
 
     </div>
 
-    <!-- Footer con conteo + leyenda + botón -->
+    <!-- Footer con conteo + leyenda -->
     <div class="hist-footer">
       <div class="hist-leyenda">
         <span><i class="fas fa-arrow-up"></i> Entrada</span>
         <span><i class="fas fa-arrow-down"></i> Salida</span>
       </div>
       <span class="hist-conteo" *ngIf="movimientos.length > 0">
-        Mostrando {{ movimientos.length }} de {{ movimientos.length }} movimientos
+        {{ movimientos.length }} movimientos
       </span>
-      <button class="btn-secondary hist-btn-cerrar" (click)="cerrarModal()">Cerrar</button>
     </div>
 
   </div>

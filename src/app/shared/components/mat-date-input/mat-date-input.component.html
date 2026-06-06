@@ -1,0 +1,13 @@
+<div class="mdi-wrap">
+  <input
+    class="mdi-input"
+    [matDatepicker]="picker"
+    [formControl]="ctrl"
+    [placeholder]="placeholder"
+    readonly
+  />
+  <button type="button" class="mdi-btn" (click)="picker.open()" tabindex="-1">
+    <i class="fas fa-calendar-alt"></i>
+  </button>
+  <mat-datepicker #picker></mat-datepicker>
+</div>

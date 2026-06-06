@@ -64,15 +64,14 @@ $borde:       #e5e7eb;
 .stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.85rem;
   @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
 }
 
 .stat-card {
   background: var(--color-white);
-  border-radius: 10px;
-  padding: 1.2rem 1.4rem;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -96,7 +95,7 @@ $borde:       #e5e7eb;
   }
 
   &.stat-pendiente { border-color: var(--color-accent); .stat-num { color: #c99a1a; } }
-  &.stat-cobrar    { border-color: var(--color-primary); .stat-num { color: var(--color-primary); font-size: 1.1rem; } }
+  &.stat-cobrar    { border-color: $azul; .stat-num { color: $azul; font-size: 1.1rem; } }
   &.stat-vencido   { border-color: $rojo; .stat-num { color: $rojo; } }
   &.stat-total     { border-color: $borde; }
 }
@@ -719,7 +718,8 @@ textarea.input-field { resize: vertical; }
 .detalle-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
   margin-bottom: 1.5rem;
-  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
 }
 
 .detalle-item {
@@ -754,6 +754,8 @@ textarea.input-field { resize: vertical; }
   .det-nombre { flex: 1; font-weight: 600; color: var(--color-text); }
   .det-precio { font-weight: 700; color: #c99a1a; }
 }
+
+.tabla-mini-wrap { width: 100%; }
 
 .tabla-mini {
   width: 100%; border-collapse: collapse; font-size: 0.82rem;
@@ -914,4 +916,238 @@ textarea.input-field { resize: vertical; }
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
+}
+
+// ─── Desktop/Mobile toggle ───────────────────────────────────
+.tabla-desktop { display: block; }
+.cards-mobile  { display: none; }
+
+// ─── Cards móvil ─────────────────────────────────────────────
+.credito-card {
+  background: var(--color-white);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+
+  &.card-vencida  { border-left: 3px solid $rojo; background: #fff5f5; }
+  &.card-rechazada{ border-left: 3px solid #adb5bd; opacity: 0.88; }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.card-id {
+  font-size: 0.7rem;
+  color: var(--color-gray);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.card-cliente-nombre {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-acciones {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.card-telefono {
+  margin: 0;
+  padding: 0.25rem 0.9rem 0;
+  font-size: 0.75rem;
+  color: var(--color-gray);
+}
+
+.card-productos {
+  margin: 0;
+  padding: 0.2rem 0.9rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--color-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-financiero {
+  display: flex;
+  border-top: 1px solid #f3f4f6;
+}
+
+.card-dato {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  border-right: 1px solid #f3f4f6;
+  &:last-child { border-right: none; }
+
+  .label {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-gray);
+    font-weight: 700;
+  }
+
+  strong {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-text);
+    &.text-verde  { color: $verde; }
+    &.text-rojo   { color: $rojo; }
+  }
+}
+
+// ─── Responsive móvil ────────────────────────────────────────
+@media (max-width: 768px) {
+
+  // Página
+  .creditos-page { padding: 1rem 0.75rem 2rem; }
+  .page-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    h1 { font-size: 1.4rem; }
+  }
+
+  // Stats: más compactas
+  .stats-row { gap: 0.6rem; margin-bottom: 1rem; }
+  .stat-card {
+    padding: 0.75rem 0.85rem;
+    .stat-num  { font-size: 1.15rem; }
+    .stat-label { font-size: 0.62rem; }
+  }
+  .stat-cobrar .stat-num { font-size: 0.88rem !important; }
+
+  // Tabs: grid 2×2 en móvil (4 tabs → 2 arriba, 2 abajo)
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 0.3rem;
+    padding: 0.3rem;
+    background: var(--color-gray-light);
+    border-radius: 10px;
+  }
+  .tab {
+    justify-content: center;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    i { display: none; }  // oculta ícono para ahorrar espacio
+  }
+
+  // Buscador full-width
+  .subtoolbar .input-buscar { max-width: 100%; min-width: 0; width: 100%; }
+
+  // Tabla oculta → cards visibles
+  .tabla-desktop { display: none; }
+  .cards-mobile  { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  // Cards: más compactas
+  .card-top      { padding: 0.6rem 0.8rem; gap: 0.4rem; }
+  .card-telefono { padding: 0.2rem 0.8rem 0; font-size: 0.73rem; }
+  .card-productos{ padding: 0.15rem 0.8rem 0.4rem; }
+  .card-dato     { padding: 0.5rem 0.65rem; }
+  .card-financiero { border-top: 1px solid #f0f0f0; }
+
+  // ── Modales: cortar scroll horizontal ─────────────────────
+  .modal-overlay { padding: 0.75rem; }
+
+  .modal-body {
+    padding: 1rem;
+    overflow-x: hidden;  // evita que el contenido interior cause scroll
+  }
+
+  // Tabla mini (historial abonos): scroll propio
+  .tabla-mini-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    margin: 0 -0.25rem;  // compensa el padding del body
+  }
+  .tabla-mini { min-width: 420px; }
+
+  // Detalle grid: 2 columnas en lugar de 4
+  .detalle-grid { grid-template-columns: repeat(2, 1fr); }
+
+  // Producto resultado en modal crear: stack en móvil
+  .producto-resultado {
+    flex-wrap: wrap;
+    img { width: 44px; height: 44px; }
+    .prod-resultado-info { min-width: 0; }
+    .btn-agregar-prod { width: 100%; justify-content: center; }
+  }
+
+  // Sel-item: reordena en 2 filas para que no desborde
+  .sel-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    img { width: 36px; height: 36px; flex-shrink: 0; }
+
+    .sel-data { flex: 1; min-width: calc(100% - 56px); order: 1; }
+
+    .btn-quitar { order: 2; margin-left: auto; }
+
+    .sel-cantidad { order: 3; }
+
+    .sel-subtotal {
+      order: 4;
+      min-width: 0;
+      margin-left: auto;
+      text-align: right;
+    }
+  }
+
+  // Confirm cliente en modal aprobar: evita desborde del badge
+  .confirm-cliente {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    .confirm-estado-badge { margin-left: 0; width: 100%; justify-content: center; }
+  }
+
+  // Footer modales
+  .confirm-footer {
+    flex-direction: column-reverse;
+    gap: 0.6rem;
+    .btn-rechazar-accion,
+    .btn-aprobar-accion { width: 100%; justify-content: center; }
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    .btn-cancel,
+    .btn-guardar { flex: 1; justify-content: center; min-width: 120px; }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid { grid-template-columns: 1fr; }
+
+  .stats-row { gap: 0.6rem; }
+  .stat-card { padding: 0.75rem 0.85rem; }
+
+  .tab { padding: 0.5rem 0.75rem; font-size: 0.78rem; gap: 0.3rem; }
+
+  .modal-body { padding: 0.85rem; }
+  .modal-footer { padding: 0.85rem; }
 }

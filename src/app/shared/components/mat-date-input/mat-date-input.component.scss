@@ -1,0 +1,60 @@
+// ─── Host ─────────────────────────────────────────────────────
+// Anula cualquier estilo de clase externa (filtro-input, etc.)
+// para que solo se apliquen la flex/width del contenedor padre.
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+
+// ─── Wrapper interno ──────────────────────────────────────────
+.mdi-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+// ─── Input ────────────────────────────────────────────────────
+.mdi-input {
+  width: 100%;
+  padding: 0.5rem 2.2rem 0.5rem 0.75rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: #fafbfc;
+  color: var(--color-primary);
+  outline: none;
+  font-family: var(--font-secondary);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-width: 0;
+
+  &:focus  { border-color: var(--color-accent); }
+  &::placeholder { color: #b0b7c0; }
+}
+
+// ─── Botón ícono ──────────────────────────────────────────────
+.mdi-btn {
+  position: absolute;
+  right: 0.55rem;
+  background: none;
+  border: none;
+  padding: 0.2rem;
+  cursor: pointer;
+  color: #adb5bd;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  line-height: 1;
+
+  &:hover { color: var(--color-primary); }
+}

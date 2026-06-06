@@ -72,8 +72,7 @@ export class PerfilComponent implements OnInit {
   irAlInicio(): void { this.router.navigate(['/']); }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.authService.requestLogout();
   }
 
   abrirModalCompras():  void { this.modalCompras  = true; }

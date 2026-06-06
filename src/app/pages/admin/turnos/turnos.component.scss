@@ -279,3 +279,13 @@
 
   p { font-size: 0.85rem; color: #495057; line-height: 1.6; margin: 0; }
 }
+
+// ─── Responsive ──────────────────────────────────────────────
+@media (max-width: 768px) {
+  .page-header__title { font-size: 1.3rem; }
+  .hora-separator { display: none; }
+}
+
+@media (max-width: 480px) {
+  .nota-info { padding: 0.85rem 1rem; }
+}

@@ -1,0 +1,59 @@
+:host { display: inline-block; }
+
+.ts-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+// Inputs de hora y minuto — sin spinners nativos, compactos
+.ts-num {
+  width: 38px;
+  padding: 0.38rem 0.25rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  color: var(--color-primary);
+  background: #fafbfc;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+
+  // Oculta las flechitas nativas del number input
+  -moz-appearance: textfield;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+  &:focus { border-color: var(--color-accent); }
+}
+
+.ts-sep {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #adb5bd;
+  line-height: 1;
+}
+
+// Botón AM/PM — pequeño, pill
+.ts-period {
+  border: 1.5px solid #dee2e6;
+  border-radius: 7px;
+  background: #fafbfc;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-secondary);
+  padding: 0.38rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-accent);
+    border-color: var(--color-primary);
+  }
+}

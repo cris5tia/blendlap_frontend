@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { AuthService, IUsuario } from '../../core/services/auth.service';
 
 @Component({
@@ -9,16 +9,35 @@ import { AuthService, IUsuario } from '../../core/services/auth.service';
 export class AdminLayoutComponent implements OnInit {
 
   sidebarCollapsed = false;
+  sidebarOpen = false;
   usuario: IUsuario | null = null;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
+    if (window.innerWidth <= 920) {
+      this.sidebarCollapsed = true;
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth > 920) {
+      this.sidebarOpen = false;
+    }
   }
 
   toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
+    if (window.innerWidth <= 920) {
+      this.sidebarOpen = !this.sidebarOpen;
+    } else {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+    }
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   logout(): void {

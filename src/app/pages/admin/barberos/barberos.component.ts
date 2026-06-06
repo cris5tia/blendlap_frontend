@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-barberos',
@@ -12,7 +13,6 @@ export class BarberosComponent implements OnInit {
 
   barberos: IBarbero[] = [];
   cargando = false;
-  error = '';
 
   modalVisible = false;
   editando = false;
@@ -26,7 +26,10 @@ export class BarberosComponent implements OnInit {
   archivoSeleccionado: File | null = null;
   previewFoto: string = '';
 
-  constructor(private barberoService: BarberoService) { }
+  constructor(
+    private barberoService: BarberoService,
+    private toastService: ToastService
+  ) { }
 
   ngOnInit(): void {
     this.cargarBarberos();
@@ -41,7 +44,7 @@ export class BarberosComponent implements OnInit {
         this.cargando = false;
       },
       error: () => {
-        this.error = 'Error al cargar barberos';
+        this.toastService.error('Error al cargar barberos');
         this.cargando = false;
       }
     });
@@ -52,7 +55,7 @@ export class BarberosComponent implements OnInit {
         const idx = this.barberos.findIndex(b => b.id_usuario === barbero.id_usuario);
         if (idx !== -1) this.barberos[idx].estado = 'activo';
       },
-      error: () => this.error = 'Error al reactivar barbero'
+      error: () => this.toastService.error('Error al reactivar barbero')
     });
   }
 
@@ -98,7 +101,7 @@ export class BarberosComponent implements OnInit {
           this.guardarBarbero();
         },
         error: () => {
-          this.error = 'Error al subir la foto';
+          this.toastService.error('Error al subir la foto');
           this.guardando = false;
         }
       });
@@ -116,9 +119,10 @@ export class BarberosComponent implements OnInit {
           if (idx !== -1) this.barberos[idx] = { ...this.barberos[idx], ...res.data };
           this.guardando = false;
           this.cerrarModal();
+          this.toastService.success('Barbero actualizado');
         },
         error: () => {
-          this.error = 'Error al actualizar barbero';
+          this.toastService.error('Error al actualizar barbero');
           this.guardando = false;
         }
       });
@@ -128,9 +132,10 @@ export class BarberosComponent implements OnInit {
           this.barberos.push(res.data);
           this.guardando = false;
           this.cerrarModal();
+          this.toastService.success('Barbero creado');
         },
         error: () => {
-          this.error = 'Error al crear barbero';
+          this.toastService.error('Error al crear barbero');
           this.guardando = false;
         }
       });
@@ -153,7 +158,7 @@ export class BarberosComponent implements OnInit {
         this.barberoAEliminar = null;
       },
       error: () => {
-        this.error = 'Error al eliminar barbero';
+        this.toastService.error('Error al eliminar barbero');
         this.eliminando = false;
       }
     });

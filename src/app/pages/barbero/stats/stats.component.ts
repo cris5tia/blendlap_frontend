@@ -52,7 +52,6 @@ export class StatsComponent implements OnInit, OnDestroy {
     this.statsService.getStatsBarbero().subscribe({
       next: (res) => {
         this.stats = res.data;
-        console.log('STATS DATA:', res.data);
         this.cargando = false;
         setTimeout(() => this.iniciarGraficas(), 120);
       },

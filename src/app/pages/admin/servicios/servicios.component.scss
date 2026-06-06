@@ -337,14 +337,16 @@
 .modal {
     background: var(--color-white);
     border-radius: 16px;
-    width: 90vw;
+    width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.25s ease;
 
-    &--sm {
-        max-width: 400px;
-    }
+    &--sm { max-width: 400px; }
 
     &__header {
         display: flex;
@@ -352,10 +354,10 @@
         justify-content: space-between;
         padding: 1.25rem 1.5rem;
         border-bottom: 1px solid #f1f3f5;
+        flex-shrink: 0;
 
-        &--danger .modal__title {
-            color: #dc3545;
-        }
+        &--danger .modal__title { color: #dc3545; }
+        &--success .modal__title { color: #28a745; }
     }
 
     &__title {
@@ -367,11 +369,7 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
-
-        i {
-            color: var(--color-accent);
-            font-size: 0.9rem;
-        }
+        i { color: var(--color-accent); font-size: 0.9rem; }
     }
 
     &__close {
@@ -387,26 +385,35 @@
         justify-content: center;
         font-size: 0.85rem;
         transition: var(--transition);
-
-        &:hover {
-            background: #dc3545;
-            color: #fff;
-        }
+        flex-shrink: 0;
+        &:hover { background: #dc3545; color: #fff; }
     }
 
+    // Form ocupa el espacio restante
+    &__form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+    }
+
+    // Solo el body hace scroll
     &__body {
         padding: 1.5rem;
-        max-height: 70vh;
         overflow-y: auto;
+        flex: 1;
+        min-height: 0;
     }
 
+    // Footer siempre pegado al fondo
     &__footer {
         display: flex;
         justify-content: flex-end;
         gap: 0.75rem;
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.5rem;
         border-top: 1px solid #f1f3f5;
-        margin-top: 0;
+        background: var(--color-white);
+        flex-shrink: 0;
     }
 
     &__confirm-text {
@@ -414,10 +421,7 @@
         font-size: 0.92rem;
         line-height: 1.6;
         margin: 0;
-
-        strong {
-            color: var(--color-primary);
-        }
+        strong { color: var(--color-primary); }
     }
 }
 
@@ -726,4 +730,91 @@ select {
         border-color: var(--color-accent);
         box-shadow: 0 0 0 3px rgba(251, 196, 71, 0.12);
     }
+}
+
+// ─── Custom select categoría ─────────────────────────────────
+.custom-select {
+    position: relative;
+    width: 100%;
+
+    &__trigger {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 0.9rem;
+        border: 1.5px solid #dee2e6;
+        border-radius: 9px;
+        background: #fafbfc;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+        font-family: var(--font-secondary);
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 0.2s;
+
+        &:focus { outline: none; }
+    }
+
+    &--open .custom-select__trigger {
+        border-color: var(--color-accent);
+        border-radius: 9px 9px 0 0;
+    }
+
+    &__arrow {
+        font-size: 0.75rem;
+        color: var(--color-gray);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+        margin-left: 0.5rem;
+    }
+
+    &--open .custom-select__arrow {
+        transform: rotate(180deg);
+    }
+
+    &__menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1.5px solid var(--color-accent);
+        border-top: none;
+        border-radius: 0 0 9px 9px;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    &__option {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        border: none;
+        background: transparent;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+        font-family: var(--font-secondary);
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+        display: block;
+
+        &:hover { background: #f8f9fa; }
+
+        &--activo {
+            background: rgba(251, 196, 71, 0.12);
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+    }
+}
+
+// ─── Responsive ──────────────────────────────────────────────
+@media (max-width: 768px) {
+    .page-header__title { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+    .servicios-grid { grid-template-columns: 1fr !important; }
 }

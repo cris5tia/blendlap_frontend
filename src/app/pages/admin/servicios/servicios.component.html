@@ -94,8 +94,9 @@
       </button>
     </div>
 
-    <div class="modal__body">
-      <form (ngSubmit)="guardar()" #form="ngForm">
+    <form (ngSubmit)="guardar()" #form="ngForm" class="modal__form">
+
+      <div class="modal__body">
 
         <div class="form-group">
           <label>Nombre <span class="required">*</span></label>
@@ -104,17 +105,33 @@
         </div>
 
         <div class="form-group">
+          <label>Categoría <span class="required">*</span></label>
+          <div class="custom-select" [class.custom-select--open]="categoriaOpen">
+            <button type="button" class="custom-select__trigger"
+              (click)="categoriaOpen = !categoriaOpen">
+              <span>{{ formulario.categoria === 'clasicos' ? 'Clásicos' : formulario.categoria === 'premium' ? 'Premium' : 'Seleccionar...' }}</span>
+              <i class="fas fa-chevron-down custom-select__arrow"></i>
+            </button>
+            <div class="custom-select__menu" *ngIf="categoriaOpen">
+              <button type="button" class="custom-select__option"
+                [class.custom-select__option--activo]="formulario.categoria === 'clasicos'"
+                (click)="formulario.categoria = 'clasicos'; categoriaOpen = false">
+                Clásicos
+              </button>
+              <button type="button" class="custom-select__option"
+                [class.custom-select__option--activo]="formulario.categoria === 'premium'"
+                (click)="formulario.categoria = 'premium'; categoriaOpen = false">
+                Premium
+              </button>
+            </div>
+          </div>
+          <input type="hidden" [(ngModel)]="formulario.categoria" name="categoria" required />
+        </div>
+
+        <div class="form-group">
           <label>Descripción</label>
           <textarea [(ngModel)]="formulario.descripcion" name="descripcion" rows="3"
             placeholder="Describe el servicio..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Categoría <span class="required">*</span></label>
-          <select [(ngModel)]="formulario.categoria" name="categoria" required>
-            <option value="">Seleccionar...</option>
-            <option value="clasicos">Clásicos</option>
-            <option value="premium">Premium</option>
-          </select>
         </div>
 
         <div class="form-row">
@@ -129,8 +146,7 @@
             <label>Duración (min) <span class="required">*</span></label>
             <div class="input-prefix">
               <span><i class="fas fa-clock"></i></span>
-              <input type="number" [(ngModel)]="formulario.duracion" name="duracion" required min="1"
-                placeholder="30" />
+              <input type="number" [(ngModel)]="formulario.duracion" name="duracion" required min="1" placeholder="30" />
             </div>
           </div>
         </div>
@@ -147,21 +163,22 @@
           <div class="file-input" (click)="seleccionarImagen()">
             <i class="fas fa-cloud-upload-alt"></i>
             <span>{{ previewImagen ? 'Cambiar imagen' : 'Seleccionar imagen' }}</span>
-            <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)"
-              hidden />
+            <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)" hidden />
           </div>
         </div>
 
-        <div class="modal__footer">
-          <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-          <button type="submit" class="btn-guardar" [disabled]="form.invalid || guardando">
-            <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-            {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear servicio') }}
-          </button>
-        </div>
+      </div>
 
-      </form>
-    </div>
+      <!-- Footer siempre visible al fondo -->
+      <div class="modal__footer">
+        <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn-guardar" [disabled]="form.invalid || guardando">
+          <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear servicio') }}
+        </button>
+      </div>
+
+    </form>
 
   </div>
 </div>

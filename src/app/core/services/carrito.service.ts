@@ -50,7 +50,7 @@ export class CarritoService {
     const items = [...this.items];
     const item = items.find(i => i.producto.id_producto === id_producto);
     if (!item) return;
-    if (cantidad <= 0) { this.quitar(id_producto); return; }
+    if (cantidad < 1) return;
     item.cantidad = Math.min(cantidad, item.producto.stock);
     this.actualizar(items);
   }

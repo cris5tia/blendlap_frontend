@@ -1,156 +1,374 @@
-<div class="admin-page">
+<div class="ventas-page">
 
   <!-- Header -->
   <div class="page-header">
     <div>
       <h1 class="page-header__title">Ventas</h1>
-      <p class="page-header__sub">Historial de ventas generadas por reservas</p>
+      <p class="page-header__sub">Servicios realizados y productos vendidos</p>
     </div>
-    <button class="btn-accent" (click)="mostrarCierre = true; cargarCierreCaja()">
-      <i class="fas fa-cash-register"></i> Cierre de caja
+    <button class="btn-accent" (click)="abrirNuevaVenta()">
+      <i class="fas fa-plus"></i> Nueva venta
     </button>
   </div>
 
-  <div class="alert-error" *ngIf="error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+  <!-- KPIs -->
+  <div class="kpis-row" *ngIf="!cargando">
+    <div class="kpi-card">
+      <div class="kpi-card__icon"><i class="fas fa-receipt"></i></div>
+      <div class="kpi-card__info">
+        <div class="kpi-card__label">{{ tipoVista === 'todos' ? 'Total' : (tipoVista === 'servicios' ? 'Servicios' : 'Productos') }}</div>
+        <div class="kpi-card__valor">{{ listaActiva.length }}</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--blue" *ngIf="tipoVista !== 'productos' && ventasServicios.length">
+      <div class="kpi-card__icon kpi-card__icon--blue"><i class="fas fa-cut"></i></div>
+      <div class="kpi-card__info">
+        <div class="kpi-card__label">Servicios</div>
+        <div class="kpi-card__valor">{{ formatCurrency(totalServiciosFiltrado) }}</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--purple" *ngIf="tipoVista !== 'servicios' && ventasProductos.length">
+      <div class="kpi-card__icon kpi-card__icon--purple"><i class="fas fa-shopping-bag"></i></div>
+      <div class="kpi-card__info">
+        <div class="kpi-card__label">Productos en línea</div>
+        <div class="kpi-card__valor">{{ formatCurrency(totalProductosFiltrado) }}</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--green">
+      <div class="kpi-card__icon kpi-card__icon--green"><i class="fas fa-dollar-sign"></i></div>
+      <div class="kpi-card__info">
+        <div class="kpi-card__label">Monto {{ tipoVista === 'todos' ? 'total' : 'filtrado' }}</div>
+        <div class="kpi-card__valor">{{ formatCurrency(totalFiltrado) }}</div>
+      </div>
+    </div>
+  </div>
 
-  <!-- KPIs rápidos -->
-  <div class="kpis-mini" *ngIf="!cargando">
-    <div class="kpi-mini">
-      <span class="kpi-mini__label">Total ventas</span>
-      <span class="kpi-mini__valor">{{ ventasFiltradas.length }}</span>
-    </div>
-    <div class="kpi-mini kpi-mini--green">
-      <span class="kpi-mini__label">Monto filtrado</span>
-      <span class="kpi-mini__valor">{{ formatCurrency(totalFiltrado) }}</span>
-    </div>
+  <!-- Tabs tipo -->
+  <div class="tipo-tabs" *ngIf="!cargando">
+    <button class="tipo-tab" [class.activa]="tipoVista === 'todos'" (click)="cambiarVista('todos')">
+      <i class="fas fa-list"></i> Todos
+      <span class="tipo-tab__count">{{ ventasFiltradas.length }}</span>
+    </button>
+    <button class="tipo-tab tipo-tab--servicio" [class.activa]="tipoVista === 'servicios'" (click)="cambiarVista('servicios')">
+      <i class="fas fa-cut"></i> Servicios
+      <span class="tipo-tab__count">{{ ventasServicios.length }}</span>
+    </button>
+    <button class="tipo-tab tipo-tab--producto" [class.activa]="tipoVista === 'productos'" (click)="cambiarVista('productos')">
+      <i class="fas fa-shopping-bag"></i> Productos / En línea
+      <span class="tipo-tab__count">{{ ventasProductos.length }}</span>
+    </button>
   </div>
 
   <!-- Filtros -->
   <div class="filtros-bar">
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input type="text" placeholder="Buscar por cajero o ID..." [(ngModel)]="busqueda" (input)="filtrar()" />
+    <div class="filtros-bar__row">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Buscar nombre o ID..." [(ngModel)]="busqueda" (input)="filtrar()" />
+      </div>
+      <button class="btn-limpiar" (click)="filtroFecha=''; filtroMetodo=''; busqueda=''; filtrar()" title="Limpiar">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <input type="date" [(ngModel)]="filtroFecha" (change)="filtrar()" />
-    <select [(ngModel)]="filtroMetodo" (change)="filtrar()">
-      <option value="">Todos los métodos</option>
-      <option *ngFor="let m of metodos" [value]="m">{{ metodoPagoLabel(m) }}</option>
-    </select>
-    <button class="btn-secondary" (click)="filtroFecha=''; filtroMetodo=''; busqueda=''; filtrar()">
-      <i class="fas fa-times"></i> Limpiar
-    </button>
+    <div class="filtros-bar__row">
+      <app-mat-date class="filtro-input" [(ngModel)]="filtroFecha" (ngModelChange)="filtrar()"></app-mat-date>
+      <select class="filtro-select" [(ngModel)]="filtroMetodo" (change)="filtrar()">
+        <option value="">Todos los métodos</option>
+        <option *ngFor="let m of metodos" [value]="m">{{ metodoPagoLabel(m) }}</option>
+      </select>
+    </div>
   </div>
 
   <!-- Cargando -->
-  <div class="cargando" *ngIf="cargando"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+  <div class="cargando" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i> Cargando ventas...
+  </div>
 
-  <!-- Tabla -->
+  <!-- Lista -->
   <div class="tabla-card" *ngIf="!cargando">
-    <div class="tabla-wrap">
-      <table class="tabla" *ngIf="ventasFiltradas.length > 0">
+
+    <!-- ── Tabla desktop ── -->
+    <div class="tabla-desktop" *ngIf="listaActiva.length > 0">
+      <table class="tabla">
         <thead>
           <tr>
             <th>#</th>
             <th>Fecha</th>
             <th>Cajero</th>
             <th>Método de pago</th>
-            <th>Reserva</th>
-            <th>Total</th>
-            <th>Detalle</th>
+            <th class="text-right">Total</th>
+            <th class="text-center">Detalle</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let v of ventasFiltradas">
-            <td><code class="codigo">#{{ v.id_venta }}</code></td>
-            <td class="fecha-cell">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td>{{ v.nombre_cajero || '—' }}</td>
-            <td><span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">{{ metodoPagoLabel(v.metodo_pago) }}</span></td>
-            <td>{{ v.id_reserva ? '#' + v.id_reserva : '—' }}</td>
-            <td class="val-green fw-bold">{{ formatCurrency(v.total) }}</td>
+          <tr *ngFor="let v of listaActiva">
+            <td><span class="id-badge">#{{ v.id_venta }}</span></td>
+            <td class="nowrap">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ nombreVenta(v) }}</td>
             <td>
-              <button class="btn-icon btn-icon--blue" title="Ver detalle" (click)="verDetalle(v.id_venta)">
+              <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago, !v.id_reserva)">
+                {{ metodoPagoLabel(v.metodo_pago, !v.id_reserva) }}
+              </span>
+            </td>
+            <td class="text-right monto-verde">{{ formatCurrency(v.total) }}</td>
+            <td class="text-center">
+              <button class="btn-detalle" (click)="verDetalle(v.id_venta)">
                 <i class="fas fa-eye"></i>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <div class="tabla-empty" *ngIf="ventasFiltradas.length === 0">
-        <i class="fas fa-receipt"></i>
-        <p>No se encontraron ventas</p>
+    </div>
+
+    <!-- ── Cards móvil ── -->
+    <div class="cards-mobile">
+      <div class="ventas-lista" *ngIf="listaActiva.length > 0">
+        <div class="venta-row" *ngFor="let v of listaActiva" (click)="verDetalle(v.id_venta)">
+          <span class="venta-row__tipo" [ngClass]="tipoBadge(v)">
+            <i class="fas" [ngClass]="v.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
+          </span>
+          <div class="venta-row__info">
+            <span class="venta-row__cajero">{{ nombreVenta(v) }}</span>
+            <span class="venta-row__fecha">
+              {{ v.fecha | date:'dd/MM/yyyy HH:mm' }}
+              <span class="venta-row__subtipo" *ngIf="!v.id_reserva">· Compra en línea</span>
+            </span>
+          </div>
+          <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago, !v.id_reserva)">
+            {{ metodoPagoLabel(v.metodo_pago, !v.id_reserva) }}
+          </span>
+          <span class="venta-row__total">{{ formatCurrency(v.total) }}</span>
+          <i class="fas fa-chevron-right venta-row__arrow"></i>
+        </div>
       </div>
     </div>
+
+    <div class="tabla-empty" *ngIf="listaActiva.length === 0">
+      <i class="fas fa-receipt"></i>
+      <p *ngIf="tipoVista === 'servicios'">No hay ventas de servicios con estos filtros</p>
+      <p *ngIf="tipoVista === 'productos'">No hay compras de productos con estos filtros</p>
+      <p *ngIf="tipoVista === 'todos'">No se encontraron ventas</p>
+    </div>
+
   </div>
 
 </div>
 
 <!-- ── MODAL DETALLE VENTA ── -->
 <div class="modal-overlay" *ngIf="mostrarDetalle" (click)="cerrarModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal__header">
-      <span>Detalle venta #{{ ventaDetalle?.id_venta }}</span>
-      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
+  <div class="modal-detalle" (click)="$event.stopPropagation()">
+
+    <div class="modal-detalle__header">
+      <div class="modal-detalle__titulo">
+        <i class="fas" [ngClass]="ventaDetalle?.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
+        {{ ventaDetalle?.id_reserva ? 'Servicio' : 'Producto' }} #{{ ventaDetalle?.id_venta }}
+      </div>
+      <button class="modal-detalle__close" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="modal__body">
-      <div class="cargando" *ngIf="!ventaDetalle"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+
+    <div class="modal-detalle__body">
+
+      <div class="cargando" *ngIf="!ventaDetalle">
+        <i class="fas fa-spinner fa-spin"></i> Cargando...
+      </div>
+
       <ng-container *ngIf="ventaDetalle">
-        <div class="detalle-meta">
-          <span><i class="fas fa-user"></i> {{ ventaDetalle.nombre_cajero }}</span>
-          <span><i class="fas fa-calendar"></i> {{ ventaDetalle.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-          <span><i class="fas fa-credit-card"></i> {{ metodoPagoLabel(ventaDetalle.metodo_pago) }}</span>
+
+        <!-- Tipo banner -->
+        <div class="detalle-tipo-banner" [ngClass]="ventaDetalle.id_reserva ? 'banner-servicio' : 'banner-producto'">
+          <i class="fas" [ngClass]="ventaDetalle.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
+          {{ ventaDetalle.id_reserva ? 'Venta de servicio — Reserva #' + ventaDetalle.id_reserva : 'Compra de producto en línea' }}
         </div>
-        <div class="tabla-wrap">
-          <table class="tabla">
-            <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
-            <tbody>
-              <tr *ngFor="let d of ventaDetalle.detalles">
-                <td>{{ d.nombre_producto || '—' }}</td>
-                <td>{{ d.cantidad }}</td>
-                <td>{{ formatCurrency(d.precio_unitario) }}</td>
-                <td class="val-green fw-bold">{{ formatCurrency(d.subtotal) }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- Info básica -->
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <span class="detalle-item__label">
+              <i class="fas fa-user"></i>
+              {{ ventaDetalle.id_reserva ? 'Cajero' : 'Cliente / Comprador' }}
+            </span>
+            <span class="detalle-item__val">{{ ventaDetalle.nombre_cajero || (ventaDetalle.id_reserva ? '—' : 'Compra en línea') }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-item__label"><i class="fas fa-calendar"></i> Fecha</span>
+            <span class="detalle-item__val">{{ ventaDetalle.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-item__label"><i class="fas fa-credit-card"></i> Método de pago</span>
+            <span class="detalle-item__val">
+              <span class="badge" [ngClass]="metodoBadgeClass(ventaDetalle.metodo_pago, !ventaDetalle.id_reserva)">
+                {{ metodoPagoLabel(ventaDetalle.metodo_pago, !ventaDetalle.id_reserva) }}
+              </span>
+            </span>
+          </div>
         </div>
-        <div class="detalle-total">
+
+        <!-- Productos/Servicios -->
+        <div class="detalle-productos">
+          <div class="detalle-productos__titulo">
+            <i class="fas" [ngClass]="ventaDetalle.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
+            {{ ventaDetalle.id_reserva ? 'Servicios realizados' : 'Productos comprados' }}
+            <span class="detalle-productos__count" *ngIf="ventaDetalle.detalles?.length">
+              {{ ventaDetalle.detalles!.length }}
+            </span>
+          </div>
+          <div class="detalle-prod-item" *ngFor="let d of ventaDetalle.detalles">
+            <div class="detalle-prod-item__img">
+              <img *ngIf="d.imagen" [src]="d.imagen | imgUrl" [alt]="d.nombre_producto" />
+              <i *ngIf="!d.imagen" class="fas fa-box"></i>
+            </div>
+            <div class="detalle-prod-item__body">
+              <span class="detalle-prod-item__nombre">{{ d.nombre_producto || 'Producto sin nombre' }}</span>
+              <span class="detalle-prod-item__meta">
+                {{ d.cantidad }} {{ d.cantidad === 1 ? 'unidad' : 'unidades' }}
+                · {{ formatCurrency(d.precio_unitario) }} c/u
+              </span>
+            </div>
+            <span class="detalle-prod-item__sub">{{ formatCurrency(d.subtotal) }}</span>
+          </div>
+          <div class="detalle-prod-empty" *ngIf="!ventaDetalle.detalles?.length">
+            <i class="fas fa-info-circle"></i> Sin detalles disponibles
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="detalle-total-row">
           <span>Total</span>
-          <span class="val-green fw-bold">{{ formatCurrency(ventaDetalle.total) }}</span>
+          <span class="detalle-total-val">{{ formatCurrency(ventaDetalle.total) }}</span>
         </div>
+
       </ng-container>
     </div>
-    <div class="modal__footer">
-      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
-    </div>
+
   </div>
 </div>
 
-<!-- ── MODAL CIERRE DE CAJA ── -->
-<div class="modal-overlay" *ngIf="mostrarCierre" (click)="cerrarModal()">
-  <div class="modal modal--sm" (click)="$event.stopPropagation()">
-    <div class="modal__header">
-      <span><i class="fas fa-cash-register"></i> Cierre de caja</span>
-      <button class="modal__close" (click)="cerrarModal()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal__body">
-      <div class="form-group">
-        <label>Fecha</label>
-        <input type="date" [(ngModel)]="fechaCierre" (change)="cargarCierreCaja()" />
+<!-- ── MODAL NUEVA VENTA PRESENCIAL ── -->
+<div class="modal-overlay" *ngIf="modalNuevaVenta" (click)="cerrarNuevaVenta()">
+  <div class="modal-nueva" (click)="$event.stopPropagation()">
+
+    <div class="modal-detalle__header">
+      <div class="modal-detalle__titulo">
+        <i class="fas fa-shopping-bag"></i> Nueva venta presencial
       </div>
-      <div class="cargando" *ngIf="cargandoCierre"><i class="fas fa-spinner fa-spin"></i> Calculando...</div>
-      <ng-container *ngIf="cierreCaja && !cargandoCierre">
-        <div class="cierre-grid">
-          <div class="cierre-item"><span>Ventas del día</span><strong>{{ cierreCaja.cantidad_ventas }}</strong></div>
-          <div class="cierre-item cierre-item--total"><span>Total</span><strong class="val-green">{{ formatCurrency(cierreCaja.total_ventas) }}</strong></div>
-          <div class="cierre-item"><span>Efectivo</span><span>{{ formatCurrency(cierreCaja.total_efectivo) }}</span></div>
-          <div class="cierre-item"><span>Tarjeta</span><span>{{ formatCurrency(cierreCaja.total_tarjeta) }}</span></div>
-          <div class="cierre-item"><span>Transferencia</span><span>{{ formatCurrency(cierreCaja.total_transferencia) }}</span></div>
-          <div class="cierre-item"><span>Nequi</span><span>{{ formatCurrency(cierreCaja.total_nequi) }}</span></div>
-          <div class="cierre-item"><span>Otro</span><span>{{ formatCurrency(cierreCaja.total_otro) }}</span></div>
-        </div>
-      </ng-container>
+      <button class="modal-detalle__close" (click)="cerrarNuevaVenta()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="modal__footer">
-      <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
+
+    <!-- Éxito -->
+    <div class="nv-exito" *ngIf="exitoNueva">
+      <i class="fas fa-check-circle"></i> ¡Venta registrada correctamente!
+    </div>
+
+    <div class="modal-nueva__body" *ngIf="!exitoNueva">
+
+      <!-- Columna izquierda: búsqueda de productos -->
+      <div class="nv-productos">
+        <div class="nv-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Buscar producto..." [(ngModel)]="busquedaProducto"
+            (input)="filtrarProductos()" />
+        </div>
+        <div class="nv-lista">
+          <div class="nv-item" *ngFor="let p of productosBusq" (click)="agregarProducto(p)">
+            <div class="nv-item__img">
+              <img *ngIf="p.imagen" [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
+              <i *ngIf="!p.imagen" class="fas fa-box"></i>
+            </div>
+            <div class="nv-item__info">
+              <span class="nv-item__nombre">{{ p.nombre_producto }}</span>
+              <span class="nv-item__codigo">{{ p.codigo_producto }}</span>
+              <span class="nv-item__stock-tag">
+                <i class="fas fa-cubes"></i> {{ p.stock }} disponibles
+              </span>
+            </div>
+            <div class="nv-item__right">
+              <span class="nv-item__precio">{{ formatCurrency(p.precio) }}</span>
+              <button class="nv-btn-add" (click)="agregarProducto(p); $event.stopPropagation()">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="nv-vacio" *ngIf="productosBusq.length === 0">
+            <i class="fas fa-box-open"></i>
+            <p>Sin productos disponibles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: carrito + pago -->
+      <div class="nv-carrito">
+        <div class="nv-carrito__titulo">
+          <i class="fas fa-cart-shopping"></i> Carrito
+          <span class="nv-carrito__count" *ngIf="carrito.length">{{ carrito.length }}</span>
+        </div>
+
+        <div class="nv-carrito__vacio" *ngIf="carrito.length === 0">
+          <i class="fas fa-cart-plus"></i>
+          <p>Agrega productos desde la izquierda</p>
+        </div>
+
+        <div class="nv-carrito__items" *ngIf="carrito.length > 0">
+          <div class="nv-cart-item" *ngFor="let item of carrito">
+            <div class="nv-cart-item__img">
+              <img *ngIf="item.producto.imagen" [src]="item.producto.imagen | imgUrl" [alt]="item.producto.nombre_producto" />
+              <i *ngIf="!item.producto.imagen" class="fas fa-box"></i>
+            </div>
+            <div class="nv-cart-item__info">
+              <span class="nv-cart-item__nombre">{{ item.producto.nombre_producto }}</span>
+              <span class="nv-cart-item__sub">{{ formatCurrency(item.producto.precio) }} c/u</span>
+            </div>
+            <div class="nv-cart-item__controls">
+              <button class="nv-ctrl" (click)="cambiarCantidad(item.producto.id_producto, -1)">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="nv-ctrl__qty">{{ item.cantidad }}</span>
+              <button class="nv-ctrl" (click)="cambiarCantidad(item.producto.id_producto, 1)"
+                [disabled]="item.cantidad >= item.producto.stock">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="nv-cart-item__foot">
+              <span class="nv-cart-item__total">{{ formatCurrency(item.producto.precio * item.cantidad) }}</span>
+              <button class="nv-cart-item__quitar" (click)="quitarProducto(item.producto.id_producto)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Método de pago -->
+        <div class="nv-metodos" *ngIf="carrito.length > 0">
+          <p class="nv-metodos__label"><i class="fas fa-credit-card"></i> Método de pago</p>
+          <div class="nv-metodos__chips">
+            <button *ngFor="let m of metodosModal" class="nv-chip"
+              [class.nv-chip--activo]="metodoPagoNueva === m"
+              (click)="metodoPagoNueva = m">
+              {{ metodoPagoLabel(m) }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Total + error + botón -->
+        <div class="nv-footer" *ngIf="carrito.length > 0">
+          <div class="nv-total">
+            <span>Total</span>
+            <strong>{{ formatCurrency(totalCarrito) }}</strong>
+          </div>
+          <div class="nv-error" *ngIf="errorNueva">
+            <i class="fas fa-exclamation-circle"></i> {{ errorNueva }}
+          </div>
+          <button class="nv-btn-registrar" (click)="registrarVenta()" [disabled]="guardando">
+            <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            {{ guardando ? 'Registrando...' : 'Registrar venta' }}
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

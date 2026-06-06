@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface IUsuario {
@@ -27,6 +27,9 @@ export class AuthService {
   private apiUrl = 'http://localhost:3001/api/auth';
   private usuarioSubject = new BehaviorSubject<IUsuario | null>(null);
   usuario$ = this.usuarioSubject.asObservable();
+
+  private logoutRequestedSubject = new Subject<void>();
+  logoutRequested$ = this.logoutRequestedSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
     this.cargarUsuario();
@@ -68,6 +71,10 @@ export class AuthService {
         }
       })
     );
+  }
+
+  requestLogout(): void {
+    this.logoutRequestedSubject.next();
   }
 
   // Logout

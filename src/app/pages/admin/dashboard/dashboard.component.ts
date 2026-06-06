@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../../core/services/dashboard.service';
+import { ToastService } from '../../../core/services/toast.service';
 import {
   ApexAxisChartSeries, ApexChart, ApexXAxis, ApexYAxis,
   ApexStroke, ApexFill, ApexTooltip, ApexGrid, ApexMarkers,
@@ -44,12 +45,15 @@ export class DashboardComponent implements OnInit {
 
   cargando = true;
   data: any = null;
-  error = '';
+  reservaDetalle: any = null;
 
   chartAreaOptions!: Partial<ChartAreaOptions>;
   chartRadialOptions!: Partial<ChartRadialOptions>;
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(
+    private dashboardService: DashboardService,
+    private toastService: ToastService
+  ) { }
 
   ngOnInit(): void { this.cargarDatos(); }
 
@@ -61,7 +65,7 @@ export class DashboardComponent implements OnInit {
         this.cargando = false;
         this.iniciarGraficas();
       },
-      error: () => { this.error = 'Error al cargar el dashboard'; this.cargando = false; }
+      error: () => { this.toastService.error('Error al cargar el dashboard'); this.cargando = false; }
     });
   }
 
@@ -242,5 +246,13 @@ export class DashboardComponent implements OnInit {
 
   porcentajeCitas(citas: number): number {
     return Math.round((citas / this.maxCitasBarbero) * 100);
+  }
+
+  abrirDetalleReserva(r: any): void {
+    this.reservaDetalle = r;
+  }
+
+  cerrarDetalleReserva(): void {
+    this.reservaDetalle = null;
   }
 }

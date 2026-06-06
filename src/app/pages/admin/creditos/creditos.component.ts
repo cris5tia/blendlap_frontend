@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CreditoService, ICredito, IRegistrarAbono, ICrearCreditoAdmin } from '../../../core/services/credito.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-creditos',
@@ -15,8 +16,6 @@ export class CreditosComponent implements OnInit {
   // ─── Datos ────────────────────────────────────────────────
   todosLosCreditos: ICredito[] = [];
   cargando  = false;
-  error     = '';
-  exito     = '';
   busqueda  = '';
 
   // ─── Modal crear ──────────────────────────────────────────
@@ -58,7 +57,8 @@ export class CreditosComponent implements OnInit {
 
   constructor(
     private creditoService:  CreditoService,
-    private productoService: ProductoService
+    private productoService: ProductoService,
+    private toastService:    ToastService
   ) {}
 
   ngOnInit(): void {
@@ -71,7 +71,7 @@ export class CreditosComponent implements OnInit {
     this.cargando = true;
     this.creditoService.getAll().subscribe({
       next: (res) => { this.todosLosCreditos = res.data; this.cargando = false; },
-      error: () => { this.error = 'Error al cargar créditos'; this.cargando = false; }
+      error: () => { this.toastService.error('Error al cargar créditos'); this.cargando = false; }
     });
   }
 
@@ -213,8 +213,7 @@ export class CreditosComponent implements OnInit {
         this.guardando = false;
         this.cerrarModalCrear();
         this.cargar();
-        this.exito = 'Crédito creado y activo';
-        setTimeout(() => this.exito = '', 3000);
+        this.toastService.success('Crédito creado y activo');
       },
       error: (err: any) => {
         this.errorModal = err.error?.mensaje || 'Error al guardar';
@@ -229,7 +228,7 @@ export class CreditosComponent implements OnInit {
     this.modalDetalle   = true;
     this.creditoService.getById(id).subscribe({
       next: (res) => this.creditoDetalle = res.data,
-      error: () => this.error = 'Error al cargar detalle'
+      error: () => this.toastService.error('Error al cargar detalle')
     });
   }
 
@@ -247,11 +246,10 @@ export class CreditosComponent implements OnInit {
         this.procesando   = false;
         this.modalAprobar = false;
         this.cargar();
-        this.exito = 'Crédito aprobado — stock descontado';
-        setTimeout(() => this.exito = '', 3000);
+        this.toastService.success('Crédito aprobado — stock descontado');
       },
       error: (err: any) => {
-        this.error      = err.error?.mensaje || 'Error al aprobar';
+        this.toastService.error('Error al aprobar', err?.error?.mensaje || 'Error inesperado');
         this.procesando = false;
       }
     });
@@ -265,8 +263,7 @@ export class CreditosComponent implements OnInit {
         this.procesando   = false;
         this.modalAprobar = false;
         this.cargar();
-        this.exito = 'Solicitud rechazada';
-        setTimeout(() => this.exito = '', 3000);
+        this.toastService.success('Solicitud rechazada');
       },
       error: () => { this.procesando = false; }
     });
@@ -286,7 +283,7 @@ export class CreditosComponent implements OnInit {
 
   registrarAbono(): void {
     if (!this.abonoForm.monto || this.abonoForm.monto <= 0) {
-      this.error = 'Ingresa un monto válido'; return;
+      this.toastService.warning('Ingresa un monto válido'); return;
     }
     this.guardandoAbono = true;
     this.creditoService.abonar(this.abonoForm).subscribe({
@@ -294,11 +291,10 @@ export class CreditosComponent implements OnInit {
         this.guardandoAbono = false;
         this.modalAbonar    = false;
         this.cargar();
-        this.exito = 'Abono registrado correctamente';
-        setTimeout(() => this.exito = '', 3000);
+        this.toastService.success('Abono registrado correctamente');
       },
       error: (err: any) => {
-        this.error          = err.error?.mensaje || 'Error al registrar abono';
+        this.toastService.error('Error al registrar abono', err?.error?.mensaje || 'Error inesperado');
         this.guardandoAbono = false;
       }
     });

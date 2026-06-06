@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-reservas',
@@ -12,7 +13,6 @@ export class ReservasComponent implements OnInit {
   reservas: IReserva[] = [];
   barberos: IBarbero[] = [];
   cargando = false;
-  error = '';
 
   filtros = {
     fecha: '',
@@ -21,6 +21,8 @@ export class ReservasComponent implements OnInit {
   };
 
   estados = ['pendiente', 'completada', 'cancelada'];
+
+  reservaDetalle: IReserva | null = null;
 
   modalEstado = false;
   reservaSeleccionada: IReserva | null = null;
@@ -33,7 +35,8 @@ export class ReservasComponent implements OnInit {
 
   constructor(
     private reservaService: ReservaService,
-    private barberoService: BarberoService
+    private barberoService: BarberoService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -43,14 +46,13 @@ export class ReservasComponent implements OnInit {
 
   cargarReservas(): void {
     this.cargando = true;
-    this.error = '';
     this.reservaService.getAllAdmin(this.filtros).subscribe({
       next: (res) => {
         this.reservas = res.data;
         this.cargando = false;
       },
       error: () => {
-        this.error = 'Error al cargar reservas';
+        this.toastService.error('Error al cargar reservas');
         this.cargando = false;
       }
     });
@@ -70,6 +72,14 @@ export class ReservasComponent implements OnInit {
   limpiarFiltros(): void {
     this.filtros = { fecha: '', id_barbero: '', estado: '' };
     this.cargarReservas();
+  }
+
+  abrirDetalle(reserva: IReserva): void {
+    this.reservaDetalle = reserva;
+  }
+
+  cerrarDetalle(): void {
+    this.reservaDetalle = null;
   }
 
   abrirModalEstado(reserva: IReserva): void {
@@ -94,7 +104,7 @@ export class ReservasComponent implements OnInit {
       },
       error: () => {
         this.cambiando = false;
-        this.error = 'Error al cambiar estado';
+        this.toastService.error('Error al cambiar estado');
       }
     });
   }
@@ -116,7 +126,7 @@ export class ReservasComponent implements OnInit {
       },
       error: () => {
         this.cancelando = false;
-        this.error = 'Error al cancelar reserva';
+        this.toastService.error('Error al cancelar reserva');
       }
     });
   }

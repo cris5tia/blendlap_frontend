@@ -1,0 +1,22 @@
+<div class="ts-wrap">
+  <input
+    class="ts-num"
+    type="number"
+    min="1" max="12"
+    [ngModel]="h"
+    (ngModelChange)="onHourInput($event)"
+    (blur)="_onTouched()"
+  />
+  <span class="ts-sep">:</span>
+  <input
+    class="ts-num"
+    type="number"
+    min="0" max="59"
+    [ngModel]="minDisplay"
+    (ngModelChange)="onMinuteInput($event)"
+    (blur)="_onTouched()"
+  />
+  <button type="button" class="ts-period" (click)="togglePeriod()">
+    {{ pm ? 'p.m.' : 'a.m.' }}
+  </button>
+</div>

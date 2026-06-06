@@ -6,6 +6,19 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS, MatDateFormats } from '@angular/material/core';
+import { MatDateInputComponent } from './shared/components/mat-date-input/mat-date-input.component';
+import { TimeSelectComponent } from './shared/components/time-select/time-select.component';
+
+const DATE_FORMATS: MatDateFormats = {
+  parse:   { dateInput: null as any },
+  display: {
+    dateInput:          { day: '2-digit', month: '2-digit', year: 'numeric' },
+    monthYearLabel:     { month: 'long', year: 'numeric' },
+    dateA11yLabel:      { day: 'numeric', month: 'long', year: 'numeric' },
+    monthYearA11yLabel: { month: 'long', year: 'numeric' },
+  },
+};
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -41,6 +54,7 @@ import { ReportesComponent } from './pages/admin/reportes/reportes.component';
 import { BarberosComponent } from './pages/admin/barberos/barberos.component';
 import { GastosComponent } from './pages/admin/gastos/gastos.component';
 import { CreditosComponent } from './pages/admin/creditos/creditos.component';
+import { CierreCajaComponent } from './pages/admin/cierre-caja/cierre-caja.component';
 
 import { AgendaComponent } from './pages/barbero/agenda/agenda.component';
 import { StatsComponent } from './pages/barbero/stats/stats.component';
@@ -83,6 +97,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     BarberosComponent,
     GastosComponent,
     CreditosComponent,
+    CierreCajaComponent,
     AgendaComponent,
     StatsComponent,
     HorarioComponent,
@@ -104,12 +119,17 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     AppRoutingModule,
     NgApexchartsModule,
     BrowserAnimationsModule,
+    MatNativeDateModule,
+    MatDateInputComponent,
+    TimeSelectComponent,
   ],
   providers: [
     DatePipe,
     CurrencyPipe,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy }
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
+    { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
+    { provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS },
   ],
   bootstrap: [AppComponent]
 })

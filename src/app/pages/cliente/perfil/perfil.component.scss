@@ -727,13 +727,58 @@ $legendario-c : #7c3aed;
 
 // ── RESPONSIVE ────────────────────────────────────────────────
 @media (max-width: 768px) {
-  .pf-topbar {
-    padding: 0 1rem;
-    &__back span, &__logout span { display: none; }
-    &__logo img { height: 62px; }
-  }
   .pf-page { padding: 1rem 0.85rem 2.5rem; }
   .pf-hero-card { padding: 1.1rem; gap: 1rem; }
   .pf-hero-card__stats { margin-left: 0; width: 100%; }
   .pf-hstat { padding: 0.65rem 1rem; }
+}
+
+@media (max-width: 520px) {
+  // ── Topbar: horizontal compacto ───────────────────────────────
+  .pf-topbar {
+    height: 64px;
+    padding: 0 0.75rem;
+
+    &__logo img { height: 48px; }
+
+    &__back {
+      font-size: 0.72rem;
+      padding: 0.35rem 0.65rem;
+      gap: 0.3rem;
+      i { font-size: 0.7rem; }
+    }
+
+    &__logout {
+      padding: 0.45rem 0.65rem;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      justify-content: center;
+      i { font-size: 1rem; }
+    }
+
+    &__logout-txt { display: none; }
+  }
+
+  .pf-page { margin-top: 64px; min-height: calc(100vh - 64px); }
+
+  // ── Tabs: grid 2×2 compacto ───────────────────────────────────
+  .pf-tabs-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow-x: visible;
+    gap: 0.3rem;
+    padding: 0.35rem;
+  }
+
+  .pf-tab {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.72rem;
+    padding: 0.5rem 0.4rem;
+    flex-direction: column;
+    gap: 0.2rem;
+    white-space: normal;
+    line-height: 1.2;
+    i { font-size: 0.85rem; }
+  }
 }

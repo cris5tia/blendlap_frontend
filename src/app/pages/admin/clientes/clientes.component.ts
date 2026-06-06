@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ClienteService, ICliente } from '../../../core/services/cliente.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-clientes',
@@ -11,7 +12,6 @@ export class ClientesComponent implements OnInit {
   clientes: ICliente[] = [];
   clientesFiltrados: ICliente[] = [];
   cargando = false;
-  error = '';
   busqueda = '';
 
   modalHistorial = false;
@@ -19,7 +19,10 @@ export class ClientesComponent implements OnInit {
   historial: any = null;
   cargandoHistorial = false;
 
-  constructor(private clienteService: ClienteService) {}
+  constructor(
+    private clienteService: ClienteService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.cargarClientes();
@@ -30,25 +33,29 @@ export class ClientesComponent implements OnInit {
     this.clienteService.getAll().subscribe({
       next: (res) => {
         this.clientes = res.data;
-        this.clientesFiltrados = res.data;
+        this.clientesFiltrados = this.aplicarOrden(res.data);
         this.cargando = false;
       },
-      error: () => { this.error = 'Error al cargar clientes'; this.cargando = false; }
+      error: () => { this.toastService.error('Error al cargar clientes'); this.cargando = false; }
     });
   }
 
   buscar(): void {
     const t = this.busqueda.trim();
-    if (!t) { this.clientesFiltrados = this.clientes; return; }
+    if (!t) { this.clientesFiltrados = this.aplicarOrden(this.clientes); return; }
     this.clienteService.buscar(t).subscribe({
-      next: (res) => this.clientesFiltrados = res.data,
+      next: (res) => this.clientesFiltrados = this.aplicarOrden(res.data),
       error: () => {}
     });
   }
 
   limpiarBusqueda(): void {
     this.busqueda = '';
-    this.clientesFiltrados = this.clientes;
+    this.clientesFiltrados = this.aplicarOrden(this.clientes);
+  }
+
+  private aplicarOrden(lista: ICliente[]): ICliente[] {
+    return [...lista].sort((a, b) => b.total_cortes - a.total_cortes);
   }
 
   abrirHistorial(cliente: ICliente): void {

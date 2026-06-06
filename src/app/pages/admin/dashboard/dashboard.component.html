@@ -4,9 +4,7 @@
     <i class="fas fa-spinner fa-spin"></i> Cargando dashboard...
   </div>
 
-  <div class="alert-error" *ngIf="error">
-    <i class="fas fa-exclamation-circle"></i> {{ error }}
-  </div>
+
 
   <ng-container *ngIf="!cargando && data">
 
@@ -275,49 +273,90 @@
       </div>
     </div>
 
-    <!-- Ultimas reservas -->
+    <!-- Ultimas reservas — lista + modal -->
     <div class="tabla-card">
       <div class="tabla-card__header">
         <i class="fas fa-clock"></i>
-        <span>Ultimas reservas</span>
+        <span>Últimas reservas</span>
       </div>
-      <div class="tabla-wrap">
-        <table class="tabla" *ngIf="data.ultimasReservas?.length > 0">
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Barbero</th>
-              <th>Servicio</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let r of data.ultimasReservas">
-              <td>
-                <div class="cliente-cell">
-                  <div class="cliente-cell__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
-                  {{ r.nombre_cliente }}
-                </div>
-              </td>
-              <td>{{ r.nombre_barbero }}</td>
-              <td>{{ r.nombre_servicio }}</td>
-              <td class="fecha-cell">{{ r.fecha | date:'dd/MM/yyyy' }}</td>
-              <td>{{ r.hora }}</td>
-              <td>
-                <span class="badge" [ngClass]="getEstadoClass(r.estado)">{{ r.estado }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="tabla-empty" *ngIf="!data.ultimasReservas?.length">
-          <i class="fas fa-calendar-times"></i>
-          <p>No hay reservas recientes</p>
+
+      <div class="reservas-lista" *ngIf="data.ultimasReservas?.length > 0">
+        <div class="reserva-row"
+             *ngFor="let r of data.ultimasReservas"
+             (click)="abrirDetalleReserva(r)">
+          <div class="cliente-cell">
+            <div class="cliente-cell__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
+            <span class="cliente-cell__nombre">{{ r.nombre_cliente }}</span>
+          </div>
+          <span class="badge" [ngClass]="getEstadoClass(r.estado)">{{ r.estado }}</span>
+          <i class="fas fa-chevron-right reserva-row__arrow"></i>
         </div>
+      </div>
+
+      <div class="tabla-empty" *ngIf="!data.ultimasReservas?.length">
+        <i class="fas fa-calendar-times"></i>
+        <p>No hay reservas recientes</p>
       </div>
     </div>
 
   </ng-container>
 
+</div>
+
+<!-- ── Modal detalle reserva ────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="reservaDetalle" (click)="cerrarDetalleReserva()">
+  <div class="modal-detalle" (click)="$event.stopPropagation()">
+
+    <div class="modal-detalle__header">
+      <div class="modal-detalle__titulo">
+        <i class="fas fa-calendar-check"></i>
+        Detalle de reserva
+      </div>
+      <button class="modal-detalle__close" (click)="cerrarDetalleReserva()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-detalle__body">
+
+      <!-- Cliente -->
+      <div class="detalle-cliente">
+        <div class="detalle-cliente__avatar">{{ reservaDetalle.nombre_cliente?.charAt(0) }}</div>
+        <div>
+          <div class="detalle-cliente__nombre">{{ reservaDetalle.nombre_cliente }}</div>
+          <span class="badge" [ngClass]="getEstadoClass(reservaDetalle.estado)">{{ reservaDetalle.estado }}</span>
+        </div>
+      </div>
+
+      <!-- Datos -->
+      <div class="detalle-grid">
+        <div class="detalle-item">
+          <span class="detalle-item__label"><i class="fas fa-user-tie"></i> Barbero</span>
+          <span class="detalle-item__val">{{ reservaDetalle.nombre_barbero }}</span>
+        </div>
+        <div class="detalle-item">
+          <span class="detalle-item__label"><i class="fas fa-cut"></i> Servicio</span>
+          <span class="detalle-item__val">{{ reservaDetalle.nombre_servicio || '—' }}</span>
+        </div>
+        <div class="detalle-item">
+          <span class="detalle-item__label"><i class="fas fa-calendar"></i> Fecha</span>
+          <span class="detalle-item__val">{{ reservaDetalle.fecha | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detalle-item">
+          <span class="detalle-item__label"><i class="fas fa-clock"></i> Hora</span>
+          <span class="detalle-item__val">{{ reservaDetalle.hora }}</span>
+        </div>
+        <div class="detalle-item" *ngIf="reservaDetalle.precio_total > 0">
+          <span class="detalle-item__label"><i class="fas fa-dollar-sign"></i> Total</span>
+          <span class="detalle-item__val val-green">${{ reservaDetalle.precio_total | number:'1.0-0' }}</span>
+        </div>
+        <div class="detalle-item">
+          <span class="detalle-item__label"><i class="fas fa-hashtag"></i> ID</span>
+          <span class="detalle-item__val">#{{ reservaDetalle.id_reserva }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
