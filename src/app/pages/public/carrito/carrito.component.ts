@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { CreditoService } from '../../../core/services/credito.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-carrito',
@@ -64,7 +65,7 @@ export class CarritoComponent implements OnInit {
   getImagen(imagen?: string): string {
     if (!imagen) return 'assets/images/no-img.png';
     if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('assets/')) return imagen;
-    return `http://localhost:3001/images/productos/${imagen}`;
+    return `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/productos/${imagen}`;
   }
 
   volver(): void { this.location.back(); }

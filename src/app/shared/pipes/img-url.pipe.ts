@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
-const BASE = 'http://localhost:3001/images';
+const BASE = environment.apiUrl.replace(/\/api\/?$/, '/images');
 
 @Pipe({ name: 'imgUrl' })
 export class ImgUrlPipe implements PipeTransform {

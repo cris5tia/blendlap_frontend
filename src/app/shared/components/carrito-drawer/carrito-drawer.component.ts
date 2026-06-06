@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { CreditoService } from '../../../core/services/credito.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-carrito-drawer',
@@ -57,7 +58,7 @@ export class CarritoDrawerComponent implements OnInit {
   getImagen(imagen?: string): string {
     if (!imagen) return 'assets/images/no-img.png';
     if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('assets/')) return imagen;
-    return `http://localhost:3001/images/productos/${imagen}`;
+    return `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/productos/${imagen}`;
   }
 
   formatCurrency(v: number): string {

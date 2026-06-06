@@ -6,6 +6,7 @@ import { CarritoService, IItemCarrito } from '../../../core/services/carrito.ser
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { ResenaService } from '../../../core/services/resena.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -240,7 +241,7 @@ export class HomeComponent implements OnInit {
     if (p.imagen?.startsWith('data:') || p.imagen?.startsWith('http') || p.imagen?.startsWith('assets/')) {
       return p.imagen;
     }
-    if (p.imagen) return `http://localhost:3001/images/productos/${p.imagen}`;
+    if (p.imagen) return `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/productos/${p.imagen}`;
     return 'assets/images/no-img.png';
   }
 

@@ -29,7 +29,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Si Wompi redirigió a un túnel/dominio externo, redirigir a localhost preservando params
     if (window.location.hostname !== 'localhost') {
-      window.location.href = `http://localhost:4200/pago/resultado${window.location.search}`;
+      window.location.href = `${window.location.origin}/pago/resultado${window.location.search}`;
       return;
     }
 

@@ -7,6 +7,7 @@ import { CreditoService } from '../../../core/services/credito.service';
 import { TabService } from '../../../core/services/tab.service';
 import { Subject } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -63,7 +64,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   perfilFotoPreview = '';
   perfilEliminarFoto = false;
 
-  readonly API_IMG = 'http://localhost:3001/images/clientes/';
+  readonly API_IMG = `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/clientes/`;
 
   constructor(
     private authService: AuthService,
@@ -224,7 +225,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   getImagenCarrito(imagen?: string): string {
     if (!imagen) return 'assets/images/no-img.png';
     if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('assets/')) return imagen;
-    return `http://localhost:3001/images/productos/${imagen}`;
+    return `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/productos/${imagen}`;
   }
 
   aumentarItemCarrito(id: number): void {
