@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PagoService } from '../../../core/services/pago.service';
 import { CarritoService } from '../../../core/services/carrito.service';
@@ -27,17 +27,11 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Si Wompi redirigió a un túnel/dominio externo, redirigir a localhost preservando params
-    if (window.location.hostname !== 'localhost') {
-      window.location.href = `${window.location.origin}/pago/resultado${window.location.search}`;
-      return;
-    }
-
     this.transactionId = this.route.snapshot.queryParamMap.get('id') || '';
 
     if (!this.transactionId) {
       this.estado  = 'error';
-      this.mensaje = 'No se recibió el ID de la transacción';
+      this.mensaje = 'No se recibio el ID de la transaccion';
       return;
     }
 
@@ -59,7 +53,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
           sessionStorage.removeItem('wompi_referencia');
         } else if (res.estado === 'rechazado') {
           this.estado  = 'rechazado';
-          this.mensaje = 'Tu pago fue rechazado. Intenta con otro método.';
+          this.mensaje = 'Tu pago fue rechazado. Intenta con otro metodo.';
         } else {
           this.estado  = 'error';
           this.mensaje = res.mensaje || 'Error al procesar el pago';
@@ -67,7 +61,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.estado  = 'error';
-        this.mensaje = err.error?.mensaje || 'No se pudo verificar la transacción';
+        this.mensaje = err.error?.mensaje || 'No se pudo verificar la transaccion';
       }
     });
   }
