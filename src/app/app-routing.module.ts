@@ -42,16 +42,16 @@ const routes: Routes = [
     component: PublicLayoutComponent,
     children: [
       { path: '', component: HomeComponent },
+      { path: 'nosotros', component: HistoriaComponent },
+      { path: 'agendar', component: AgendarComponent },
+      { path: 'login', component: LoginComponent },
+      { path: 'registro', component: RegistroComponent },
+      { path: 'recuperar-password', component: RecuperarPasswordComponent },
+      { path: 'carrito', redirectTo: '', pathMatch: 'full' },
+      { path: 'checkout', component: CheckoutComponent },
+      { path: 'pago/resultado', component: PagoResultadoComponent },
     ]
   },
-  { path: 'nosotros', component: HistoriaComponent },
-  { path: 'agendar', component: AgendarComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'registro', component: RegistroComponent },
-  { path: 'recuperar-password', component: RecuperarPasswordComponent },
-  { path: 'carrito',        redirectTo: '', pathMatch: 'full' },
-  { path: 'checkout',       component: CheckoutComponent },
-  { path: 'pago/resultado', component: PagoResultadoComponent },
 
   // Admin
   {

@@ -211,6 +211,8 @@
 
 @media (max-width: 768px) {
   .footer__top { display: none; }
+  .footer__body { padding: 46px 0 34px; }
+  .footer__bottom { padding: 14px 0; }
 
   .footer__top-content {
     flex-direction: column;

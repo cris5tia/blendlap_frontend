@@ -1,8 +1,10 @@
-<nav class="navbar" *ngIf="!esPerfilCliente"
+<nav class="navbar"
   [class.scrolled]="isScrolled"
   [class.navbar--barbero]="usuario?.rol === 'barbero'"
   [class.navbar--fijo]="!esHome"
-  [class.navbar--dashboard]="usuario?.rol === 'cliente' && esDashboardCliente">
+  [class.navbar--dashboard]="usuario?.rol === 'cliente' && esDashboardCliente"
+  [class.navbar--bottom-mobile]="mostrarBottomNav"
+  [class.navbar--perfil-cliente]="esPerfilCliente">
 
   <div class="container navbar__container">
 
@@ -17,10 +19,10 @@
       <img src="assets/images/navbar/logo.png" alt="Blendlap">
     </a>
 
-    <ul class="navbar__links" [class.active]="menuOpen">
+    <ul class="navbar__links" [class.active]="menuOpen && !mostrarBottomNav">
 
       <!-- Links cliente en dashboard -->
-      <ng-container *ngIf="usuario?.rol === 'cliente' && esDashboardCliente">
+      <ng-container *ngIf="usuario?.rol === 'cliente' && esDashboardCliente && !menuOpen">
         <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'actuales'"
             (click)="tabCliente('actuales')"><i class="fas fa-calendar-check"></i> Actuales</a></li>
         <li><a class="nav-link-cliente" [class.nav-link-cliente--activa]="tabActualCliente === 'historial'"
@@ -28,17 +30,26 @@
       </ng-container>
 
       <!-- Links públicos -->
-      <ng-container *ngIf="!usuario || (usuario.rol !== 'barbero' && !esDashboardCliente)">
+      <ng-container *ngIf="usuario?.rol === 'cliente' && menuOpen">
+        <li>
+          <a routerLink="/cliente/mis-citas" routerLinkActive="nav-link-active" class="nav-link-section"
+            (click)="closeMenu()">
+            <i class="fas fa-calendar-check"></i> Mis reservas
+          </a>
+        </li>
+      </ng-container>
+
+      <ng-container *ngIf="!usuario || (usuario.rol !== 'barbero' && !esDashboardCliente) || (usuario?.rol === 'cliente' && menuOpen)">
         <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'equipo'"
-            (click)="scrollTo('equipo')">Equipo</a></li>
+            (click)="scrollTo('equipo')"><i class="fas fa-users"></i> Equipo</a></li>
         <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'servicios'"
-            (click)="scrollTo('servicios')">Servicios</a></li>
+            (click)="scrollTo('servicios')"><i class="fas fa-scissors"></i> Servicios</a></li>
         <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'productos'"
-            (click)="scrollTo('productos')">Shop</a></li>
+            (click)="scrollTo('productos')"><i class="fas fa-bag-shopping"></i> Shop</a></li>
         <li><a class="nav-link-section" [class.nav-link-active]="activeSection === 'galeria'"
-            (click)="scrollTo('galeria')">Galería</a></li>
+            (click)="scrollTo('galeria')"><i class="fas fa-images"></i> Galeria</a></li>
         <li><a routerLink="/nosotros" routerLinkActive="nav-link-active" class="nav-link-section"
-            (click)="closeMenu()">Nosotros</a></li>
+            (click)="closeMenu()"><i class="fas fa-circle-info"></i> Nosotros</a></li>
       </ng-container>
 
       <!-- Links barbero -->
@@ -159,6 +170,112 @@
 
   </div>
 
+</nav>
+
+<div class="bottom-menu-panel" *ngIf="mostrarBottomNav" [class.bottom-menu-panel--open]="menuOpen">
+  <div class="bottom-menu-panel__glow"></div>
+
+  <a *ngIf="usuario?.rol === 'cliente'"
+    routerLink="/cliente/mis-citas"
+    routerLinkActive="bottom-menu-panel__item--active"
+    class="bottom-menu-panel__item"
+    (click)="closeMenu()">
+    <i class="fas fa-calendar-check"></i>
+    <span>Mis reservas</span>
+  </a>
+
+  <a class="bottom-menu-panel__item" [class.bottom-menu-panel__item--active]="activeSection === 'equipo'"
+    (click)="scrollTo('equipo')">
+    <i class="fas fa-users"></i>
+    <span>Equipo</span>
+  </a>
+
+  <a class="bottom-menu-panel__item" [class.bottom-menu-panel__item--active]="activeSection === 'servicios'"
+    (click)="scrollTo('servicios')">
+    <i class="fas fa-scissors"></i>
+    <span>Servicios</span>
+  </a>
+
+  <a class="bottom-menu-panel__item" [class.bottom-menu-panel__item--active]="activeSection === 'productos'"
+    (click)="scrollTo('productos')">
+    <i class="fas fa-bag-shopping"></i>
+    <span>Shop</span>
+  </a>
+
+  <a class="bottom-menu-panel__item" [class.bottom-menu-panel__item--active]="activeSection === 'galeria'"
+    (click)="scrollTo('galeria')">
+    <i class="fas fa-images"></i>
+    <span>Galeria</span>
+  </a>
+
+  <a routerLink="/nosotros"
+    routerLinkActive="bottom-menu-panel__item--active"
+    class="bottom-menu-panel__item"
+    (click)="closeMenu()">
+    <i class="fas fa-circle-info"></i>
+    <span>Nosotros</span>
+  </a>
+
+  <a *ngIf="!usuario"
+    routerLink="/login"
+    routerLinkActive="bottom-menu-panel__item--active"
+    class="bottom-menu-panel__item bottom-menu-panel__item--strong"
+    (click)="closeMenu()">
+    <i class="fas fa-right-to-bracket"></i>
+    <span>Iniciar sesion</span>
+  </a>
+
+  <button *ngIf="usuario"
+    type="button"
+    class="bottom-menu-panel__item bottom-menu-panel__item--danger"
+    (click)="logout()">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>Cerrar sesion</span>
+  </button>
+</div>
+
+<nav class="bottom-nav" *ngIf="mostrarBottomNav" aria-label="Navegacion inferior">
+  <a routerLink="/"
+    routerLinkActive="bottom-nav__item--active"
+    [routerLinkActiveOptions]="{exact: true}"
+    class="bottom-nav__item"
+    (click)="closeMenu()">
+    <i class="fas fa-home"></i>
+    <span>Inicio</span>
+  </a>
+
+  <a routerLink="/agendar"
+    routerLinkActive="bottom-nav__item--active"
+    class="bottom-nav__item"
+    (click)="closeMenu()">
+    <i class="fas fa-calendar-plus"></i>
+    <span>Agendar</span>
+  </a>
+
+  <button type="button" class="bottom-nav__item bottom-nav__item--button" (click)="irAlCarrito()">
+    <span class="bottom-nav__icon-wrap">
+      <i class="fas fa-shopping-basket"></i>
+      <span class="bottom-nav__badge" *ngIf="cantidadCarrito > 0">{{ cantidadCarrito }}</span>
+    </span>
+    <span>Carrito</span>
+  </button>
+
+  <a *ngIf="usuario?.rol === 'cliente'"
+    routerLink="/cliente/perfil"
+    routerLinkActive="bottom-nav__item--active"
+    class="bottom-nav__item"
+    (click)="closeMenu()">
+    <i class="fas fa-user-circle"></i>
+    <span>Mi perfil</span>
+  </a>
+
+  <button type="button"
+    class="bottom-nav__item bottom-nav__item--button bottom-nav__item--menu"
+    [class.bottom-nav__item--menu-open]="menuOpen"
+    (click)="toggleMenu()">
+    <i class="fas" [ngClass]="menuOpen ? 'fa-times' : 'fa-bars'"></i>
+    <span>Menu</span>
+  </button>
 </nav>
 
 <!-- ── MODAL LOGOUT ───────────────────────────────────────── -->

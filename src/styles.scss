@@ -141,6 +141,10 @@ img {
 
 // ─── Responsive ──────────────────────────────────────────────
 @media (max-width: 768px) {
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
   .section-title {
     font-size: 1.8rem;
   }

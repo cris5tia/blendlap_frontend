@@ -322,6 +322,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   get mostrarCarrito(): boolean {
     return !this.usuario || this.usuario.rol === 'cliente';
   }
+
+  get mostrarBottomNav(): boolean {
+    return !this.usuario || this.usuario.rol === 'cliente';
+  }
+
   get esDashboardCliente(): boolean {
     return this.router.url.includes('/cliente/mis-citas');
   }
