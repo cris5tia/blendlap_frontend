@@ -365,7 +365,7 @@
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(4px);
-  z-index: 3000;
+  z-index: 5000;
   display: flex; align-items: center; justify-content: center;
   padding: 1rem;
   animation: fadeIn 0.2s ease;
@@ -562,7 +562,7 @@
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(4px);
-  z-index: 3000;
+  z-index: 5000;
   display: flex; align-items: center; justify-content: center;
   padding: 1rem;
   animation: fadeIn 0.2s ease;
@@ -716,7 +716,7 @@
 
 // ─── Modal Carrito ────────────────────────────────────────────
 .cm-overlay {
-  position: fixed; inset: 0; z-index: 1200;
+  position: fixed; inset: 0; z-index: 5000;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(3px);
   display: flex; justify-content: flex-end;
@@ -1000,6 +1000,10 @@
   display: none;
 }
 
+.bottom-menu-backdrop {
+  display: none;
+}
+
 .bottom-nav__item {
   color: #111827;
   text-decoration: none;
@@ -1127,6 +1131,14 @@
     opacity: 0;
     pointer-events: none;
     transition: transform 0.24s cubic-bezier(.22,.61,.36,1), opacity 0.18s ease;
+  }
+
+  .bottom-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1088;
+    display: block;
+    background: rgba(0,0,0,0.08);
   }
 
   .bottom-menu-panel--open {

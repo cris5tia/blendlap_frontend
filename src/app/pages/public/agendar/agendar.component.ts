@@ -162,7 +162,7 @@ export class AgendarComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     if (this.timerPlanes) { clearTimeout(this.timerPlanes); this.timerPlanes = null; }
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = '';
   }
 
   cargarServicios(): void {
@@ -402,6 +402,6 @@ export class AgendarComponent implements OnInit, OnDestroy {
   cerrarModalPlanes(): void {
     if (this.timerPlanes) { clearTimeout(this.timerPlanes); this.timerPlanes = null; }
     this.mostrarModalPlanes = false;
-    setTimeout(() => { this.modalPlanes = false; document.body.style.overflow = 'auto'; }, 400);
+    setTimeout(() => { this.modalPlanes = false; document.body.style.overflow = ''; }, 400);
   }
 }

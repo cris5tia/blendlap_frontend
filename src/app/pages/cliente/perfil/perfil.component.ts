@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreditoService, ICredito } from '../../../core/services/credito.service';
@@ -13,7 +13,7 @@ export type Tier = 'nuevo' | 'bronce' | 'plata' | 'oro' | 'legendario';
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.scss']
 })
-export class PerfilComponent implements OnInit {
+export class PerfilComponent implements OnInit, OnDestroy {
 
   tab: PerfilTab = 'overview';
 
@@ -55,9 +55,8 @@ export class PerfilComponent implements OnInit {
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
 
-    this.route.queryParams.subscribe(params => {
-      const t = params['tab'] as PerfilTab;
-      this.tab = ['editar', 'creditos', 'compras'].includes(t) ? t : 'overview';
+    this.route.queryParams.subscribe(() => {
+      this.tab = 'overview';
     });
 
     this.cargarPerfil();
@@ -75,10 +74,24 @@ export class PerfilComponent implements OnInit {
     this.authService.requestLogout();
   }
 
-  abrirModalCompras():  void { this.modalCompras  = true; }
-  cerrarModalCompras(): void { this.modalCompras  = false; }
-  abrirModalCreditos(): void { this.modalCreditos = true; }
-  cerrarModalCreditos():void { this.modalCreditos = false; }
+  abrirModalCompras():  void { this.modalCompras  = true; this.bloquearScroll(); }
+  cerrarModalCompras(): void { this.modalCompras  = false; this.liberarScrollSiNoHayModal(); }
+  abrirModalCreditos(): void { this.modalCreditos = true; this.bloquearScroll(); }
+  cerrarModalCreditos():void { this.modalCreditos = false; this.liberarScrollSiNoHayModal(); }
+
+  private bloquearScroll(): void {
+    document.body.style.overflow = 'hidden';
+  }
+
+  private liberarScrollSiNoHayModal(): void {
+    if (!this.modalCompras && !this.modalCreditos) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+  }
 
   cargarPerfil(): void {
     this.perfilCargando = true;

@@ -58,7 +58,7 @@ export class CarritoService {
   limpiar(): void { this.actualizar([]); }
 
   abrirModal(): void { this.modalSubject.next(true); document.body.style.overflow = 'hidden'; }
-  cerrarModal(): void { this.modalSubject.next(false); document.body.style.overflow = 'auto'; }
+  cerrarModal(): void { this.modalSubject.next(false); document.body.style.overflow = ''; }
   toggleModal(): void {
     const estado = this.modalSubject.getValue();
     estado ? this.cerrarModal() : this.abrirModal();

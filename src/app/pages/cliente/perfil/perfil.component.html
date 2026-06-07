@@ -76,17 +76,6 @@
       <button class="pf-tab" [class.active]="tab==='overview'" (click)="setTab('overview')">
         <i class="fas fa-th-large"></i> Resumen
       </button>
-      <button class="pf-tab" [class.active]="tab==='editar'" (click)="setTab('editar')">
-        <i class="fas fa-user-edit"></i> Mi información
-      </button>
-      <button class="pf-tab" [class.active]="tab==='creditos'" (click)="setTab('creditos')">
-        <i class="fas fa-hand-holding-usd"></i> Créditos
-        <span class="pf-tab__badge" *ngIf="creditosActivos > 0">{{ creditosActivos }}</span>
-      </button>
-      <button class="pf-tab" [class.active]="tab==='compras'" (click)="setTab('compras')">
-        <i class="fas fa-shopping-bag"></i> Compras
-        <span class="pf-tab__badge pf-tab__badge--gray" *ngIf="compras.length > 0">{{ compras.length }}</span>
-      </button>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════
@@ -95,7 +84,7 @@
     <div class="pf-grid" *ngIf="tab==='overview'">
 
       <!-- Historial de citas -->
-      <div class="pf-card">
+      <div class="pf-card" *ngIf="false">
         <div class="pf-card__head">
           <h3><i class="fas fa-history"></i> Historial de citas</h3>
           <button class="pf-card__link" (click)="irACitas()">Ver todas <i class="fas fa-arrow-right"></i></button>

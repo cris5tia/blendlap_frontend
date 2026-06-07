@@ -172,6 +172,8 @@
 
 </nav>
 
+<div class="bottom-menu-backdrop" *ngIf="mostrarBottomNav && menuOpen" (click)="closeMenu()"></div>
+
 <div class="bottom-menu-panel" *ngIf="mostrarBottomNav" [class.bottom-menu-panel--open]="menuOpen">
   <div class="bottom-menu-panel__glow"></div>
 
@@ -216,15 +218,6 @@
     <span>Nosotros</span>
   </a>
 
-  <a *ngIf="!usuario"
-    routerLink="/login"
-    routerLinkActive="bottom-menu-panel__item--active"
-    class="bottom-menu-panel__item bottom-menu-panel__item--strong"
-    (click)="closeMenu()">
-    <i class="fas fa-right-to-bracket"></i>
-    <span>Iniciar sesion</span>
-  </a>
-
   <button *ngIf="usuario"
     type="button"
     class="bottom-menu-panel__item bottom-menu-panel__item--danger"
@@ -252,13 +245,22 @@
     <span>Agendar</span>
   </a>
 
-  <button type="button" class="bottom-nav__item bottom-nav__item--button" (click)="irAlCarrito()">
+  <button *ngIf="usuario" type="button" class="bottom-nav__item bottom-nav__item--button" (click)="irAlCarrito()">
     <span class="bottom-nav__icon-wrap">
       <i class="fas fa-shopping-basket"></i>
       <span class="bottom-nav__badge" *ngIf="cantidadCarrito > 0">{{ cantidadCarrito }}</span>
     </span>
     <span>Carrito</span>
   </button>
+
+  <a *ngIf="!usuario"
+    routerLink="/login"
+    routerLinkActive="bottom-nav__item--active"
+    class="bottom-nav__item"
+    (click)="closeMenu()">
+    <i class="fas fa-key"></i>
+    <span>Iniciar sesión</span>
+  </a>
 
   <a *ngIf="usuario?.rol === 'cliente'"
     routerLink="/cliente/perfil"

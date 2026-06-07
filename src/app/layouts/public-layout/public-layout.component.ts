@@ -13,6 +13,7 @@ export class PublicLayoutComponent {
   constructor(private router: Router) {}
 
   get mostrarFooter(): boolean {
-    return this.router.url.split(/[?#]/)[0] !== '/agendar';
+    const path = this.router.url.split(/[?#]/)[0];
+    return path !== '/agendar' && path !== '/nosotros';
   }
 }
