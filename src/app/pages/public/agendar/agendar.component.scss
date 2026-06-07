@@ -1222,25 +1222,29 @@ $pad:     1.75rem;
   .ag-card--confirm { max-width: 100%; }
 
   // Modal planes en móvil — scroll uniforme, tamaño cómodo
-  .planes-overlay { align-items: flex-start; padding: 1rem 0.75rem; }
+  .planes-overlay { align-items: flex-start; padding: 0.65rem 0.75rem; }
 
   .modal-planes {
-    max-height: 92dvh;
+    max-height: calc(100dvh - 1.3rem);
     overflow-y: auto;
-    padding: 1.4rem 1.1rem 1.2rem;
+    padding: 1.1rem 1rem 0.9rem;
     border-radius: 16px;
   }
 
-  .planes-logo__img { height: 72px; }
-  .planes-header { margin-bottom: 1rem;
-    h2 { font-size: 1.4rem; }
+  .planes-logo__img { height: 62px; }
+  .planes-header { margin-bottom: 0.75rem;
+    h2 { font-size: 1.28rem; }
   }
-  .planes-lista { gap: 0.75rem; margin-bottom: 0.85rem; }
+  .planes-lista { gap: 0.62rem; margin-bottom: 0.65rem; }
   .plan-card {
-    padding: 1.15rem 1rem;
-    &__emoji { width: 52px; height: 52px; font-size: 1.3rem; margin-bottom: 0.7rem; }
+    padding: 0.9rem 0.85rem;
+    &__emoji { width: 44px; height: 44px; font-size: 1.1rem; margin-bottom: 0.5rem; }
   }
-  .planes-features { margin-bottom: 0.75rem; }
-  .planes-feature { padding: 0.65rem 0.75rem; }
-  .planes-btn-agendar { padding: 0.85rem; }
+  .planes-features { margin-bottom: 0.6rem; }
+  .planes-feature {
+    justify-content: center;
+    padding: 0.55rem 0.7rem;
+  }
+  .planes-feature--premium { display: none; }
+  .planes-btn-agendar { padding: 0.78rem; margin-bottom: 0; }
 }
