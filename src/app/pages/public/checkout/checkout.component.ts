@@ -16,7 +16,6 @@ export class CheckoutComponent implements OnInit {
   cargando      = false;
   iniciando     = false;
   error         = '';
-  mostrarTest   = false;
 
   constructor(
     private carritoService: CarritoService,
@@ -97,9 +96,5 @@ export class CheckoutComponent implements OnInit {
         this.error = err.error?.mensaje || 'Error al iniciar el pago. Intenta nuevamente.';
       }
     });
-  }
-
-  copiar(texto: string): void {
-    navigator.clipboard.writeText(texto).catch(() => {});
   }
 }

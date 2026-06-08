@@ -223,3 +223,24 @@ img {
     width: 100% !important;
   }
 }
+
+// Prioridad de modales en movil: si hay un modal abierto,
+// la barra inferior no debe competir por espacio ni por z-index.
+@media (max-width: 768px) {
+  body:has(.modal-overlay, .pf-modal-overlay, .cm-overlay, .nm-overlay, .perfil-overlay, .logout-overlay) {
+    .bottom-nav,
+    .bottom-menu-panel,
+    .bottom-menu-backdrop {
+      display: none !important;
+    }
+  }
+
+  .modal-overlay,
+  .pf-modal-overlay,
+  .cm-overlay,
+  .nm-overlay,
+  .perfil-overlay,
+  .logout-overlay {
+    z-index: 5000 !important;
+  }
+}

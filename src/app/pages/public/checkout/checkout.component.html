@@ -26,7 +26,7 @@
     <div class="cnav-steps">
       <div class="step-item step-item--done">
         <div class="step-circle"><i class="fas fa-check"></i></div>
-        <span>Tienda</span>
+        <span>Shop</span>
       </div>
       <div class="step-line step-line--done"></div>
       <div class="step-item step-item--done">
@@ -140,8 +140,11 @@
 
         <button class="btn-wompi" (click)="pagarConWompi()" [disabled]="iniciando">
           <ng-container *ngIf="!iniciando">
-            <i class="fas fa-lock"></i>
-            Pagar {{ formatCOP(total) }} con Wompi
+            <span class="btn-wompi__main">
+              <i class="fas fa-lock"></i>
+              Ir a Wompi y pagar
+            </span>
+            <span class="btn-wompi__amount">{{ formatCOP(total) }}</span>
             <i class="fas fa-arrow-right"></i>
           </ng-container>
           <ng-container *ngIf="iniciando">
@@ -154,78 +157,6 @@
           Al continuar serás redirigido a la plataforma segura de <strong>Wompi</strong>.
           Blendlap no almacena datos de tu tarjeta.
         </p>
-      </div>
-
-      <!-- Tarjetas de prueba -->
-      <div class="test-card">
-        <div class="test-card__header" (click)="mostrarTest = !mostrarTest">
-          <div class="test-card__badge">
-            <i class="fas fa-flask"></i> MODO PRUEBA — SANDBOX
-          </div>
-          <i class="fas" [class.fa-chevron-down]="!mostrarTest" [class.fa-chevron-up]="mostrarTest"></i>
-        </div>
-
-        <div class="test-card__body" *ngIf="mostrarTest">
-          <p class="test-intro">
-            Usa estas tarjetas de prueba en Wompi sandbox. <strong>No uses dinero real.</strong>
-          </p>
-
-          <div class="test-tarjeta">
-            <div class="test-tarjeta__header">
-              <i class="fab fa-cc-visa"></i>
-              <span>Visa — Pago aprobado</span>
-              <span class="test-badge test-badge--ok">APROBADA</span>
-            </div>
-            <div class="test-tarjeta__body">
-              <div class="test-row"><span>Número</span>
-                <div class="test-copy" (click)="copiar('4242424242424242')"><code>4242 4242 4242 4242</code><i class="fas fa-copy"></i></div>
-              </div>
-              <div class="test-row"><span>CVV</span>
-                <div class="test-copy" (click)="copiar('123')"><code>123</code><i class="fas fa-copy"></i></div>
-              </div>
-              <div class="test-row"><span>Vencimiento</span><code>12/30</code></div>
-              <div class="test-row"><span>Cuotas</span><code>1</code></div>
-            </div>
-          </div>
-
-          <div class="test-tarjeta test-tarjeta--mc">
-            <div class="test-tarjeta__header">
-              <i class="fab fa-cc-mastercard"></i>
-              <span>Mastercard — Pago aprobado</span>
-              <span class="test-badge test-badge--ok">APROBADA</span>
-            </div>
-            <div class="test-tarjeta__body">
-              <div class="test-row"><span>Número</span>
-                <div class="test-copy" (click)="copiar('5204730000001003')"><code>5204 7300 0000 1003</code><i class="fas fa-copy"></i></div>
-              </div>
-              <div class="test-row"><span>CVV</span>
-                <div class="test-copy" (click)="copiar('123')"><code>123</code><i class="fas fa-copy"></i></div>
-              </div>
-              <div class="test-row"><span>Vencimiento</span><code>12/30</code></div>
-            </div>
-          </div>
-
-          <div class="test-tarjeta test-tarjeta--declined">
-            <div class="test-tarjeta__header">
-              <i class="fab fa-cc-visa"></i>
-              <span>Visa — Pago rechazado</span>
-              <span class="test-badge test-badge--err">RECHAZADA</span>
-            </div>
-            <div class="test-tarjeta__body">
-              <div class="test-row"><span>Número</span>
-                <div class="test-copy" (click)="copiar('4111111111111111')"><code>4111 1111 1111 1111</code><i class="fas fa-copy"></i></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="test-nequi">
-            <i class="fas fa-mobile-alt"></i>
-            <div>
-              <p><strong>Nequi sandbox</strong></p>
-              <p>Número: <code (click)="copiar('3991111111')">3991111111</code></p>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div>
