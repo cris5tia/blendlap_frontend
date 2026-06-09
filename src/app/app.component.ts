@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
+import { WakeUpService } from './core/services/wake-up.service';
 
 @Component({
   selector: 'app-root',
@@ -9,5 +10,7 @@ import { AuthService } from './core/services/auth.service';
 export class AppComponent {
   title = 'frontend';
 
-  constructor(public authService: AuthService) {}
+  constructor(public authService: AuthService, wakeUpService: WakeUpService) {
+    void wakeUpService.wake();
+  }
 }

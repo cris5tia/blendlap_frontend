@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,7 +24,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { RetryInterceptor } from './core/interceptors/retry.interceptor';
-import { WakeUpService } from './core/services/wake-up.service';
 import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './core/strategies/reuse.strategy';
 
@@ -71,10 +70,6 @@ import { ValoresComponent } from './pages/public/nosotros/valores/valores.compon
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { BarberoPresencialModalComponent } from './shared/components/barbero-presencial-modal/barbero-presencial-modal.component';
-
-export function wakeUpBackend(wakeUpService: WakeUpService): () => Promise<void> {
-  return () => wakeUpService.wake();
-}
 
 @NgModule({
   declarations: [
@@ -135,7 +130,6 @@ export function wakeUpBackend(wakeUpService: WakeUpService): () => Promise<void>
   providers: [
     DatePipe,
     CurrencyPipe,
-    { provide: APP_INITIALIZER, useFactory: wakeUpBackend, deps: [WakeUpService], multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: RetryInterceptor, multi: true },
     { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },

@@ -37,7 +37,7 @@
       <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
         style="cursor:pointer">
         <div class="barbero-card__imagen">
-          <img *ngIf="barbero.foto" [src]="barbero.foto | imgUrl"
+          <img *ngIf="barbero.foto" [src]="barbero.foto | imgUrl" loading="lazy" decoding="async"
             [alt]="barbero.nombre">
           <div *ngIf="!barbero.foto" class="barbero-card__foto--empty">
             <i class="fas fa-user-tie"></i>
@@ -94,7 +94,7 @@
       <i class="fas fa-times"></i>
     </button>
     <div class="modal__imagen">
-      <img *ngIf="barberoSeleccionado.foto" [src]="barberoSeleccionado.foto | imgUrl"
+      <img *ngIf="barberoSeleccionado.foto" [src]="barberoSeleccionado.foto | imgUrl" loading="lazy" decoding="async"
         [alt]="barberoSeleccionado.nombre" />
       <div *ngIf="!barberoSeleccionado.foto" class="modal__imagen--empty">
         <i class="fas fa-user-tie"></i>
@@ -201,7 +201,7 @@
       <div class="servicios__grid">
         <div class="servicio-card" *ngFor="let servicio of grupoActualServicios">
           <div class="servicio-card__imagen">
-            <img [src]="servicio.imagen | imgUrl" [alt]="servicio.nombre_servicio">
+            <img [src]="servicio.imagen | imgUrl" [alt]="servicio.nombre_servicio" loading="lazy" decoding="async">
             <div class="servicio-card__badge">
               <i class="fas fa-clock"></i> {{ servicio.duracion }} min
             </div>
@@ -227,7 +227,7 @@
       <div class="servicios__lista-movil">
         <div class="servicio-item-movil" *ngFor="let servicio of serviciosPorCategoria">
           <div class="servicio-item-movil__img">
-            <img *ngIf="servicio.imagen" [src]="servicio.imagen | imgUrl"
+            <img *ngIf="servicio.imagen" [src]="servicio.imagen | imgUrl" loading="lazy" decoding="async"
               [alt]="servicio.nombre_servicio" />
             <div *ngIf="!servicio.imagen" class="servicio-item-movil__img--empty">
               <i class="fas fa-cut"></i>
@@ -277,7 +277,7 @@
     <div class="productos__grid" *ngIf="!cargandoProductos && !errorProductos">
       <div class="producto-card" *ngFor="let producto of productosMostrados" (click)="abrirModal(producto)">
         <div class="producto-card__imagen">
-          <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto" />
+          <img [src]="getImagenProducto(producto)" [alt]="producto.nombre_producto" loading="lazy" decoding="async" />
           <div class="producto-card__overlay"><i class="fas fa-search-plus"></i></div>
           <div class="producto-card__stock-cero" *ngIf="producto.stock === 0">Agotado</div>
         </div>
@@ -343,7 +343,7 @@
 
     <!-- Imagen -->
     <div class="modal__imagen">
-      <img [src]="getImagenProducto(productoSeleccionado)" [alt]="productoSeleccionado.nombre_producto" />
+      <img [src]="getImagenProducto(productoSeleccionado)" [alt]="productoSeleccionado.nombre_producto" loading="lazy" decoding="async" />
       <div class="modal__agotado" *ngIf="productoSeleccionado.stock === 0">
         Agotado
       </div>
@@ -422,11 +422,11 @@
         <div class="galeria__columna" *ngFor="let col of galeriaColumnasMostradas">
           <div class="galeria__item" *ngFor="let item of col">
             <ng-container *ngIf="item.tipo === 'imagen'">
-              <img [src]="item.src" [alt]="item.alt" draggable="false">
+              <img [src]="item.src" [alt]="item.alt" draggable="false" loading="lazy" decoding="async">
             </ng-container>
             <ng-container *ngIf="item.tipo === 'video'">
               <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
-                <video [src]="item.src" loop muted playsinline preload="auto"></video>
+                <video [src]="item.src" loop muted playsinline preload="none"></video>
                 <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
               </div>
             </ng-container>
@@ -436,11 +436,11 @@
       <ng-container *ngIf="esMobil()">
         <div class="galeria__item" *ngFor="let item of galeriaItemsMostrados">
           <ng-container *ngIf="item.tipo === 'imagen'">
-            <img [src]="item.src" [alt]="item.alt" draggable="false">
+            <img [src]="item.src" [alt]="item.alt" draggable="false" loading="lazy" decoding="async">
           </ng-container>
           <ng-container *ngIf="item.tipo === 'video'">
             <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
-              <video [src]="item.src" loop muted playsinline preload="auto"></video>
+              <video [src]="item.src" loop muted playsinline preload="none"></video>
               <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
             </div>
           </ng-container>
@@ -493,7 +493,7 @@
     <div class="mc__items">
       <div class="mc__item" *ngFor="let item of itemsCarrito">
         <div class="mc__item-img-wrap">
-          <img [src]="getImagenProducto(item.producto)" [alt]="item.producto.nombre_producto" class="mc__item-img" />
+          <img [src]="getImagenProducto(item.producto)" [alt]="item.producto.nombre_producto" class="mc__item-img" loading="lazy" decoding="async" />
           <span class="mc__item-badge">{{ item.cantidad }}</span>
         </div>
         <div class="mc__item-info">
