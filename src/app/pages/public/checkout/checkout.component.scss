@@ -15,17 +15,19 @@ $rojo:     #ef4444;
 
 // ─── Navbar (idéntico al carrito) ─────────────────────────────
 .cart-navbar {
-  background: $primary;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  background: $gray-light;
+  box-shadow: none;
   position: sticky; top: 0; z-index: 200;
 }
 
 .cart-navbar__inner {
-  max-width: 1200px; margin: 0 auto;
-  padding: 0 1.5rem; height: 66px;
+  width: 100%; margin: 0;
+  padding: 0 1.5rem; height: 90px;
   display: flex; align-items: center;
   justify-content: space-between; gap: 1rem;
   position: relative;
+  background: $primary;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.35);
 }
 
 .cnav-back {
@@ -46,7 +48,7 @@ $rojo:     #ef4444;
   display: flex; align-items: center;
   cursor: pointer; text-decoration: none;
   img {
-    height: 46px; width: auto; object-fit: contain;
+    height: 80px; width: auto; object-fit: contain;
     filter: drop-shadow(0 2px 8px rgba($accent, 0.25));
   }
 }
@@ -64,9 +66,13 @@ $rojo:     #ef4444;
 
 .cnav-steps {
   display: flex; align-items: center; justify-content: center; gap: 0;
-  padding: 0.7rem 1.5rem;
-  background: rgba(255,255,255,0.04);
-  border-top: 1px solid rgba(255,255,255,0.06);
+  max-width: 720px;
+  margin: 0.9rem auto 0;
+  padding: 1rem 1.5rem;
+  background: $white;
+  border: 1px solid $borde;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   font-family: 'Montserrat', sans-serif;
 }
 
@@ -75,7 +81,7 @@ $rojo:     #ef4444;
   position: relative;
 
   span {
-    font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.3);
+    font-size: 0.65rem; font-weight: 700; color: $gray;
     white-space: nowrap;
   }
 
@@ -92,9 +98,9 @@ $rojo:     #ef4444;
 
 .step-circle {
   width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  border: 2px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.3);
+  background: $gray-light;
+  border: 2px solid $borde;
+  color: $gray;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.7rem; font-weight: 700;
   i { font-size: 0.65rem; }
@@ -102,7 +108,7 @@ $rojo:     #ef4444;
 
 .step-line {
   width: 60px; height: 2px;
-  background: rgba(255,255,255,0.12);
+  background: $borde;
   margin-bottom: 1.1rem; flex-shrink: 0;
 
   &--done   { background: $verde; }
@@ -284,21 +290,11 @@ $rojo:     #ef4444;
   gap: 0.6rem; letter-spacing: 0.3px;
   font-family: 'Montserrat', sans-serif;
 
-  &__main,
-  &__amount {
+  &__main {
     display: inline-flex;
     align-items: center;
-  }
-
-  &__main {
     gap: 0.55rem;
     min-width: 0;
-  }
-
-  &__amount {
-    color: $white;
-    font-size: 0.86rem;
-    white-space: nowrap;
   }
 
   &:hover:not(:disabled) {
@@ -410,7 +406,7 @@ $rojo:     #ef4444;
   }
 
   .cart-navbar__inner {
-    height: 54px;
+    height: 64px;
     padding: 0 0.9rem;
   }
 
@@ -428,7 +424,7 @@ $rojo:     #ef4444;
     left: 50%;
     transform: translateX(-50%);
 
-    img { height: 42px; }
+    img { height: 54px; }
   }
 
   .cnav-logo .cnav-logo__text { display: none; }
@@ -441,7 +437,9 @@ $rojo:     #ef4444;
   }
 
   .cnav-steps {
-    padding: 0.55rem 1rem 0.5rem;
+    width: calc(100% - 2rem);
+    margin: 0.85rem auto 0;
+    padding: 0.7rem 1rem 0.62rem;
   }
 
   .step-circle {
@@ -479,10 +477,6 @@ $rojo:     #ef4444;
 
     &__main {
       font-size: 0.86rem;
-    }
-
-    &__amount {
-      font-size: 0.82rem;
     }
   }
 }

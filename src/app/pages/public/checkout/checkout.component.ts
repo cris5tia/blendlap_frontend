@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { PagoService } from '../../../core/services/pago.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,8 +20,7 @@ export class CheckoutComponent implements OnInit {
     private carritoService: CarritoService,
     private pagoService:    PagoService,
     private authService:    AuthService,
-    private router:         Router,
-    private location:       Location
+    private router:         Router
   ) {}
 
   ngOnInit(): void {
@@ -32,7 +30,7 @@ export class CheckoutComponent implements OnInit {
     }
     this.items = this.carritoService.items;
     if (this.items.length === 0) {
-      this.router.navigate(['/carrito']);
+      this.volverAlCarrito();
     }
   }
 
@@ -46,8 +44,13 @@ export class CheckoutComponent implements OnInit {
     }).format(value);
   }
 
-  volver(): void { this.location.back(); }
-  volverAlCarrito(): void { this.router.navigate(['/carrito']); }
+  volver(): void { this.volverAlCarrito(); }
+
+  volverAlCarrito(): void {
+    this.router.navigate(['/']).then(() => {
+      setTimeout(() => this.carritoService.abrirModal(), 0);
+    });
+  }
 
   pagarConWompi(): void {
     this.iniciando = true;

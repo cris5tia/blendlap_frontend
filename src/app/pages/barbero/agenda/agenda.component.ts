@@ -4,6 +4,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { BarberoAgendaService, ICitaBarbero } from '../../../core/services/barbero-agenda.service';
 import { ReservaService } from '../../../core/services/reserva.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { BarberoPresencialModalService } from '../../../core/services/barbero-presencial-modal.service';
 import { timer, Subject, forkJoin } from 'rxjs';
 import { exhaustMap, takeUntil, take } from 'rxjs/operators';
 
@@ -56,6 +57,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     private agendaService: BarberoAgendaService,
     private reservaService: ReservaService,
     private toast: ToastService,
+    private presencialModalService: BarberoPresencialModalService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -87,6 +89,10 @@ export class AgendaComponent implements OnInit, OnDestroy {
         setTimeout(() => this.abrirModalPresencial(), 300);
       }
     });
+
+    this.presencialModalService.reservaCreada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarDatos());
 
     this.clockInterval = setInterval(() => this.horaActual = new Date(), 1000);
   }
@@ -399,7 +405,17 @@ export class AgendaComponent implements OnInit, OnDestroy {
       duracion
     ).subscribe({
       next: (res) => {
-        this.presencialSlots = res.data.disponible ? res.data.slots : [];
+        let slots = res.data.disponible ? res.data.slots : [];
+        const ahora = new Date();
+        const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+        if (this.presencialForm.fecha === hoyStr) {
+          const minutoMinimo = ahora.getHours() * 60 + ahora.getMinutes() + 15;
+          slots = slots.filter((slot: any) => {
+            const [hh, mm] = slot.hora.split(':').map(Number);
+            return (hh * 60 + mm) >= minutoMinimo;
+          });
+        }
+        this.presencialSlots = slots;
         this.presencialCargandoSlots = false;
       },
       error: () => { this.presencialSlots = []; this.presencialCargandoSlots = false; }

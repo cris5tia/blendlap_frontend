@@ -1,0 +1,117 @@
+<div class="bp-overlay" *ngIf="abierto" (click)="cerrar()">
+  <div class="bp-modal" (click)="$event.stopPropagation()">
+    <button class="bp-modal__close" (click)="cerrar()">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="bp-exito" *ngIf="exitoso">
+      <div class="bp-exito__icon"><i class="fas fa-check-circle"></i></div>
+      <h3>Cita registrada</h3>
+      <p>Te llevaremos a Mi agenda para verla registrada.</p>
+    </div>
+
+    <ng-container *ngIf="!exitoso">
+      <div class="bp-modal__header">
+        <h3>Agendar cliente</h3>
+        <p>Registra una cita para un cliente en el local</p>
+      </div>
+
+      <div class="bp-modal__body">
+        <div class="bp-error" *ngIf="error">
+          <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+
+        <div class="bp-form-row">
+          <div class="bp-field">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="form.nombre" placeholder="Nombre del cliente">
+          </div>
+          <div class="bp-field">
+            <label>Apellido</label>
+            <input type="text" [(ngModel)]="form.apellido" placeholder="Apellido">
+          </div>
+        </div>
+
+        <div class="bp-field">
+          <label>Servicio</label>
+          <div class="bp-select" [class.bp-select--open]="dropdownAbierto">
+            <button type="button" class="bp-select__trigger" (click)="dropdownAbierto = !dropdownAbierto">
+              <span class="bp-select__placeholder" *ngIf="!servicioSeleccionado">Selecciona un servicio</span>
+              <span class="bp-select__chosen" *ngIf="servicioSeleccionado">
+                <strong>{{ servicioSeleccionado.nombre_servicio }}</strong>
+                <em>${{ servicioSeleccionado.precio | number:'1.0-0' }}</em>
+              </span>
+              <i class="fas fa-chevron-down bp-select__arrow"></i>
+            </button>
+
+            <div class="bp-select__list" *ngIf="dropdownAbierto">
+              <button type="button" class="bp-select__item"
+                *ngFor="let s of servicios"
+                [class.bp-select__item--active]="form.id_servicio === s.id_servicio"
+                (click)="seleccionarServicio(s)">
+                <span class="bp-select__item-nombre">{{ s.nombre_servicio }}</span>
+                <span class="bp-select__item-precio">${{ s.precio | number:'1.0-0' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bp-field">
+          <label>Fecha</label>
+          <div class="bp-calendar">
+            <div class="bp-calendar__nav">
+              <button type="button" (click)="mesAnterior()"><i class="fas fa-chevron-left"></i></button>
+              <span>{{ nombreMes }}</span>
+              <button type="button" (click)="mesSiguiente()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="bp-calendar__header">
+              <span>D</span><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span>
+            </div>
+            <div class="bp-calendar__grid">
+              <div *ngFor="let dia of diasCalendario"
+                class="bp-calendar__day"
+                [class.vacio]="!dia.fecha"
+                [class.pasado]="dia.fecha && !dia.disponible && !esDiaCerrado(dia)"
+                [class.cerrado]="dia.fecha && esDiaCerrado(dia)"
+                [class.disponible]="dia.fecha && dia.disponible"
+                [class.seleccionado]="esDiaSeleccionado(dia)"
+                (click)="seleccionarFecha(dia)">
+                {{ dia.fecha?.getDate() }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bp-field" *ngIf="form.fecha">
+          <label>Hora</label>
+          <div class="bp-slots__loading" *ngIf="cargandoSlots">
+            <i class="fas fa-spinner fa-spin"></i> Cargando horarios...
+          </div>
+          <div class="bp-slots__empty" *ngIf="!cargandoSlots && slots.length === 0">
+            No hay horarios disponibles
+          </div>
+          <div class="bp-slots__grid" *ngIf="!cargandoSlots && slots.length > 0">
+            <button type="button" *ngFor="let slot of slots"
+              class="bp-slot"
+              [class.disponible]="slot.disponible"
+              [class.ocupado]="!slot.disponible"
+              [class.seleccionado]="form.hora === slot.hora"
+              [disabled]="!slot.disponible"
+              (click)="form.hora = slot.hora">
+              {{ formatHora(slot.hora) }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bp-modal__footer">
+        <button class="bp-btn-cancel" type="button" (click)="cerrar()">Cancelar</button>
+        <button class="bp-btn-save" type="button" (click)="guardar()" [disabled]="guardando">
+          <i class="fas fa-spinner fa-spin" *ngIf="guardando"></i>
+          <i class="fas fa-check" *ngIf="!guardando"></i>
+          {{ guardando ? 'Registrando...' : 'Confirmar cita' }}
+        </button>
+      </div>
+    </ng-container>
+  </div>
+</div>

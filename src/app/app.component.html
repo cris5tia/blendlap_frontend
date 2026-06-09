@@ -1,2 +1,12 @@
 <router-outlet></router-outlet>
 <app-toast></app-toast>
+<app-barbero-presencial-modal></app-barbero-presencial-modal>
+
+<div class="app-logout-overlay" *ngIf="authService.logoutLoading$ | async">
+  <div class="app-logout-card">
+    <div class="app-logout-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <p>Cerrando sesión...</p>
+  </div>
+</div>

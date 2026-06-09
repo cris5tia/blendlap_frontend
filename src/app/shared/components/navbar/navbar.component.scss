@@ -1314,6 +1314,39 @@
     }
   }
 
+  .bottom-nav--barbero {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: initial;
+    grid-auto-columns: initial;
+  }
+
+  .bottom-nav--barbero .bottom-nav__item {
+    font-size: 0.64rem;
+  }
+
+  .bottom-nav--barbero .bottom-nav__item span {
+    white-space: normal;
+    line-height: 1.05;
+  }
+
+  .bottom-nav__item--accent {
+    color: rgba(255,255,255,0.82);
+    background: transparent;
+    border: 1px solid rgba(251,196,71,0.16);
+
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &:active {
+      color: var(--color-accent);
+      background: rgba(251,196,71,0.16);
+    }
+  }
+
+  .bottom-menu-panel--barbero {
+    gap: 0.35rem;
+  }
+
   .bottom-nav__icon-wrap {
     position: relative;
     display: inline-flex !important;

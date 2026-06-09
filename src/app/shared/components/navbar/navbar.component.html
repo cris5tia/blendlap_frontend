@@ -174,9 +174,12 @@
 
 <div class="bottom-menu-backdrop" *ngIf="mostrarBottomNav && menuOpen" (click)="closeMenu()"></div>
 
-<div class="bottom-menu-panel" *ngIf="mostrarBottomNav" [class.bottom-menu-panel--open]="menuOpen">
+<div class="bottom-menu-panel" *ngIf="mostrarBottomNav"
+  [class.bottom-menu-panel--open]="menuOpen"
+  [class.bottom-menu-panel--barbero]="usuario?.rol === 'barbero'">
   <div class="bottom-menu-panel__glow"></div>
 
+  <ng-container *ngIf="usuario?.rol !== 'barbero'; else menuBarbero">
   <a *ngIf="usuario?.rol === 'cliente'"
     routerLink="/cliente/mis-citas"
     routerLinkActive="bottom-menu-panel__item--active"
@@ -225,9 +228,74 @@
     <i class="fas fa-sign-out-alt"></i>
     <span>Cerrar sesion</span>
   </button>
+  </ng-container>
+
+  <ng-template #menuBarbero>
+    <a routerLink="/barbero/horario"
+      routerLinkActive="bottom-menu-panel__item--active"
+      class="bottom-menu-panel__item"
+      (click)="closeMenu()">
+      <i class="fas fa-clock"></i>
+      <span>Horario</span>
+    </a>
+
+    <a routerLink="/"
+      routerLinkActive="bottom-menu-panel__item--active"
+      [routerLinkActiveOptions]="{exact: true}"
+      class="bottom-menu-panel__item"
+      (click)="closeMenu()">
+      <i class="fas fa-store"></i>
+      <span>Ver inicio</span>
+    </a>
+
+    <button type="button"
+      class="bottom-menu-panel__item bottom-menu-panel__item--danger"
+      (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar sesion</span>
+    </button>
+  </ng-template>
 </div>
 
-<nav class="bottom-nav" *ngIf="mostrarBottomNav" aria-label="Navegacion inferior">
+<nav class="bottom-nav"
+  *ngIf="mostrarBottomNav"
+  [class.bottom-nav--barbero]="usuario?.rol === 'barbero'"
+  aria-label="Navegacion inferior">
+
+  <ng-container *ngIf="usuario?.rol === 'barbero'; else bottomNavPublico">
+    <a routerLink="/barbero/agenda"
+      routerLinkActive="bottom-nav__item--active"
+      class="bottom-nav__item"
+      (click)="closeMenu()">
+      <i class="fas fa-calendar-day"></i>
+      <span>Mi agenda</span>
+    </a>
+
+    <a routerLink="/barbero/stats"
+      routerLinkActive="bottom-nav__item--active"
+      class="bottom-nav__item"
+      (click)="closeMenu()">
+      <i class="fas fa-chart-line"></i>
+      <span>Stats</span>
+    </a>
+
+    <button type="button"
+      class="bottom-nav__item bottom-nav__item--button bottom-nav__item--accent"
+      (click)="irAgendarPresencial()">
+      <i class="fas fa-user-plus"></i>
+      <span>Agendar cliente</span>
+    </button>
+
+    <button type="button"
+      class="bottom-nav__item bottom-nav__item--button bottom-nav__item--menu"
+      [class.bottom-nav__item--menu-open]="menuOpen"
+      (click)="toggleMenu()">
+      <i class="fas" [ngClass]="menuOpen ? 'fa-times' : 'fa-bars'"></i>
+      <span>Menu</span>
+    </button>
+  </ng-container>
+
+  <ng-template #bottomNavPublico>
   <a routerLink="/"
     routerLinkActive="bottom-nav__item--active"
     [routerLinkActiveOptions]="{exact: true}"
@@ -278,6 +346,7 @@
     <i class="fas" [ngClass]="menuOpen ? 'fa-times' : 'fa-bars'"></i>
     <span>Menu</span>
   </button>
+  </ng-template>
 </nav>
 
 <!-- ── MODAL LOGOUT ───────────────────────────────────────── -->
@@ -453,7 +522,7 @@
         <!-- Wompi -->
         <button class="cm-btn-wompi" (click)="irAlCheckout()">
           <i class="fas fa-lock"></i>
-          Continuar a pago seguro
+          Pagar con Wompi
           <i class="fas fa-arrow-right cm-btn-wompi__arr"></i>
         </button>
 

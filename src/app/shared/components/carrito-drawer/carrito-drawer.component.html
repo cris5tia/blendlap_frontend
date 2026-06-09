@@ -91,10 +91,10 @@
     <!-- Botón pago en línea Wompi -->
     <button class="drawer__btn-wompi" (click)="irAlCheckout()">
       <span class="drawer__btn-wompi__left">
-        <i class="fas fa-lock"></i> Pago seguro
+        <i class="fas fa-lock"></i> Pagar con Wompi
       </span>
       <span class="drawer__btn-wompi__right">
-        <span>Continuar</span>
+        <span>{{ formatCurrency(total) }}</span>
         <i class="fas fa-arrow-right"></i>
       </span>
     </button>

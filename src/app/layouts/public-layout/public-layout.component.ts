@@ -16,12 +16,16 @@ export class PublicLayoutComponent {
     return this.router.url.split(/[?#]/)[0];
   }
 
+  private get esPantallaCompleta(): boolean {
+    return ['/checkout', '/login', '/registro', '/recuperar-password'].includes(this.pathActual);
+  }
+
   get mostrarNavbar(): boolean {
-    return this.pathActual !== '/checkout';
+    return !this.esPantallaCompleta;
   }
 
   get mostrarFooter(): boolean {
     const path = this.pathActual;
-    return path !== '/agendar' && path !== '/nosotros' && path !== '/checkout';
+    return path !== '/agendar' && path !== '/nosotros' && !this.esPantallaCompleta;
   }
 }

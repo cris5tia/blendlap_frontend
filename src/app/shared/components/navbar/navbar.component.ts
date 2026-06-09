@@ -5,6 +5,7 @@ import { ReservaService, IReserva } from '../../../core/services/reserva.service
 import { CarritoService } from '../../../core/services/carrito.service';
 import { CreditoService } from '../../../core/services/credito.service';
 import { TabService } from '../../../core/services/tab.service';
+import { BarberoPresencialModalService } from '../../../core/services/barbero-presencial-modal.service';
 import { Subject } from 'rxjs';
 import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
@@ -71,6 +72,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     private reservaService: ReservaService,
     private creditoService: CreditoService,
+    private barberoPresencialModal: BarberoPresencialModalService,
 
     public carritoService: CarritoService,
     public tabService: TabService
@@ -289,19 +291,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout(): void {
     this.closeMenu();
     this.dropdownOpen = false;
-    this.logoutCerrando = true;
-    this.logoutExitoso  = false;
-
-    setTimeout(() => {
-      this.logoutExitoso = true;
-    }, 1200);
-
-    setTimeout(() => {
-      this.authService.logout();
-      this.carritoService.limpiar();
-      this.logoutCerrando = false;
-      this.logoutExitoso  = false;
-    }, 2200);
+    this.carritoService.limpiar();
+    this.authService.logout();
   }
 
   irADashboard(): void {
@@ -315,8 +306,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   irAgendarPresencial(): void {
-    this.router.navigate(['/barbero/agenda'], { queryParams: { agendar: 'true' } });
     this.closeMenu();
+    this.barberoPresencialModal.abrir();
   }
 
   get mostrarCarrito(): boolean {
@@ -324,7 +315,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   get mostrarBottomNav(): boolean {
-    return !this.usuario || this.usuario.rol === 'cliente';
+    return !this.usuario || this.usuario.rol === 'cliente' || this.usuario.rol === 'barbero';
   }
 
   get esDashboardCliente(): boolean {

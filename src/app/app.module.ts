@@ -70,6 +70,7 @@ import { TrabajaComponent } from './pages/public/nosotros/trabaja/trabaja.compon
 import { ValoresComponent } from './pages/public/nosotros/valores/valores.component';
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { BarberoPresencialModalComponent } from './shared/components/barbero-presencial-modal/barbero-presencial-modal.component';
 
 export function wakeUpBackend(wakeUpService: WakeUpService): () => Promise<void> {
   return () => wakeUpService.wake();
@@ -111,6 +112,7 @@ export function wakeUpBackend(wakeUpService: WakeUpService): () => Promise<void>
     ClienteDashboardComponent,
     PerfilComponent,
     ToastComponent,
+    BarberoPresencialModalComponent,
     HistoriaComponent,
     MisionComponent,
     TrabajaComponent,

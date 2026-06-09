@@ -29,8 +29,12 @@ export class AuthService {
   private usuarioSubject = new BehaviorSubject<IUsuario | null>(null);
   usuario$ = this.usuarioSubject.asObservable();
 
+  private logoutLoadingSubject = new BehaviorSubject<boolean>(false);
+  logoutLoading$ = this.logoutLoadingSubject.asObservable();
+
   private logoutRequestedSubject = new Subject<void>();
   logoutRequested$ = this.logoutRequestedSubject.asObservable();
+  private logoutEnCurso = false;
 
   constructor(private http: HttpClient, private router: Router) {
     this.cargarUsuario();
@@ -76,14 +80,26 @@ export class AuthService {
 
   requestLogout(): void {
     this.logoutRequestedSubject.next();
+    this.logout();
   }
 
   // Logout
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    this.usuarioSubject.next(null);
-    this.router.navigate(['/']);
+    if (this.logoutEnCurso) return;
+    this.logoutEnCurso = true;
+    this.logoutLoadingSubject.next(true);
+
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      this.usuarioSubject.next(null);
+      this.router.navigate(['/']).finally(() => {
+        setTimeout(() => {
+          this.logoutLoadingSubject.next(false);
+          this.logoutEnCurso = false;
+        }, 350);
+      });
+    }, 900);
   }
 
   // Getters
