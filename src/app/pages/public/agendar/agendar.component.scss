@@ -1191,7 +1191,9 @@ $pad:     1.75rem;
     &__paso { font-size: 0.72rem; padding: 0.3rem 0.65rem; }
   }
 
-  .ag-page { padding: 1rem 0.85rem 2.5rem; }
+  .ag-page {
+    padding: 1rem 0.85rem calc(5.25rem + env(safe-area-inset-bottom));
+  }
   .ag-head h1 { font-size: 1.5rem; }
 
   .ag-stepper {

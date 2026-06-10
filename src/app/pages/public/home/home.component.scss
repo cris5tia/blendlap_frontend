@@ -1166,10 +1166,47 @@
 
   @media (max-width: 700px) {
     grid-template-columns: 1fr;
-    width: 95vw;
+    width: calc(100vw - 2rem);
+    max-width: 420px;
     height: auto;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+
+    .modal__imagen {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .modal__info {
+      min-width: 0;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    .modal__categoria,
+    .modal__desc,
+    .modal__tallas,
+    .modal__tallas-grid,
+    .modal__disponibilidad,
+    .modal__precio-wrap,
+    .modal__btn-carrito,
+    .modal__btn-agotado {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .modal__btn-carrito,
+    .modal__btn-agotado {
+      width: 100%;
+    }
+
+    h2,
+    .modal__desc {
+      overflow-wrap: anywhere;
+    }
   }
 }
 
@@ -1216,6 +1253,7 @@
   @media (max-width: 700px) {
     min-height: 280px;
     max-height: 320px;
+    flex-shrink: 0;
   }
 }
 
@@ -1579,7 +1617,11 @@
       height: 210px; min-height: 210px;
       border-radius: 18px 18px 0 0;
     }
-    .modal__info { border-radius: 0; padding: 1.2rem 1rem 1.75rem; }
+    .modal__info {
+      border-radius: 0;
+      padding: 1.2rem 1rem 1.75rem;
+      overflow: visible;
+    }
     h2 { font-size: 1.25rem; }
   }
 }
@@ -2190,6 +2232,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
+      gap: 0.75rem;
       margin-top: 0.6rem;
       padding-top: 0.6rem;
     }
@@ -2203,6 +2246,8 @@
       font-size: 0.7rem;
       letter-spacing: 0;
       gap: 0.2rem;
+      margin-left: auto;
+      padding-left: 0.35rem;
       white-space: nowrap;
       color: rgba(255,255,255,0.5);
       i { font-size: 0.65rem; }

@@ -718,11 +718,12 @@
 
 @media (max-width: 640px) {
   .historia-hero {
-    padding: 4.25rem 1rem 3rem;
+    padding: 4rem 1rem;
     min-height: 560px;
     align-items: center;
 
     &__pre {
+      margin-top: 4rem;
       margin-bottom: 0.8rem;
       font-size: 0.7rem;
       letter-spacing: 2.2px;
