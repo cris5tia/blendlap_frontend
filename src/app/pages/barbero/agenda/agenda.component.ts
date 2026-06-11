@@ -78,6 +78,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: ({ hoy, proximas }) => {
         this.citasHoy = hoy.data;
         this.proximas = proximas.data;
+        this.asegurarFiltroFechaProximas();
         this.recalcularTimeline();
         this.cargando = false;
       },
@@ -112,6 +113,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: ({ hoy, proximas }) => {
         this.citasHoy = hoy.data;
         this.proximas = proximas.data;
+        this.asegurarFiltroFechaProximas();
         this.recalcularTimeline();
         this.cargando = false;
       },
@@ -168,6 +170,12 @@ export class AgendaComponent implements OnInit, OnDestroy {
   }
 
   getEstadoCita(cita: ICitaBarbero): 'completada' | 'en-curso' | 'proxima' {
+    const fechaCita = this.normalizarFecha(cita.fecha);
+    const hoy = this.fechaLocalISO(new Date());
+
+    if (fechaCita && fechaCita > hoy) return 'proxima';
+    if (fechaCita && fechaCita < hoy) return cita.estado === 'completada' ? 'completada' : 'proxima';
+
     const [hh, mm] = cita.hora.split(':').map(Number);
     const inicioMin = hh * 60 + mm;
     const finMin = inicioMin + Number(cita.duracion_total || 30);
@@ -463,17 +471,43 @@ export class AgendaComponent implements OnInit, OnDestroy {
   filtroFecha = '';
 
   get fechasUnicas(): string[] {
-    const set = new Set(this.proximas.map(r => r.fecha.split('T')[0]));
+    const set = new Set(this.proximas.map(r => this.normalizarFecha(r.fecha)));
     return Array.from(set).sort();
   }
 
   get proximasFiltradas(): ICitaBarbero[] {
-    if (!this.filtroFecha) return this.proximas;
-    return this.proximas.filter(r => r.fecha.split('T')[0] === this.filtroFecha);
+    const fecha = this.fechaProximaSeleccionada;
+    if (!fecha) return [];
+    return this.proximas
+      .filter(r => this.normalizarFecha(r.fecha) === fecha)
+      .sort((a, b) => a.hora.localeCompare(b.hora));
+  }
+
+  get fechaProximaSeleccionada(): string {
+    return this.filtroFecha || this.fechasUnicas[0] || '';
+  }
+
+  get mostrarLineaAhoraProximas(): boolean {
+    return this.fechaProximaSeleccionada === this.fechaLocalISO(new Date()) && this.mostrarLineaAhora;
+  }
+
+  seleccionarFechaProxima(fecha: string): void {
+    this.filtroFecha = fecha;
+  }
+
+  asegurarFiltroFechaProximas(): void {
+    const fechas = this.fechasUnicas;
+    if (fechas.length === 0) {
+      this.filtroFecha = '';
+      return;
+    }
+    if (!this.filtroFecha || !fechas.includes(this.filtroFecha)) {
+      this.filtroFecha = fechas[0];
+    }
   }
 
   cantidadPorFecha(fecha: string): number {
-    return this.proximas.filter(r => r.fecha.split('T')[0] === fecha).length;
+    return this.proximas.filter(r => this.normalizarFecha(r.fecha) === fecha).length;
   }
 
   etiquetaFecha(fechaISO: string): string {
@@ -514,6 +548,23 @@ export class AgendaComponent implements OnInit, OnDestroy {
     const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     const hoy = new Date();
     return `${dias[hoy.getDay()]}, ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
+  }
+
+  formatFechaCompleta(fechaISO: string): string {
+    if (!fechaISO) return '';
+    const [year, month, day] = this.normalizarFecha(fechaISO).split('-').map(Number);
+    const fecha = new Date(year, month - 1, day);
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    return `${dias[fecha.getDay()]}, ${fecha.getDate()} de ${meses[fecha.getMonth()]}`;
+  }
+
+  normalizarFecha(fecha: string): string {
+    return (fecha || '').split('T')[0];
+  }
+
+  fechaLocalISO(fecha: Date): string {
+    return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
   }
 
   get horaActualStr(): string {

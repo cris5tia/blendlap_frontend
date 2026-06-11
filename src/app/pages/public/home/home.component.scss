@@ -157,10 +157,27 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
+    justify-content: center;
+    justify-items: stretch;
     margin-top: 3rem;
+
+    &:has(> :nth-child(2):last-child) {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: calc(((100% - 4rem) / 3 * 2) + 2rem);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &:has(> :first-child:last-child) {
+      grid-template-columns: 1fr;
+      max-width: calc((100% - 4rem) / 3);
+      margin-left: auto;
+      margin-right: auto;
+    }
 
     @media (max-width: 1024px) {
       grid-template-columns: repeat(2, 1fr);
+      max-width: none;
     }
   }
 

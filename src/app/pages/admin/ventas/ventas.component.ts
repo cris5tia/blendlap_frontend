@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { VentaService, IVenta } from '../../../core/services/venta.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { CreditoService, ICrearCreditoAdmin } from '../../../core/services/credito.service';
 
 export type TipoVista = 'todos' | 'servicios' | 'productos';
 
@@ -40,13 +41,22 @@ export class VentasComponent implements OnInit {
   busquedaProducto = '';
   carrito:         ICarritoItem[] = [];
   metodoPagoNueva = '';
+  creditoForm: ICrearCreditoAdmin = this.creditoFormVacio();
+  plazosCredito = [
+    { id: '1_semana',    label: '1 Semana'    },
+    { id: '1_quincena',  label: '1 Quincena'  },
+    { id: '2_quincenas', label: '2 Quincenas' },
+    { id: '1_mes',       label: '1 Mes'       }
+  ];
   guardando        = false;
   errorNueva       = '';
   exitoNueva       = false;
+  mensajeExitoNueva = '';
 
   constructor(
     private ventaService:    VentaService,
     private productoService: ProductoService,
+    private creditoService:  CreditoService,
     private toastService:    ToastService
   ) {}
 
@@ -108,6 +118,7 @@ export class VentasComponent implements OnInit {
     this.metodoPagoNueva  = '';
     this.errorNueva       = '';
     this.exitoNueva       = false;
+    this.mensajeExitoNueva = '';
     if (!this.productosAll.length) {
       this.productoService.getAll().subscribe({
         next: (res) => {
@@ -175,12 +186,56 @@ export class VentasComponent implements OnInit {
       next: () => {
         this.guardando  = false;
         this.exitoNueva = true;
+        this.mensajeExitoNueva = '¡Venta registrada correctamente!';
         this.productosAll = [];
         setTimeout(() => { this.cerrarNuevaVenta(); this.cargar(); }, 1200);
       },
       error: (err) => {
         this.guardando  = false;
         this.errorNueva = err?.error?.mensaje || 'Error al registrar la venta';
+      }
+    });
+  }
+
+  private registrarCredito(): void {
+    if (!this.creditoForm.nombre_cliente.trim()) {
+      this.errorNueva = 'Ingresa el nombre del cliente';
+      return;
+    }
+    if (!this.creditoForm.telefono_cliente.trim()) {
+      this.errorNueva = 'Ingresa el teléfono del cliente';
+      return;
+    }
+    if (!this.creditoForm.plazo) {
+      this.errorNueva = 'Selecciona el plazo del crédito';
+      return;
+    }
+
+    this.guardando  = true;
+    this.errorNueva = '';
+
+    const body: ICrearCreditoAdmin = {
+      ...this.creditoForm,
+      productos: this.carrito.map(i => ({
+        id_producto:     i.producto.id_producto,
+        cantidad:        i.cantidad,
+        precio_unitario: Number(i.producto.precio),
+        subtotal:        Number(i.producto.precio) * i.cantidad
+      }))
+    };
+
+    this.creditoService.crearAdmin(body).subscribe({
+      next: () => {
+        this.guardando = false;
+        this.exitoNueva = true;
+        this.mensajeExitoNueva = '¡Crédito creado y activo!';
+        this.productosAll = [];
+        this.toastService.success('Crédito creado y activo');
+        setTimeout(() => { this.cerrarNuevaVenta(); this.cargar(); }, 1200);
+      },
+      error: (err) => {
+        this.guardando = false;
+        this.errorNueva = err?.error?.mensaje || 'Error al registrar el crédito';
       }
     });
   }
@@ -194,8 +249,8 @@ export class VentasComponent implements OnInit {
   }
 
   metodoPagoLabel(m: string, esProductoSinReserva = false): string {
-    if (esProductoSinReserva && m === 'otro') return 'Pago en línea';
-    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Otro' };
+    if (esProductoSinReserva && m === 'otro') return 'Pasarela de pago';
+    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Otro', credito: 'Crédito' };
     return map[m] || m;
   }
 
@@ -207,5 +262,15 @@ export class VentasComponent implements OnInit {
 
   formatCurrency(v: number): string {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v || 0);
+  }
+
+  private creditoFormVacio(): ICrearCreditoAdmin {
+    return {
+      nombre_cliente: '',
+      telefono_cliente: '',
+      plazo: '1_quincena',
+      observaciones: '',
+      productos: []
+    };
   }
 }

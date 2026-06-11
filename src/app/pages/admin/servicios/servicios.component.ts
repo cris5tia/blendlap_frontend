@@ -142,7 +142,7 @@ export class ServiciosComponent implements OnInit {
           this.filtrar();
           this.guardando = false;
           this.cerrarModal();
-          this.toastService.success('Servicio creado');
+          this.toastService.success('Servicio creado exitosamente');
         },
         error: () => {
           this.toastService.error('Error al crear el servicio');
@@ -168,6 +168,7 @@ export class ServiciosComponent implements OnInit {
         this.eliminando = false;
         this.modalEliminar = false;
         this.servicioAEliminar = null;
+        this.toastService.success('Servicio eliminado');
       },
       error: () => {
         this.toastService.error('Error al eliminar el servicio');
@@ -201,8 +202,12 @@ export class ServiciosComponent implements OnInit {
         this.cambiandoEstado = false;
         this.modalEstado = false;
         this.servicioEstado = null;
+        this.toastService.success(nuevoEstado === 'activo' ? 'Servicio activado' : 'Servicio inactivado');
       },
-      error: () => { this.cambiandoEstado = false; }
+      error: () => {
+        this.toastService.error('Error al cambiar el estado del servicio');
+        this.cambiandoEstado = false;
+      }
     });
   }
   

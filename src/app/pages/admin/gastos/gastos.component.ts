@@ -113,7 +113,10 @@ export class GastosComponent implements OnInit {
         this.construirDonut();
         this.construirBarras();
       },
-      error: () => this.cargandoStats = false
+      error: () => {
+        this.toastService.error('Error al cargar estadísticas de gastos');
+        this.cargandoStats = false;
+      }
     });
   }
 
@@ -324,6 +327,7 @@ export class GastosComponent implements OnInit {
     if (!this.formulario.nombre || !this.formulario.categoria ||
         !this.formulario.monto  || !this.formulario.fecha) {
       this.error = 'Completa todos los campos requeridos';
+      this.toastService.warning('Campos incompletos', this.error);
       return;
     }
     this.guardando = true;
@@ -332,13 +336,31 @@ export class GastosComponent implements OnInit {
     if (this.editando && this.formulario.id_gasto) {
       const { id_gasto, ...data } = this.formulario;
       this.gastoService.actualizar(id_gasto, data).subscribe({
-        next: () => { this.guardando = false; this.cerrarModal(); this.aplicarFiltros(); },
-        error: () => { this.error = 'Error al actualizar'; this.guardando = false; }
+        next: () => {
+          this.toastService.success('Gasto actualizado exitosamente');
+          this.guardando = false;
+          this.cerrarModal();
+          this.aplicarFiltros();
+        },
+        error: (err) => {
+          this.error = err?.error?.mensaje || 'Error al actualizar';
+          this.toastService.error('Error al actualizar gasto', this.error);
+          this.guardando = false;
+        }
       });
     } else {
       this.gastoService.crear(this.formulario).subscribe({
-        next: () => { this.guardando = false; this.cerrarModal(); this.aplicarFiltros(); },
-        error: () => { this.error = 'Error al crear'; this.guardando = false; }
+        next: () => {
+          this.toastService.success('Gasto creado exitosamente');
+          this.guardando = false;
+          this.cerrarModal();
+          this.aplicarFiltros();
+        },
+        error: (err) => {
+          this.error = err?.error?.mensaje || 'Error al crear';
+          this.toastService.error('Error al crear gasto', this.error);
+          this.guardando = false;
+        }
       });
     }
   }
@@ -358,8 +380,12 @@ export class GastosComponent implements OnInit {
         this.modalEliminar  = false;
         this.gastoAEliminar = null;
         this.cargarStats();
+        this.toastService.success('Gasto eliminado exitosamente');
       },
-      error: () => { this.toastService.error('Error al eliminar'); this.eliminando = false; }
+      error: (err) => {
+        this.toastService.error('Error al eliminar gasto', err?.error?.mensaje || 'Error inesperado');
+        this.eliminando = false;
+      }
     });
   }
 

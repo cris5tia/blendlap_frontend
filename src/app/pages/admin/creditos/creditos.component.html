@@ -329,6 +329,37 @@
 
         <!-- Buscar producto -->
         <div class="seccion">
+          <label class="sec-titulo">Productos</label>
+          <div class="credito-product-search">
+            <i class="fas fa-search"></i>
+            <input type="text" [(ngModel)]="busquedaCodigo" placeholder="Buscar por producto o codigo..." />
+          </div>
+          <div class="credito-product-list">
+            <div class="credito-product-item" *ngFor="let p of productosFiltradosCredito">
+              <div class="credito-product-item__img">
+                <img *ngIf="p.imagen" [src]="p.imagen | imgUrl" [alt]="p.nombre_producto" />
+                <i *ngIf="!p.imagen" class="fas fa-box"></i>
+              </div>
+              <div class="credito-product-item__info">
+                <span class="credito-product-item__nombre">{{ p.nombre_producto }}</span>
+                <span class="credito-product-item__codigo">{{ p.codigo_producto }}</span>
+                <span class="credito-product-item__stock">
+                  <i class="fas fa-cubes"></i> {{ p.stock }} disponibles
+                </span>
+              </div>
+              <div class="credito-product-item__right">
+                <span>{{ formatCurrency(p.precio) }}</span>
+                <button type="button" (click)="agregarProductoCredito(p)">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="credito-product-empty" *ngIf="productosFiltradosCredito.length === 0">
+              <i class="fas fa-box-open"></i>
+              <p>Sin productos disponibles</p>
+            </div>
+          </div>
+          <div class="credito-codigo-legacy">
           <label class="sec-titulo">Buscar producto por código</label>
           <div class="buscar-codigo-row">
             <input type="text" [(ngModel)]="busquedaCodigo" class="input-field" placeholder="Ej: PRD-001"
@@ -354,6 +385,7 @@
           </div>
         </div>
 
+          </div>
         <!-- Productos seleccionados -->
         <div class="seccion" *ngIf="productosSeleccionados.length">
           <label class="sec-titulo">Productos seleccionados</label>

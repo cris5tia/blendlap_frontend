@@ -86,6 +86,7 @@ export class ProductosComponent implements OnInit {
     this.imagenFile = input.files[0];
     if (this.imagenFile.size > 5 * 1024 * 1024) {
       this.error = 'La imagen no puede pesar mas de 5MB';
+      this.toastService.warning('Imagen demasiado pesada', 'La imagen no puede pesar mas de 5MB');
       this.imagenFile = null;
       return;
     }
@@ -147,7 +148,10 @@ export class ProductosComponent implements OnInit {
     this.modalVista = 'movimientos';
     this.productoService.getMovimientos(p.id_producto).subscribe({
       next: (res) => this.movimientos = res.data,
-      error: () => this.error = 'Error al cargar movimientos'
+      error: () => {
+        this.error = 'Error al cargar movimientos';
+        this.toastService.error('Error al cargar movimientos');
+      }
     });
   }
 
@@ -177,13 +181,17 @@ export class ProductosComponent implements OnInit {
 
     op.subscribe({
       next: () => {
-        this.toastService.success(esEditar ? 'Producto actualizado' : 'Producto creado');
+        this.toastService.success(esEditar ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente');
         this.cerrarModal();
         this.cargar();
         this.guardando = false;
       },
       error: (err) => {
         this.error = err.error?.mensaje || 'Error al guardar';
+        this.toastService.error(
+          esEditar ? 'Error al actualizar producto' : 'Error al crear producto',
+          this.error
+        );
         this.guardando = false;
       }
     });
@@ -201,6 +209,7 @@ export class ProductosComponent implements OnInit {
       },
       error: (err) => {
         this.error = err.error?.mensaje || 'Error al registrar movimiento';
+        this.toastService.error('Error al registrar movimiento', this.error);
         this.guardando = false;
       }
     });
@@ -210,7 +219,7 @@ export class ProductosComponent implements OnInit {
     if (!confirm(`¿Eliminar "${p.nombre_producto}"?`)) return;
     this.productoService.delete(p.id_producto).subscribe({
       next: () => {
-        this.toastService.success('Producto eliminado');
+        this.toastService.success('Producto eliminado exitosamente');
         this.cargar();
       },
       error: (err) => this.toastService.error('Error al eliminar', err?.error?.mensaje || 'Error inesperado')

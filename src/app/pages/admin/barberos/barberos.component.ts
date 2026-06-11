@@ -53,7 +53,9 @@ export class BarberosComponent implements OnInit {
     this.barberoService.reactivar(Number(barbero.id_usuario)).subscribe({
       next: () => {
         const idx = this.barberos.findIndex(b => b.id_usuario === barbero.id_usuario);
-        if (idx !== -1) this.barberos[idx].estado = 'activo';
+        if (idx !== -1) this.barberos[idx] = { ...this.barberos[idx], estado: 'activo' };
+        this.filtrar();
+        this.toastService.success('Barbero activado');
       },
       error: () => this.toastService.error('Error al reactivar barbero')
     });
@@ -117,6 +119,7 @@ export class BarberosComponent implements OnInit {
         next: (res) => {
           const idx = this.barberos.findIndex(b => b.id_usuario === id_usuario);
           if (idx !== -1) this.barberos[idx] = { ...this.barberos[idx], ...res.data };
+          this.filtrar();
           this.guardando = false;
           this.cerrarModal();
           this.toastService.success('Barbero actualizado');
@@ -130,6 +133,7 @@ export class BarberosComponent implements OnInit {
       this.barberoService.crear(this.formulario).subscribe({
         next: (res) => {
           this.barberos.push(res.data);
+          this.filtrar();
           this.guardando = false;
           this.cerrarModal();
           this.toastService.success('Barbero creado');
@@ -152,10 +156,13 @@ export class BarberosComponent implements OnInit {
     this.eliminando = true;
     this.barberoService.eliminar(Number(this.barberoAEliminar.id_usuario)).subscribe({
       next: () => {
-        this.barberos = this.barberos.filter(b => b.id_usuario !== this.barberoAEliminar!.id_usuario);
+        const idx = this.barberos.findIndex(b => b.id_usuario === this.barberoAEliminar!.id_usuario);
+        if (idx !== -1) this.barberos[idx] = { ...this.barberos[idx], estado: 'inactivo' };
+        this.filtrar();
         this.eliminando = false;
         this.modalEliminar = false;
         this.barberoAEliminar = null;
+        this.toastService.success('Barbero desactivado');
       },
       error: () => {
         this.toastService.error('Error al eliminar barbero');

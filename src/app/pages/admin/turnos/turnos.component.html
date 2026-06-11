@@ -63,14 +63,14 @@
                 <div class="hora-inputs">
                     <div class="hora-group">
                         <label>Apertura</label>
-                        <app-time-select [(ngModel)]="dia.hora_inicio" (ngModelChange)="guardarDia(dia)"></app-time-select>
+                        <app-time-select [(ngModel)]="dia.hora_inicio" (ngModelChange)="programarGuardarDia(dia)"></app-time-select>
                     </div>
                     <div class="hora-separator">
                         <i class="fas fa-arrow-right"></i>
                     </div>
                     <div class="hora-group">
                         <label>Cierre</label>
-                        <app-time-select [(ngModel)]="dia.hora_fin" (ngModelChange)="guardarDia(dia)"></app-time-select>
+                        <app-time-select [(ngModel)]="dia.hora_fin" (ngModelChange)="programarGuardarDia(dia)"></app-time-select>
                     </div>
                 </div>
 

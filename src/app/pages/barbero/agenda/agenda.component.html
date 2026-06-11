@@ -118,39 +118,77 @@
 
         <!-- Filtro por día -->
         <div class="prox-filtro">
-          <button class="prox-filtro__chip" [class.active]="!filtroFecha" (click)="filtroFecha = ''">
-            Todos
-            <span class="prox-filtro__count">{{ proximas.length }}</span>
-          </button>
           <button class="prox-filtro__chip"
             *ngFor="let f of fechasUnicas"
-            [class.active]="filtroFecha === f"
-            (click)="filtroFecha = f">
+            [class.active]="fechaProximaSeleccionada === f"
+            (click)="seleccionarFechaProxima(f)">
             {{ etiquetaFecha(f) }}
             <span class="prox-filtro__count">{{ cantidadPorFecha(f) }}</span>
           </button>
         </div>
 
-        <!-- Lista filtrada -->
-        <div class="proximas-list">
-          <div class="prox-item" *ngFor="let r of proximasFiltradas">
-            <div class="prox-item__fecha">
-              <span class="prox-item__dia">{{ formatFechaCorta(r.fecha).split(' ')[0] }}</span>
-              <span class="prox-item__mes">{{ formatFechaCorta(r.fecha).split(' ')[1] }}</span>
+        <div class="citas-resumen citas-resumen--proximas" *ngIf="fechaProximaSeleccionada">
+          <div class="citas-resumen__fecha">
+            <i class="fas fa-calendar-day"></i>
+            <span>{{ formatFechaCompleta(fechaProximaSeleccionada) }}</span>
+          </div>
+          <div class="citas-resumen__stats">
+            <span class="citas-resumen__stat citas-resumen__stat--total">
+              <i class="fas fa-calendar-check"></i>
+              {{ proximasFiltradas.length }} cita{{ proximasFiltradas.length !== 1 ? 's' : '' }}
+            </span>
+            <span class="citas-resumen__stat citas-resumen__stat--now" *ngIf="mostrarLineaAhoraProximas">
+              <i class="fas fa-circle"></i>
+              {{ horaActualStr }}
+            </span>
+          </div>
+        </div>
+
+        <div class="tl-scroll proximas-timeline">
+          <div class="tl-wrap" [style.height.px]="alturaTimeline">
+            <div class="tl-labels">
+              <div class="tl-lbl"
+                   *ngFor="let h of horasTimeline"
+                   [style.top.px]="horaAPixels(h + ':00')">
+                {{ formatHoraNum(h) }}
+              </div>
             </div>
-            <div class="prox-item__info">
-              <span class="prox-item__cliente">{{ r.nombre_cliente }}</span>
-              <span class="prox-item__servicio">{{ r.nombre_servicio }}</span>
+
+            <div class="tl-area">
+              <div class="tl-gridline"
+                   *ngFor="let h of horasTimeline"
+                   [style.top.px]="horaAPixels(h + ':00')">
+              </div>
+
+              <div class="tl-now" *ngIf="mostrarLineaAhoraProximas" [style.top.px]="lineaAhora">
+                <div class="tl-now__dot"></div>
+                <div class="tl-now__line"></div>
+              </div>
+
+              <div class="tl-empty" *ngIf="proximasFiltradas.length === 0">
+                <i class="fas fa-calendar-times"></i>
+                <span>Sin citas para este d&iacute;a</span>
+              </div>
+
+              <div class="tl-cita"
+                   *ngFor="let cita of proximasFiltradas"
+                   [style.top.px]="horaAPixels(cita.hora)"
+                   [style.height.px]="duracionAPixels(cita.duracion_total)"
+                   [class.tl-cita--completada]="getEstadoCita(cita) === 'completada'"
+                   [class.tl-cita--en-curso]="getEstadoCita(cita) === 'en-curso'"
+                   [class.tl-cita--proxima]="getEstadoCita(cita) === 'proxima'"
+                   (click)="abrirModalCita(cita)">
+                <div class="tl-cita__inner">
+                  <span class="tl-cita__time">{{ formatHora(cita.hora) }} â€” {{ getHoraFin(cita) }}</span>
+                  <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
+                  <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
+                  <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>
+                  <span class="tl-cita__completada-badge" *ngIf="getEstadoCita(cita) === 'completada'">
+                    <i class="fas fa-check-circle"></i> Completada
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="prox-item__right">
-              <span class="prox-item__hora">{{ formatHora(r.hora) }}</span>
-              <span class="prox-item__duracion">{{ r.duracion_total }} min</span>
-            </div>
-            <button class="prox-item__cancel-btn"
-              (click)="cancelarProxima(r)"
-              title="Cancelar cita">
-              <i class="fas fa-times"></i>
-            </button>
           </div>
         </div>
 

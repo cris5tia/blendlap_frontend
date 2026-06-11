@@ -154,7 +154,7 @@ export class CierreCajaComponent implements OnInit {
       { nombre: 'Tarjeta',       monto: this.resumen.total_tarjeta,       pct: pct(this.resumen.total_tarjeta),       icon: 'fas fa-credit-card',     cls: 'tarjeta' },
       { nombre: 'Nequi',         monto: this.resumen.total_nequi,         pct: pct(this.resumen.total_nequi),         icon: 'fas fa-mobile-alt',      cls: 'nequi' },
       { nombre: 'Transferencia', monto: this.resumen.total_transferencia, pct: pct(this.resumen.total_transferencia), icon: 'fas fa-exchange-alt',    cls: 'transferencia' },
-      { nombre: 'Otro',          monto: this.resumen.total_otro,          pct: pct(this.resumen.total_otro),          icon: 'fas fa-ellipsis-h',      cls: 'otro' },
+      { nombre: 'Pasarela de pago', monto: this.resumen.total_otro,       pct: pct(this.resumen.total_otro),          icon: 'fas fa-credit-card',     cls: 'otro' },
     ].filter(m => m.monto > 0);
   }
 
@@ -170,7 +170,7 @@ export class CierreCajaComponent implements OnInit {
   }
 
   metodoPagoLabel(m: string): string {
-    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Otro' };
+    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Pasarela de pago' };
     return map[m] || m;
   }
 

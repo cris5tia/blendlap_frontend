@@ -196,6 +196,153 @@ $borde:       #e5e7eb;
   }
 }
 
+.credito-codigo-legacy {
+  display: none;
+}
+
+.credito-product-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1.5px solid $borde;
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  background: var(--color-white);
+
+  i {
+    color: #9ca3af;
+    font-size: 0.85rem;
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: var(--font-secondary);
+    font-size: 0.86rem;
+    color: var(--color-text);
+  }
+
+  &:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(251, 196, 71, 0.15);
+  }
+}
+
+.credito-product-list {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  max-height: 310px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.credito-product-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid #eef0f2;
+  border-radius: 12px;
+  padding: 0.65rem;
+  background: #fff;
+
+  &__img {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i {
+      color: #9ca3af;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  &__nombre {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__codigo,
+  &__stock {
+    font-size: 0.7rem;
+    color: var(--color-gray);
+  }
+
+  &__stock i {
+    color: var(--color-accent);
+    font-size: 0.64rem;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    flex-shrink: 0;
+
+    span {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: #15803d;
+    }
+
+    button {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(251, 196, 71, 0.18);
+      color: #b8860b;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--color-accent);
+        color: var(--color-primary);
+      }
+    }
+  }
+}
+
+.credito-product-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.6rem;
+  color: var(--color-gray);
+  font-size: 0.85rem;
+
+  p {
+    margin: 0;
+  }
+}
+
 // ─── Tabla ────────────────────────────────────────────────
 .tabla-wrap {
   background: var(--color-white);

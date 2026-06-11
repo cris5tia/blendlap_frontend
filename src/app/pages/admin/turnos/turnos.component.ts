@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { HorarioService, IHorarioDia, IExcepcion } from '../../../core/services/horario.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HorarioService, IHorarioDia } from '../../../core/services/horario.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -7,11 +7,12 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './turnos.component.html',
   styleUrls: ['./turnos.component.scss']
 })
-export class TurnosComponent implements OnInit {
+export class TurnosComponent implements OnInit, OnDestroy {
 
   horario: IHorarioDia[] = [];
   cargando = false;
   guardando = false;
+  private guardadoTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
   diasNombre = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -22,6 +23,11 @@ export class TurnosComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarHorario();
+  }
+
+  ngOnDestroy(): void {
+    this.guardadoTimers.forEach(timer => clearTimeout(timer));
+    this.guardadoTimers.clear();
   }
 
   cargarHorario(): void {
@@ -39,8 +45,20 @@ export class TurnosComponent implements OnInit {
   }
 
   toggleDia(dia: IHorarioDia): void {
+    this.cancelarGuardadoProgramado(dia.dia_semana);
     dia.activo = dia.activo === 1 ? 0 : 1;
     this.guardarDia(dia);
+  }
+
+  programarGuardarDia(dia: IHorarioDia): void {
+    this.cancelarGuardadoProgramado(dia.dia_semana);
+
+    const timer = setTimeout(() => {
+      this.guardadoTimers.delete(dia.dia_semana);
+      this.guardarDia(dia);
+    }, 600);
+
+    this.guardadoTimers.set(dia.dia_semana, timer);
   }
 
   guardarDia(dia: IHorarioDia): void {
@@ -64,6 +82,8 @@ export class TurnosComponent implements OnInit {
 
   guardarTodo(): void {
     this.guardando = true;
+    this.guardadoTimers.forEach(timer => clearTimeout(timer));
+    this.guardadoTimers.clear();
 
     let pendientes = this.horario.length;
     let errores = 0;
@@ -105,5 +125,13 @@ export class TurnosComponent implements OnInit {
     const periodo = hh >= 12 ? 'PM' : 'AM';
     const h12 = hh % 12 || 12;
     return `${h12}:${String(mm).padStart(2, '0')} ${periodo}`;
+  }
+
+  private cancelarGuardadoProgramado(diaSemana: number): void {
+    const timer = this.guardadoTimers.get(diaSemana);
+    if (!timer) return;
+
+    clearTimeout(timer);
+    this.guardadoTimers.delete(diaSemana);
   }
 }

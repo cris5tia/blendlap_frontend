@@ -1,28 +1,34 @@
 <div class="admin-layout">
 
-    <!-- Overlay móvil -->
     <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
 
-    <!-- Sidebar -->
+    <button class="admin-mobile-toggle" (click)="toggleSidebar()" aria-label="Men&uacute;">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <aside class="sidebar" [class.collapsed]="sidebarCollapsed" [class.open]="sidebarOpen">
 
-        <div class="sidebar__logo">
-            <img src="/assets/images/navbar/logo.png" alt="Blendlap">
+        <div class="sidebar__brand">
+            <div class="sidebar__logo">
+                <img src="/assets/images/navbar/logo.png" alt="Blendlap">
+            </div>
+
+            <button class="sidebar__toggle" (click)="toggleSidebar()" aria-label="Men&uacute;">
+                <i class="fas" [ngClass]="sidebarCollapsed && !sidebarOpen ? 'fa-angle-right' : 'fa-angle-left'"></i>
+            </button>
         </div>
 
-        <!-- Usuario (solo visible en móvil) -->
-        <div class="sidebar__usuario" *ngIf="usuario && (sidebarOpen)">
+        <div class="sidebar__usuario" *ngIf="usuario">
             <div class="sidebar__usuario-avatar">
                 <img *ngIf="usuario.foto" [src]="usuario.foto | imgUrl" [alt]="usuario.nombre" />
                 <i *ngIf="!usuario.foto" class="fas fa-user"></i>
             </div>
-            <div class="sidebar__usuario-info">
+            <div class="sidebar__usuario-info" *ngIf="!sidebarCollapsed || sidebarOpen">
                 <span class="sidebar__usuario-nombre">{{ usuario.nombre }}</span>
                 <span class="sidebar__usuario-rol">{{ usuario.rol }}</span>
             </div>
         </div>
 
-        <!-- Nav -->
         <nav class="sidebar__nav">
             <a routerLink="/admin/dashboard" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-chart-line"></i>
@@ -30,7 +36,7 @@
             </a>
             <a routerLink="/admin/creditos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-hand-holding-usd"></i>
-                <span *ngIf="!sidebarCollapsed || sidebarOpen">Créditos</span>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Cr&eacute;ditos</span>
             </a>
             <a routerLink="/admin/ventas" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-cash-register"></i>
@@ -68,11 +74,8 @@
                 <i class="fas fa-clock"></i>
                 <span *ngIf="!sidebarCollapsed || sidebarOpen">Turnos</span>
             </a>
-            
-            
         </nav>
 
-        <!-- Footer sidebar -->
         <div class="sidebar__footer">
             <a routerLink="/admin/cierre-caja" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-cash-register"></i>
@@ -84,46 +87,16 @@
             </a>
             <button class="sidebar__item sidebar__item--danger" (click)="logout()">
                 <i class="fas fa-sign-out-alt"></i>
-                <span *ngIf="!sidebarCollapsed || sidebarOpen">Cerrar sesión</span>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Cerrar sesi&oacute;n</span>
             </button>
         </div>
 
     </aside>
 
-    <!-- Main -->
     <div class="admin-main" [class.expanded]="sidebarCollapsed">
-
-        <!-- Topbar: 3 columnas [hamburguesa | LOGO | vacío] -->
-        <header class="topbar">
-            <div class="topbar__start">
-                <button class="topbar__toggle" (click)="toggleSidebar()" aria-label="Menú">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <div class="topbar__logo">
-                <img src="/assets/images/navbar/logo.png" alt="Blendlap">
-            </div>
-
-            <div class="topbar__end">
-                <div class="topbar__user" *ngIf="usuario">
-                    <div class="topbar__avatar">
-                        <img *ngIf="usuario.foto" [src]="usuario.foto | imgUrl" [alt]="usuario.nombre" />
-                        <i *ngIf="!usuario.foto" class="fas fa-user"></i>
-                    </div>
-                    <div class="topbar__info">
-                        <span class="topbar__nombre">{{ usuario.nombre }}</span>
-                        <span class="topbar__rol">{{ usuario.rol }}</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Contenido -->
         <main class="admin-content">
             <router-outlet></router-outlet>
         </main>
-
     </div>
 
 </div>

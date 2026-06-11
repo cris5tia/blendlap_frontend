@@ -261,7 +261,7 @@
 
     <!-- Éxito -->
     <div class="nv-exito" *ngIf="exitoNueva">
-      <i class="fas fa-check-circle"></i> ¡Venta registrada correctamente!
+      <i class="fas fa-check-circle"></i> {{ mensajeExitoNueva }}
     </div>
 
     <div class="modal-nueva__body" *ngIf="!exitoNueva">
@@ -364,7 +364,7 @@
           </div>
           <button class="nv-btn-registrar" (click)="registrarVenta()" [disabled]="guardando">
             <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-            {{ guardando ? 'Registrando...' : 'Registrar venta' }}
+            {{ guardando ? 'Registrando...' : (metodoPagoNueva === 'credito' ? 'Registrar crédito' : 'Registrar venta') }}
           </button>
         </div>
       </div>

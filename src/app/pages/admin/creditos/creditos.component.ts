@@ -155,18 +155,34 @@ export class CreditosComponent implements OnInit {
 
   confirmarProducto(): void {
     if (!this.productoEncontrado) return;
-    const existe = this.productosSeleccionados.find(
-      p => p.producto.id_producto === this.productoEncontrado!.id_producto
-    );
-    if (existe) {
-      if (existe.cantidad < this.productoEncontrado.stock) existe.cantidad++;
-    } else {
-      this.productosSeleccionados.push({ producto: this.productoEncontrado, cantidad: 1 });
-    }
-    this.recalcularTotal();
+    this.agregarProductoCredito(this.productoEncontrado);
     this.busquedaCodigo      = '';
     this.productoEncontrado  = null;
     this.errorBusquedaCodigo = '';
+  }
+
+  agregarProductoCredito(producto: IProducto): void {
+    const existe = this.productosSeleccionados.find(
+      p => p.producto.id_producto === producto.id_producto
+    );
+    if (existe) {
+      if (existe.cantidad < producto.stock) existe.cantidad++;
+    } else {
+      this.productosSeleccionados.push({ producto, cantidad: 1 });
+    }
+    this.recalcularTotal();
+  }
+
+  get productosFiltradosCredito(): IProducto[] {
+    const q = this.busquedaCodigo.toLowerCase().trim();
+    const lista = q
+      ? this.productos.filter(p =>
+          p.nombre_producto.toLowerCase().includes(q) ||
+          p.codigo_producto.toLowerCase().includes(q)
+        )
+      : this.productos;
+
+    return lista.slice(0, 8);
   }
 
   quitarProducto(id: number): void {
