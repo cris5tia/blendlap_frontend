@@ -162,16 +162,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get reservasPendientes(): IReserva[] {
-    return this.reservas.filter(r =>
-      (r.estado === 'pendiente' || r.estado === 'confirmada') && !this.esReservaPasada(r)
-    );
+    return this.reservas
+      .filter(r =>
+        (r.estado === 'pendiente' || r.estado === 'confirmada') && !this.esReservaPasada(r)
+      )
+      .sort((a, b) => {
+        const fechaA = new Date(`${a.fecha.split('T')[0]}T${a.hora}`);
+        const fechaB = new Date(`${b.fecha.split('T')[0]}T${b.hora}`);
+        return fechaA.getTime() - fechaB.getTime();
+      });
   }
 
   get reservasHistorial(): IReserva[] {
-    return this.reservas.filter(r =>
-      r.estado === 'completada' || r.estado === 'cancelada' ||
-      ((r.estado === 'pendiente' || r.estado === 'confirmada') && this.esReservaPasada(r))
-    );
+    return this.reservas
+      .filter(r =>
+        r.estado === 'completada' || r.estado === 'cancelada' ||
+        ((r.estado === 'pendiente' || r.estado === 'confirmada') && this.esReservaPasada(r))
+      )
+      .sort((a, b) => {
+        const fechaA = new Date(`${a.fecha.split('T')[0]}T${a.hora}`);
+        const fechaB = new Date(`${b.fecha.split('T')[0]}T${b.hora}`);
+        return fechaB.getTime() - fechaA.getTime();
+      });
   }
 
   toggleExpand(id: number): void {
