@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(png|jpg|jpeg|webp|svg)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-performance",
+      "urls": [
+        "https://blendlap-backend.onrender.com/api/servicios/**",
+        "https://blendlap-backend.onrender.com/api/resenas/**",
+        "https://blendlap-backend.onrender.com/api/health"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 80,
+        "maxAge": "6h",
+        "timeout": "4s"
+      }
+    },
+    {
+      "name": "api-freshness",
+      "urls": [
+        "https://blendlap-backend.onrender.com/api/reservas/**",
+        "https://blendlap-backend.onrender.com/api/clientes/**",
+        "https://blendlap-backend.onrender.com/api/dashboard/**",
+        "https://blendlap-backend.onrender.com/api/stats/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 60,
+        "maxAge": "15m",
+        "timeout": "3s"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ]
+}

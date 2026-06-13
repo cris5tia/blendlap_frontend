@@ -2,6 +2,17 @@
 <app-toast></app-toast>
 <app-barbero-presencial-modal></app-barbero-presencial-modal>
 
+<div class="app-pwa-actions" *ngIf="(installAvailable$ | async) || ((authService.usuario$ | async) && (notificationPermission$ | async) === 'default')">
+  <button type="button" class="app-pwa-btn" *ngIf="installAvailable$ | async" (click)="installApp()">
+    <i class="fas fa-download" aria-hidden="true"></i>
+    <span>Instalar app</span>
+  </button>
+  <button type="button" class="app-pwa-btn app-pwa-btn--dark" *ngIf="(authService.usuario$ | async) && (notificationPermission$ | async) === 'default'" (click)="enableNotifications()">
+    <i class="fas fa-bell" aria-hidden="true"></i>
+    <span>Activar notificaciones</span>
+  </button>
+</div>
+
 <div class="app-logout-overlay" *ngIf="authService.logoutLoading$ | async">
   <div class="app-logout-card">
     <div class="app-logout-spinner">

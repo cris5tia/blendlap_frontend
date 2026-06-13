@@ -40,3 +40,64 @@
   color: var(--color-accent);
   font-size: 1.55rem;
 }
+
+.app-pwa-actions {
+  position: fixed;
+  right: clamp(0.9rem, 3vw, 1.5rem);
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 12000;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  max-width: min(92vw, 520px);
+  pointer-events: none;
+}
+
+.app-pwa-btn {
+  min-height: 42px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  border-radius: 8px;
+  padding: 0 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  color: #161616;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  font-family: var(--font-secondary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  pointer-events: auto;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.2);
+  }
+
+  i {
+    color: var(--color-accent);
+  }
+}
+
+.app-pwa-btn--dark {
+  background: #151515;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 640px) {
+  .app-pwa-actions {
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .app-pwa-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding-inline: 0.8rem;
+  }
+}

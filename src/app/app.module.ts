@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS, MatDateFormats } from '@angular/material/core';
 import { MatDateInputComponent } from './shared/components/mat-date-input/mat-date-input.component';
@@ -70,6 +71,7 @@ import { ValoresComponent } from './pages/public/nosotros/valores/valores.compon
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { BarberoPresencialModalComponent } from './shared/components/barbero-presencial-modal/barbero-presencial-modal.component';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -123,6 +125,10 @@ import { BarberoPresencialModalComponent } from './shared/components/barbero-pre
     AppRoutingModule,
     NgApexchartsModule,
     BrowserAnimationsModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
     MatNativeDateModule,
     MatDateInputComponent,
     TimeSelectComponent,

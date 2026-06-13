@@ -35,6 +35,9 @@
             "assets": [
               "src/favicon.ico",
               "src/_redirects",
+              "src/site.webmanifest",
+              "src/manifest.webmanifest",
+              "src/browserconfig.xml",
               "src/assets"
             ],
             "styles": [
@@ -64,7 +67,8 @@
                   "maximumError": "45kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
