@@ -2,14 +2,36 @@
 <app-toast></app-toast>
 <app-barbero-presencial-modal></app-barbero-presencial-modal>
 
-<div class="app-pwa-actions" *ngIf="(installAvailable$ | async) || ((authService.usuario$ | async) && (notificationPermission$ | async) === 'default')">
-  <button type="button" class="app-pwa-btn" *ngIf="installAvailable$ | async" (click)="installApp()">
-    <i class="fas fa-download" aria-hidden="true"></i>
-    <span>Instalar app</span>
+<!-- PWA Notifications Toast -->
+<div class="app-pwa-toast" *ngIf="showInstallPrompt" [@slideInOut]>
+  <div class="app-pwa-toast__content">
+    <div class="app-pwa-toast__icon"><i class="fas fa-download"></i></div>
+    <div class="app-pwa-toast__text">
+      <p class="app-pwa-toast__title">Instalar Blendlap</p>
+      <p class="app-pwa-toast__desc">Accede más rápido desde tu pantalla de inicio</p>
+    </div>
+  </div>
+  <button type="button" class="app-pwa-toast__action app-pwa-toast__action--primary" (click)="installApp(); hideInstallPrompt()">
+    Instalar
   </button>
-  <button type="button" class="app-pwa-btn app-pwa-btn--dark" *ngIf="(authService.usuario$ | async) && (notificationPermission$ | async) === 'default'" (click)="enableNotifications()">
-    <i class="fas fa-bell" aria-hidden="true"></i>
-    <span>Activar notificaciones</span>
+  <button type="button" class="app-pwa-toast__close" (click)="hideInstallPrompt()" aria-label="Cerrar">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+<div class="app-pwa-toast" *ngIf="showNotificationPrompt" [@slideInOut]>
+  <div class="app-pwa-toast__content">
+    <div class="app-pwa-toast__icon app-pwa-toast__icon--bell"><i class="fas fa-bell"></i></div>
+    <div class="app-pwa-toast__text">
+      <p class="app-pwa-toast__title">Activar notificaciones</p>
+      <p class="app-pwa-toast__desc">Recibe recordatorios de tus citas</p>
+    </div>
+  </div>
+  <button type="button" class="app-pwa-toast__action app-pwa-toast__action--primary" (click)="enableNotifications()">
+    Activar
+  </button>
+  <button type="button" class="app-pwa-toast__close" (click)="hideNotificationPrompt()" aria-label="Cerrar">
+    <i class="fas fa-times"></i>
   </button>
 </div>
 
