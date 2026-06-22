@@ -321,6 +321,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cerrarModalEditar();
         this.cargarReservas();
         this.editarExitoso = true;
+        this.toast.success('Reserva actualizada', 'Tu cita fue modificada correctamente.');
         setTimeout(() => this.editarExitoso = false, 2500);
       },
       error: (err) => {
@@ -389,6 +390,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: () => {
         this.guardandoResena = false;
         this.resenaExitosa = true;
+        this.toast.success('Reseña enviada', 'Gracias por tu opinión.');
         const r = this.reservas.find(r => r.id_reserva === this.reservaAResenar?.id_reserva);
         if (r) r.tiene_resena = true;
         setTimeout(() => this.cerrarModalResena(), 2000);
@@ -479,6 +481,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.modalCancelar = false;
         this.reservaACancelar = null;
         this.cargarReservas();
+        this.toast.success('Reserva cancelada', 'Tu cita fue cancelada correctamente.');
       },
       error: () => {
         this.cancelando = false;

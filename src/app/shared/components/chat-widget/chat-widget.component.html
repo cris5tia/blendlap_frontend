@@ -1,0 +1,167 @@
+<div class="chat-widget" *ngIf="mostrarChatbot">
+
+  <div class="chat-widget__fab-wrap" [class.chat-widget__fab-wrap--abierto]="abierto" (mouseleave)="onMouseLeaveWrap()">
+    <p
+      class="chat-widget__fab-bubble"
+      *ngIf="!abierto && permitirMensajeFlotante"
+      aria-hidden="true">
+      ¡Hola! Soy BARBUX, tu asistente personal.
+    </p>
+    <button
+      type="button"
+      class="chat-widget__fab"
+      [class.chat-widget__fab--abierto]="abierto"
+      (click)="toggle()"
+      [attr.aria-label]="abierto ? 'Cerrar BARBUX' : 'Abrir BARBUX'"
+      [attr.aria-expanded]="abierto">
+      <span class="chat-widget__fab-avatar" *ngIf="!abierto">
+        <img [src]="mascotUrl" alt="BARBUX" />
+      </span>
+      <i *ngIf="abierto" class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="chat-widget__panel" *ngIf="abierto" role="dialog" aria-label="BARBUX">
+
+    <header class="chat-widget__header">
+      <div class="chat-widget__header-brand">
+        <img [src]="headerAvatarUrl" alt="" class="chat-widget__header-logo" />
+        <div>
+          <strong>BARBUX</strong>
+          <span>Asistente Blendlap</span>
+        </div>
+      </div>
+
+    </header>
+
+    <div class="chat-widget__mensajes" #mensajesContainer>
+      <div
+        *ngFor="let m of mensajes"
+        class="chat-widget__msg"
+        [class.chat-widget__msg--user]="m.role === 'user'"
+        [class.chat-widget__msg--bot]="m.role === 'bot'"
+        [class.chat-widget__msg--wide]="tieneTarjetas(m)">
+        <span class="chat-widget__msg-label" *ngIf="m.role === 'bot'">BARBUX</span>
+        <span class="chat-widget__msg-text" [innerHTML]="m.text"></span>
+
+        <div class="chat-widget__auth-actions" *ngIf="m.requiresAuth && esInvitado">
+          <button type="button" class="chat-widget__auth-btn" (click)="irALogin()">
+            Iniciar sesión
+          </button>
+          <button type="button" class="chat-widget__auth-btn chat-widget__auth-btn--outline" (click)="irARegistro()">
+            Registrarse
+          </button>
+        </div>
+
+        <div class="chat-widget__catalog" *ngIf="m.catalogCards?.length">
+          <article class="chat-widget__catalog-item" *ngFor="let c of m.catalogCards">
+            <img
+              class="chat-widget__catalog-img"
+              [src]="c.imagen | mediaUrl:c.mediaFolder"
+              [alt]="c.nombre"
+              loading="lazy"
+            />
+            <div class="chat-widget__catalog-info">
+              <strong>{{ c.nombre }}</strong>
+              <span class="chat-widget__catalog-sub" *ngIf="c.subtitulo">{{ c.subtitulo }}</span>
+              <span
+                class="chat-widget__catalog-badge"
+                *ngIf="c.badge"
+                [class.chat-widget__catalog-badge--out]="c.badge === 'Agotado'"
+                [class.chat-widget__catalog-badge--premium]="c.badge === 'Premium'"
+                [class.chat-widget__catalog-badge--clasico]="c.badge === 'Clásico' || c.badge === 'Clasico'">
+                {{ c.badge }}
+              </span>
+              <div class="chat-widget__catalog-actions" *ngIf="(c.mediaFolder === 'servicios' || c.mediaFolder === 'barberos') && isLastMessage(m)">
+                <button type="button" class="chat-widget__card-btn" (click)="seleccionarCard(c)">
+                  {{ c.mediaFolder === 'barberos' ? 'Seleccionar' : (reservaActiva ? 'Reservar' : 'Seleccionar servicio') }}
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="chat-widget__catalog" *ngIf="!m.catalogCards?.length && m.products?.length">
+          <article class="chat-widget__catalog-item" *ngFor="let p of m.products">
+            <img
+              class="chat-widget__catalog-img"
+              [src]="p.imagen | mediaUrl:'productos'"
+              [alt]="p.nombre"
+              loading="lazy"
+            />
+            <div class="chat-widget__catalog-info">
+              <strong>{{ p.nombre }}</strong>
+              <span class="chat-widget__catalog-sub">{{ p.precio }}</span>
+              <span
+                class="chat-widget__catalog-badge"
+                [class.chat-widget__catalog-badge--out]="!p.disponible">
+                {{ p.disponible ? 'Disponible' : 'Agotado' }}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Selector de Fecha (Calendario) -->
+        <div class="chat-widget__date-picker" *ngIf="m.step === 'fecha' && isLastMessage(m)">
+          <div class="chat-widget__date-container">
+            <span class="chat-widget__date-icon"><i class="fas fa-calendar-alt"></i></span>
+            <input
+              type="date"
+              [min]="minDate"
+              (change)="onDateSelected($event)"
+              class="chat-widget__date-input"
+            />
+          </div>
+        </div>
+
+        <!-- Selector de Hora (Slots) -->
+        <div class="chat-widget__slots" *ngIf="m.step === 'hora' && m.slots?.length && isLastMessage(m)">
+          <button
+            type="button"
+            class="chat-widget__slot-btn"
+            *ngFor="let slot of m.slots"
+            (click)="seleccionarSlot(slot)">
+            {{ formatHoraLegible(slot) }}
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-widget__msg chat-widget__msg--bot chat-widget__msg--typing" *ngIf="enviando">
+        <span class="chat-widget__msg-label">BARBUX</span>
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="chat-widget__error" *ngIf="error">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <div class="chat-widget__sugerencias" *ngIf="!enviando">
+      <button
+        type="button"
+        class="chat-widget__chip"
+        *ngFor="let s of sugerencias"
+        (click)="usarSugerencia(s.value)">
+        {{ s.label }}
+      </button>
+    </div>
+
+    <footer class="chat-widget__footer">
+      <textarea
+        [(ngModel)]="input"
+        (keydown)="onKeydown($event)"
+        placeholder="Escribe a BARBUX..."
+        rows="2"
+        [disabled]="enviando"></textarea>
+      <button
+        type="button"
+        class="chat-widget__enviar"
+        (click)="enviar()"
+        [disabled]="enviando || !input.trim()"
+        aria-label="Enviar">
+        <i class="fas" [class.fa-paper-plane]="!enviando" [class.fa-spinner]="enviando" [class.fa-spin]="enviando"></i>
+      </button>
+    </footer>
+
+  </div>
+</div>

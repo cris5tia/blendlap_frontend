@@ -2908,7 +2908,7 @@
   }
 
   @media (max-width: 768px) {
-    bottom: calc(76px + env(safe-area-inset-bottom));
+    bottom: calc(66px + env(safe-area-inset-bottom) + 68px + 1.5rem);
     right: 1rem;
     width: 42px;
     height: 42px;

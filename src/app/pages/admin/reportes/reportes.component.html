@@ -1,1 +1,612 @@
-<p>reportes works!</p>
+<div class="reportes-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-header__title">Reportes y Analítica</h1>
+      <p class="page-header__sub">Visualiza el rendimiento del negocio en tiempo real</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action btn-whatsapp" (click)="compartirWhatsApp()" [disabled]="!datos || cargando">
+        <i class="fab fa-whatsapp"></i> Compartir
+      </button>
+      <button class="btn-action btn-excel" (click)="exportarExcel()" [disabled]="!datos || descargando">
+        <i class="fas fa-file-excel"></i> Excel
+      </button>
+      <button class="btn-action btn-pdf" (click)="exportarPDF()" [disabled]="!datos || descargando">
+        <i class="fas fa-file-pdf"></i> PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Filtro de fecha ─────────────────────────────────────────────────── -->
+  <div class="filtro-bar">
+    <div class="filtro-bar__presets">
+      <button class="preset-btn" [class.active]="presetActivo === 'hoy'"     (click)="setPreset('hoy')">Hoy</button>
+      <button class="preset-btn" [class.active]="presetActivo === 'semana'"  (click)="setPreset('semana')">Esta semana</button>
+      <button class="preset-btn" [class.active]="presetActivo === 'mes'"     (click)="setPreset('mes')">Este mes</button>
+      <button class="preset-btn" [class.active]="presetActivo === 'mes_ant'" (click)="setPreset('mes_ant')">Mes anterior</button>
+      <button class="preset-btn" [class.active]="presetActivo === 'ano'"     (click)="setPreset('ano')">Este año</button>
+    </div>
+    <div class="filtro-bar__fechas">
+      <div class="fecha-field">
+        <label>Desde</label>
+        <input type="date" [(ngModel)]="filtro.fechaInicio" (change)="onFechaChange()" />
+      </div>
+      <span class="fecha-sep">—</span>
+      <div class="fecha-field">
+        <label>Hasta</label>
+        <input type="date" [(ngModel)]="filtro.fechaFin" (change)="onFechaChange()" />
+      </div>
+      <button class="btn-refresh" (click)="cargar()" [disabled]="cargando">
+        <i class="fas fa-sync-alt" [class.fa-spin]="cargando"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Skeleton ────────────────────────────────────────────────────────── -->
+  <div *ngIf="cargando" class="skeleton-wrap">
+    <div class="skeleton-kpi" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <ng-container *ngIf="!cargando && datos">
+
+    <!-- ── Tabs ─────────────────────────────────────────────────────────── -->
+    <div class="tabs-bar">
+      <button class="tab-btn" [class.active]="tab === 'dashboard'" (click)="tab = 'dashboard'">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'ventas'" (click)="tab = 'ventas'">
+        <i class="fas fa-shopping-bag"></i> Ventas
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'reservas'" (click)="tab = 'reservas'">
+        <i class="fas fa-calendar-check"></i> Reservas
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'barberos'" (click)="tab = 'barberos'">
+        <i class="fas fa-cut"></i> Barberos
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'creditos'" (click)="tab = 'creditos'">
+        <i class="fas fa-credit-card"></i> Créditos
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'clientes'" (click)="tab = 'clientes'">
+        <i class="fas fa-users"></i> Clientes
+      </button>
+      <button class="tab-btn" [class.active]="tab === 'gastos'" (click)="tab = 'gastos'">
+        <i class="fas fa-receipt"></i> Gastos
+      </button>
+    </div>
+
+    <!-- ══════════════════ TAB DASHBOARD ══════════════════ -->
+    <div *ngIf="tab === 'dashboard'">
+
+      <div class="kpi-grid" *ngIf="kpis">
+        <div class="kpi-card kpi-ingresos">
+          <div class="kpi-card__icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Ingresos totales</span>
+            <span class="kpi-card__value">{{ fmtCOP(kpis.ingresos_total) }}</span>
+            <span class="kpi-card__sub">Servicios: {{ fmtCOP(kpis.ingresos_servicios) }} · Productos: {{ fmtCOP(kpis.ingresos_productos) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ganancia">
+          <div class="kpi-card__icon"><i class="fas fa-chart-line"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Ganancia neta</span>
+            <span class="kpi-card__value" [class.negative]="kpis.ganancia_neta < 0">{{ fmtCOP(kpis.ganancia_neta) }}</span>
+            <span class="kpi-card__sub">Margen: {{ margenNeto }}%</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-gastos">
+          <div class="kpi-card__icon"><i class="fas fa-minus-circle"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Total gastos</span>
+            <span class="kpi-card__value">{{ fmtCOP(kpis.total_gastos) }}</span>
+            <span class="kpi-card__sub">Comisiones barberos: {{ fmtCOP(kpis.total_comisiones_barbero) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-reservas">
+          <div class="kpi-card__icon"><i class="fas fa-calendar-alt"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Reservas</span>
+            <span class="kpi-card__value">{{ kpis.reservas_total }}</span>
+            <span class="kpi-card__sub">{{ kpis.reservas_completadas }} completadas · {{ tasaCompletacion }}% tasa</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-clientes">
+          <div class="kpi-card__icon"><i class="fas fa-user-plus"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Clientes nuevos</span>
+            <span class="kpi-card__value">{{ kpis.clientes_nuevos }}</span>
+            <span class="kpi-card__sub">En el período seleccionado</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ventas">
+          <div class="kpi-card__icon"><i class="fas fa-cash-register"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Transacciones</span>
+            <span class="kpi-card__value">{{ kpis.cantidad_ventas }}</span>
+            <span class="kpi-card__sub">Créditos activos: {{ kpis.creditos_activos }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card chart-lg">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por día</span>
+          </div>
+          <ng-container *ngIf="datos.ventas_por_dia.length; else emptyChart">
+            <apx-chart
+              [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
+              [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
+              [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
+              [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
+              [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
+            </apx-chart>
+          </ng-container>
+          <ng-template #emptyChart><p class="chart-empty">Sin ventas en el período</p></ng-template>
+        </div>
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-wallet"></i> Métodos de pago</span>
+          </div>
+          <apx-chart *ngIf="donutMetodosOpts"
+            [series]="donutMetodosOpts.series" [chart]="donutMetodosOpts.chart"
+            [labels]="donutMetodosOpts.labels" [colors]="donutMetodosOpts.colors"
+            [dataLabels]="donutMetodosOpts.dataLabels" [legend]="donutMetodosOpts.legend"
+            [tooltip]="donutMetodosOpts.tooltip" [plotOptions]="donutMetodosOpts.plotOptions">
+          </apx-chart>
+          <p *ngIf="!donutMetodosOpts" class="chart-empty">Sin datos</p>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card chart-md">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-scissors"></i> Top servicios</span>
+          </div>
+          <apx-chart *ngIf="barServiciosOpts"
+            [series]="barServiciosOpts.series" [chart]="barServiciosOpts.chart"
+            [xaxis]="barServiciosOpts.xaxis"   [yaxis]="barServiciosOpts.yaxis"
+            [colors]="barServiciosOpts.colors"  [plotOptions]="barServiciosOpts.plotOptions"
+            [dataLabels]="barServiciosOpts.dataLabels" [grid]="barServiciosOpts.grid"
+            [tooltip]="barServiciosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!barServiciosOpts" class="chart-empty">Sin servicios en el período</p>
+        </div>
+        <div class="chart-card chart-md">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-box"></i> Top productos</span>
+          </div>
+          <apx-chart *ngIf="barProductosOpts"
+            [series]="barProductosOpts.series" [chart]="barProductosOpts.chart"
+            [xaxis]="barProductosOpts.xaxis"   [yaxis]="barProductosOpts.yaxis"
+            [colors]="barProductosOpts.colors"  [plotOptions]="barProductosOpts.plotOptions"
+            [dataLabels]="barProductosOpts.dataLabels" [grid]="barProductosOpts.grid"
+            [tooltip]="barProductosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!barProductosOpts" class="chart-empty">Sin productos vendidos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB VENTAS ══════════════════ -->
+    <div *ngIf="tab === 'ventas'">
+      <div class="charts-row">
+        <div class="chart-card chart-lg">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-line"></i> Ingresos por día</span>
+          </div>
+          <apx-chart *ngIf="datos.ventas_por_dia.length"
+            [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
+            [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
+            [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
+            [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
+            [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!datos.ventas_por_dia.length" class="chart-empty">Sin ventas en el período</p>
+        </div>
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-wallet"></i> Por método de pago</span>
+          </div>
+          <apx-chart *ngIf="donutMetodosOpts"
+            [series]="donutMetodosOpts.series" [chart]="donutMetodosOpts.chart"
+            [labels]="donutMetodosOpts.labels" [colors]="donutMetodosOpts.colors"
+            [dataLabels]="donutMetodosOpts.dataLabels" [legend]="donutMetodosOpts.legend"
+            [tooltip]="donutMetodosOpts.tooltip" [plotOptions]="donutMetodosOpts.plotOptions">
+          </apx-chart>
+          <p *ngIf="!donutMetodosOpts" class="chart-empty">Sin datos</p>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <span class="chart-card__title"><i class="fas fa-clock"></i> Ingresos por hora del día</span>
+        </div>
+        <apx-chart
+          [series]="barHoraOpts.series" [chart]="barHoraOpts.chart"
+          [xaxis]="barHoraOpts.xaxis"   [yaxis]="barHoraOpts.yaxis"
+          [colors]="barHoraOpts.colors"  [plotOptions]="barHoraOpts.plotOptions"
+          [dataLabels]="barHoraOpts.dataLabels" [grid]="barHoraOpts.grid"
+          [tooltip]="barHoraOpts.tooltip">
+        </apx-chart>
+      </div>
+
+      <div class="table-card" *ngIf="datos.ventas_por_dia.length">
+        <div class="table-card__header">
+          <span class="chart-card__title"><i class="fas fa-table"></i> Detalle por día</span>
+        </div>
+        <div class="table-wrap">
+          <table class="rep-table">
+            <thead><tr><th>Día</th><th class="center">Transacciones</th><th class="right">Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let v of datos.ventas_por_dia">
+                <td>{{ fmtDia(v.dia) }}</td>
+                <td class="center">{{ v.cantidad }}</td>
+                <td class="amount">{{ fmtCOP(v.total) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td><strong>Total período</strong></td>
+                <td class="center"><strong>{{ kpis?.cantidad_ventas }}</strong></td>
+                <td class="amount"><strong>{{ fmtCOP(kpis?.ingresos_total ?? 0) }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB RESERVAS ══════════════════ -->
+    <div *ngIf="tab === 'reservas'">
+      <div class="kpi-grid kpi-grid--sm" *ngIf="kpis">
+        <div class="kpi-card kpi-reservas">
+          <div class="kpi-card__icon"><i class="fas fa-calendar-alt"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Total reservas</span>
+            <span class="kpi-card__value">{{ kpis.reservas_total }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ganancia">
+          <div class="kpi-card__icon"><i class="fas fa-check-circle"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Completadas</span>
+            <span class="kpi-card__value">{{ kpis.reservas_completadas }}</span>
+            <span class="kpi-card__sub">{{ tasaCompletacion }}% tasa</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ventas">
+          <div class="kpi-card__icon"><i class="fas fa-hourglass-half"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Pendientes</span>
+            <span class="kpi-card__value">{{ kpis.reservas_pendientes }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-gastos">
+          <div class="kpi-card__icon"><i class="fas fa-times-circle"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Canceladas</span>
+            <span class="kpi-card__value">{{ kpis.reservas_canceladas }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por estado</span>
+          </div>
+          <apx-chart *ngIf="donutReservasOpts"
+            [series]="donutReservasOpts.series" [chart]="donutReservasOpts.chart"
+            [labels]="donutReservasOpts.labels" [colors]="donutReservasOpts.colors"
+            [dataLabels]="donutReservasOpts.dataLabels" [legend]="donutReservasOpts.legend"
+            [plotOptions]="donutReservasOpts.plotOptions">
+          </apx-chart>
+          <p *ngIf="!donutReservasOpts" class="chart-empty">Sin reservas en el período</p>
+        </div>
+        <div class="chart-card chart-lg">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por reservas</span>
+          </div>
+          <apx-chart *ngIf="datos.ventas_por_dia.length"
+            [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
+            [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
+            [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
+            [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
+            [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!datos.ventas_por_dia.length" class="chart-empty">Sin datos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB BARBEROS ══════════════════ -->
+    <div *ngIf="tab === 'barberos'">
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <span class="chart-card__title"><i class="fas fa-chart-bar"></i> Ingresos y comisiones por barbero</span>
+        </div>
+        <apx-chart *ngIf="barBarberosOpts"
+          [series]="barBarberosOpts.series" [chart]="barBarberosOpts.chart"
+          [xaxis]="barBarberosOpts.xaxis"   [yaxis]="barBarberosOpts.yaxis"
+          [colors]="barBarberosOpts.colors"  [plotOptions]="barBarberosOpts.plotOptions"
+          [dataLabels]="barBarberosOpts.dataLabels" [legend]="barBarberosOpts.legend"
+          [grid]="barBarberosOpts.grid" [tooltip]="barBarberosOpts.tooltip">
+        </apx-chart>
+        <p *ngIf="!barBarberosOpts" class="chart-empty">Sin datos de barberos en el período</p>
+      </div>
+
+      <div class="table-card" *ngIf="datos.barberos.length">
+        <div class="table-card__header">
+          <span class="chart-card__title"><i class="fas fa-table"></i> Detalle de comisiones</span>
+        </div>
+        <div class="table-wrap">
+          <table class="rep-table">
+            <thead>
+              <tr>
+                <th>Barbero</th>
+                <th class="center">Comisión %</th>
+                <th class="center">Reservas</th>
+                <th class="right">Total servicios</th>
+                <th class="right">Comisión barbero</th>
+                <th class="right">Aporte barbería</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let b of datos.barberos">
+                <td>
+                  <div class="barbero-cell">
+                    <img *ngIf="b.foto" [src]="b.foto" [alt]="b.barbero" class="barbero-avatar" />
+                    <div class="barbero-avatar-ph" *ngIf="!b.foto">{{ b.barbero.charAt(0) }}</div>
+                    <div>
+                      <div class="barbero-name">{{ b.barbero }}</div>
+                      <div class="barbero-titulo" *ngIf="b.titulo">{{ b.titulo }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="center"><span class="badge badge-info">{{ b.comision }}%</span></td>
+                <td class="center">{{ b.total_reservas }}</td>
+                <td class="amount">{{ fmtCOP(b.total_servicios) }}</td>
+                <td class="amount text-success">{{ fmtCOP(b.comision_barbero) }}</td>
+                <td class="amount text-primary">{{ fmtCOP(b.comision_barberia) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2"><strong>Totales</strong></td>
+                <td class="center"><strong>{{ kpis?.reservas_completadas }}</strong></td>
+                <td class="amount"><strong>{{ fmtCOP(kpis?.ingresos_servicios ?? 0) }}</strong></td>
+                <td class="amount text-success"><strong>{{ fmtCOP(kpis?.total_comisiones_barbero ?? 0) }}</strong></td>
+                <td class="amount text-primary"><strong>{{ fmtCOP((kpis?.ingresos_servicios ?? 0) - (kpis?.total_comisiones_barbero ?? 0)) }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB CRÉDITOS ══════════════════ -->
+    <div *ngIf="tab === 'creditos'">
+      <div class="kpi-grid kpi-grid--sm">
+        <div class="kpi-card kpi-ventas">
+          <div class="kpi-card__icon"><i class="fas fa-hourglass-half"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Créditos pendientes</span>
+            <span class="kpi-card__value">{{ kpis?.creditos_pendientes ?? 0 }}</span>
+            <span class="kpi-card__sub">{{ fmtCOP(kpis?.monto_creditos_pendiente ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-reservas">
+          <div class="kpi-card__icon"><i class="fas fa-check-circle"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Créditos activos</span>
+            <span class="kpi-card__value">{{ kpis?.creditos_activos ?? 0 }}</span>
+            <span class="kpi-card__sub">{{ fmtCOP(kpis?.monto_creditos_activos ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ganancia">
+          <div class="kpi-card__icon"><i class="fas fa-hand-holding-usd"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Saldo por cobrar</span>
+            <span class="kpi-card__value">{{ fmtCOP(creditosStats['activo']?.saldo_pendiente ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-gastos">
+          <div class="kpi-card__icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Créditos vencidos</span>
+            <span class="kpi-card__value">{{ creditosStats['vencido']?.cantidad ?? 0 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por estado</span>
+          </div>
+          <apx-chart *ngIf="donutCreditosOpts"
+            [series]="donutCreditosOpts.series" [chart]="donutCreditosOpts.chart"
+            [labels]="donutCreditosOpts.labels" [colors]="donutCreditosOpts.colors"
+            [dataLabels]="donutCreditosOpts.dataLabels" [legend]="donutCreditosOpts.legend"
+            [tooltip]="donutCreditosOpts.tooltip" [plotOptions]="donutCreditosOpts.plotOptions">
+          </apx-chart>
+          <p *ngIf="!donutCreditosOpts" class="chart-empty">Sin créditos</p>
+        </div>
+        <div class="table-card chart-lg" *ngIf="datos.creditos?.estadisticas?.length">
+          <div class="table-card__header">
+            <span class="chart-card__title"><i class="fas fa-table"></i> Resumen por estado</span>
+          </div>
+          <div class="table-wrap">
+            <table class="rep-table">
+              <thead>
+                <tr><th>Estado</th><th class="center">Cantidad</th><th class="right">Monto total</th><th class="right">Saldo pendiente</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of datos.creditos.estadisticas">
+                  <td><span class="badge" [ngClass]="estadoCreditoClass(c.estado)">{{ c.estado }}</span></td>
+                  <td class="center">{{ c.cantidad }}</td>
+                  <td class="amount">{{ fmtCOP(c.monto_total) }}</td>
+                  <td class="amount">{{ fmtCOP(c.saldo_pendiente) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB CLIENTES ══════════════════ -->
+    <div *ngIf="tab === 'clientes'">
+      <div class="kpi-grid kpi-grid--sm" *ngIf="kpis">
+        <div class="kpi-card kpi-clientes">
+          <div class="kpi-card__icon"><i class="fas fa-user-plus"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Clientes nuevos</span>
+            <span class="kpi-card__value">{{ kpis.clientes_nuevos }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-reservas">
+          <div class="kpi-card__icon"><i class="fas fa-redo"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Clientes activos</span>
+            <span class="kpi-card__value">{{ datos.top_clientes.length }}</span>
+            <span class="kpi-card__sub">Con reservas completadas</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ingresos">
+          <div class="kpi-card__icon"><i class="fas fa-crown"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Top cliente</span>
+            <span class="kpi-card__value kpi-name">{{ datos.top_clientes[0]?.cliente ?? '—' }}</span>
+            <span class="kpi-card__sub">{{ fmtCOP(datos.top_clientes[0]?.total_gastado ?? 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <span class="chart-card__title"><i class="fas fa-trophy"></i> Top clientes por gasto</span>
+        </div>
+        <apx-chart *ngIf="barClientesOpts"
+          [series]="barClientesOpts.series" [chart]="barClientesOpts.chart"
+          [xaxis]="barClientesOpts.xaxis"   [yaxis]="barClientesOpts.yaxis"
+          [colors]="barClientesOpts.colors"  [plotOptions]="barClientesOpts.plotOptions"
+          [dataLabels]="barClientesOpts.dataLabels" [grid]="barClientesOpts.grid"
+          [tooltip]="barClientesOpts.tooltip">
+        </apx-chart>
+        <p *ngIf="!barClientesOpts" class="chart-empty">Sin clientes con reservas en el período</p>
+      </div>
+
+      <div class="table-card" *ngIf="datos.top_clientes.length">
+        <div class="table-card__header">
+          <span class="chart-card__title"><i class="fas fa-table"></i> Ranking clientes</span>
+        </div>
+        <div class="table-wrap">
+          <table class="rep-table">
+            <thead>
+              <tr><th class="center">#</th><th>Cliente</th><th class="center">Reservas</th><th class="right">Total gastado</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of datos.top_clientes; let i = index">
+                <td class="center rank">{{ i + 1 }}</td>
+                <td>{{ c.cliente }}</td>
+                <td class="center">{{ c.total_reservas }}</td>
+                <td class="amount">{{ fmtCOP(c.total_gastado) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TAB GASTOS ══════════════════ -->
+    <div *ngIf="tab === 'gastos'">
+      <div class="kpi-grid kpi-grid--sm">
+        <div class="kpi-card kpi-gastos">
+          <div class="kpi-card__icon"><i class="fas fa-receipt"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Total gastos</span>
+            <span class="kpi-card__value">{{ fmtCOP(kpis?.total_gastos ?? 0) }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-ventas">
+          <div class="kpi-card__icon"><i class="fas fa-tag"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Categorías</span>
+            <span class="kpi-card__value">{{ datos.gastos_por_categoria.length }}</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-reservas">
+          <div class="kpi-card__icon"><i class="fas fa-cut"></i></div>
+          <div class="kpi-card__body">
+            <span class="kpi-card__label">Comisiones barberos</span>
+            <span class="kpi-card__value">{{ fmtCOP(kpis?.total_comisiones_barbero ?? 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por categoría</span>
+          </div>
+          <apx-chart *ngIf="donutGastosOpts"
+            [series]="donutGastosOpts.series" [chart]="donutGastosOpts.chart"
+            [labels]="donutGastosOpts.labels" [colors]="donutGastosOpts.colors"
+            [dataLabels]="donutGastosOpts.dataLabels" [legend]="donutGastosOpts.legend"
+            [tooltip]="donutGastosOpts.tooltip" [plotOptions]="donutGastosOpts.plotOptions">
+          </apx-chart>
+          <p *ngIf="!donutGastosOpts" class="chart-empty">Sin gastos en el período</p>
+        </div>
+        <div class="chart-card chart-lg">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Gastos por día</span>
+          </div>
+          <apx-chart *ngIf="datos.gastos_por_dia.length"
+            [series]="lineGastosOpts.series" [chart]="lineGastosOpts.chart"
+            [xaxis]="lineGastosOpts.xaxis"   [yaxis]="lineGastosOpts.yaxis"
+            [colors]="lineGastosOpts.colors"  [stroke]="lineGastosOpts.stroke"
+            [fill]="lineGastosOpts.fill"      [dataLabels]="lineGastosOpts.dataLabels"
+            [grid]="lineGastosOpts.grid"       [tooltip]="lineGastosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!datos.gastos_por_dia.length" class="chart-empty">Sin gastos en el período</p>
+        </div>
+      </div>
+
+      <div class="table-card" *ngIf="datos.gastos_por_categoria.length">
+        <div class="table-card__header">
+          <span class="chart-card__title"><i class="fas fa-table"></i> Detalle por categoría</span>
+        </div>
+        <div class="table-wrap">
+          <table class="rep-table">
+            <thead><tr><th>Categoría</th><th class="center">Registros</th><th class="right">Total</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let g of datos.gastos_por_categoria">
+                <td>{{ g.categoria }}</td>
+                <td class="center">{{ g.cantidad }}</td>
+                <td class="amount">{{ fmtCOP(g.total) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td></td>
+                <td class="amount"><strong>{{ fmtCOP(kpis?.total_gastos ?? 0) }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <div *ngIf="!cargando && !datos" class="empty-state">
+    <i class="fas fa-chart-bar"></i>
+    <p>Selecciona un rango de fechas para ver los reportes</p>
+  </div>
+
+</div>

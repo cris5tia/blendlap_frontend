@@ -69,6 +69,8 @@ import { MisionComponent } from './pages/public/nosotros/mision/mision.component
 import { TrabajaComponent } from './pages/public/nosotros/trabaja/trabaja.component';
 import { ValoresComponent } from './pages/public/nosotros/valores/valores.component';
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
+import { MediaUrlPipe } from './shared/pipes/media-url.pipe';
+import { ChatWidgetComponent } from './shared/components/chat-widget/chat-widget.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { BarberoPresencialModalComponent } from './shared/components/barbero-presencial-modal/barbero-presencial-modal.component';
 import { environment } from '../environments/environment';
@@ -78,6 +80,8 @@ import { environment } from '../environments/environment';
     AppComponent,
     NavbarComponent,
     ImgUrlPipe,
+    MediaUrlPipe,
+    ChatWidgetComponent,
     FooterComponent,
     PublicLayoutComponent,
     AdminLayoutComponent,

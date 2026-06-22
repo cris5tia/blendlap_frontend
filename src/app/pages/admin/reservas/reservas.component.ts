@@ -101,6 +101,7 @@ export class ReservasComponent implements OnInit {
         this.cambiando = false;
         this.cerrarModalEstado();
         this.cargarReservas();
+        this.toastService.success('Estado actualizado');
       },
       error: () => {
         this.cambiando = false;
@@ -123,6 +124,7 @@ export class ReservasComponent implements OnInit {
         this.modalCancelar = false;
         this.reservaACancelar = null;
         this.cargarReservas();
+        this.toastService.success('Reserva cancelada');
       },
       error: () => {
         this.cancelando = false;

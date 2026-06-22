@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
     <app-navbar *ngIf="mostrarNavbar"></app-navbar>
     <router-outlet></router-outlet>
     <app-footer *ngIf="mostrarFooter"></app-footer>
+    <app-chat-widget></app-chat-widget>
   `
 })
 export class PublicLayoutComponent {

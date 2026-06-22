@@ -98,9 +98,9 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 4rem 1rem 4rem;
+  padding: 8rem 1rem 4rem;
   overflow: hidden;
-  min-height: 460px;
+  min-height: 100vh;
 
   &__overlay {
     position: absolute;
@@ -198,7 +198,7 @@
 @media (max-width: 640px) {
   .historia-hero {
     padding: 3rem 1rem;
-    min-height: 400px;
+    min-height: 100svh;
     align-items: flex-end;
 
     h1 { font-size: clamp(1.7rem, 7vw, 2.4rem); }
@@ -609,7 +609,7 @@
 
 @media (max-width: 768px) {
   .historia-hero {
-    padding: 5rem 1.5rem 3rem;
+    padding: 7rem 1.5rem 3rem;
 
     &__valores { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
 
@@ -718,8 +718,8 @@
 
 @media (max-width: 640px) {
   .historia-hero {
-    padding: 4rem 1rem;
-    min-height: 560px;
+    padding: 7rem 1rem 3rem;
+    min-height: 100svh;
     align-items: center;
 
     &__pre {

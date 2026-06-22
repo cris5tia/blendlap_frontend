@@ -118,15 +118,20 @@ export class HomeComponent implements OnInit {
   }
 
   get serviciosEnGrupos(): IServicio[][] {
-    return [this.serviciosFiltradosPorCategoria.slice(0, 4)];
+    const items = this.serviciosFiltradosPorCategoria;
+    const grupos: IServicio[][] = [];
+    for (let i = 0; i < items.length; i += 4) {
+      grupos.push(items.slice(i, i + 4));
+    }
+    return grupos.length > 0 ? grupos : [[]];
   }
 
   get grupoActualServicios(): IServicio[] {
-    return this.serviciosFiltradosPorCategoria.slice(0, 4);
+    return this.serviciosEnGrupos[this.grupoActual] ?? [];
   }
 
   get serviciosPorCategoria(): IServicio[] {
-    return this.serviciosFiltradosPorCategoria.slice(0, 4);
+    return this.serviciosFiltradosPorCategoria;
   }
 
   get totalGrupos(): number { return this.serviciosEnGrupos.length; }

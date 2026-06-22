@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
   template: `
     <app-navbar></app-navbar>
     <router-outlet></router-outlet>
+    <app-chat-widget></app-chat-widget>
   `
 })
 export class ClienteLayoutComponent {}

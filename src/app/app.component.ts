@@ -23,9 +23,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class AppComponent implements OnInit {
   title = 'frontend';
   showInstallPrompt = false;
-  showNotificationPrompt = false;
   private installPromptTimer: any;
-  private notificationPromptTimer: any;
 
   constructor(
     public authService: AuthService,
@@ -44,13 +42,6 @@ export class AppComponent implements OnInit {
         this.installPromptTimer = setTimeout(() => this.hideInstallPrompt(), 8000);
       }
     });
-    this.pwaService.notificationPermission$.subscribe(permission => {
-      if (permission === 'default' && this.authService.getUsuario()) {
-        this.showNotificationPrompt = true;
-        this.clearNotificationPromptTimer();
-        this.notificationPromptTimer = setTimeout(() => this.hideNotificationPrompt(), 8000);
-      }
-    });
   }
 
   installApp(): void {
@@ -62,21 +53,7 @@ export class AppComponent implements OnInit {
     this.clearInstallPromptTimer();
   }
 
-  enableNotifications(): void {
-    void this.pwaService.enableNotifications();
-    this.hideNotificationPrompt();
-  }
-
-  hideNotificationPrompt(): void {
-    this.showNotificationPrompt = false;
-    this.clearNotificationPromptTimer();
-  }
-
   private clearInstallPromptTimer(): void {
     if (this.installPromptTimer) clearTimeout(this.installPromptTimer);
-  }
-
-  private clearNotificationPromptTimer(): void {
-    if (this.notificationPromptTimer) clearTimeout(this.notificationPromptTimer);
   }
 }

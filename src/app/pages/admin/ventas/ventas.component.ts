@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { VentaService, IVenta } from '../../../core/services/venta.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { CreditoService, ICrearCreditoAdmin } from '../../../core/services/credito.service';
 
 export type TipoVista = 'todos' | 'servicios' | 'productos';
 
@@ -41,13 +40,6 @@ export class VentasComponent implements OnInit {
   busquedaProducto = '';
   carrito:         ICarritoItem[] = [];
   metodoPagoNueva = '';
-  creditoForm: ICrearCreditoAdmin = this.creditoFormVacio();
-  plazosCredito = [
-    { id: '1_semana',    label: '1 Semana'    },
-    { id: '1_quincena',  label: '1 Quincena'  },
-    { id: '2_quincenas', label: '2 Quincenas' },
-    { id: '1_mes',       label: '1 Mes'       }
-  ];
   guardando        = false;
   errorNueva       = '';
   exitoNueva       = false;
@@ -56,7 +48,6 @@ export class VentasComponent implements OnInit {
   constructor(
     private ventaService:    VentaService,
     private productoService: ProductoService,
-    private creditoService:  CreditoService,
     private toastService:    ToastService
   ) {}
 
@@ -188,54 +179,13 @@ export class VentasComponent implements OnInit {
         this.exitoNueva = true;
         this.mensajeExitoNueva = '¡Venta registrada correctamente!';
         this.productosAll = [];
+        this.toastService.success('Venta registrada', '¡La venta fue registrada correctamente!');
         setTimeout(() => { this.cerrarNuevaVenta(); this.cargar(); }, 1200);
       },
       error: (err) => {
         this.guardando  = false;
         this.errorNueva = err?.error?.mensaje || 'Error al registrar la venta';
-      }
-    });
-  }
-
-  private registrarCredito(): void {
-    if (!this.creditoForm.nombre_cliente.trim()) {
-      this.errorNueva = 'Ingresa el nombre del cliente';
-      return;
-    }
-    if (!this.creditoForm.telefono_cliente.trim()) {
-      this.errorNueva = 'Ingresa el teléfono del cliente';
-      return;
-    }
-    if (!this.creditoForm.plazo) {
-      this.errorNueva = 'Selecciona el plazo del crédito';
-      return;
-    }
-
-    this.guardando  = true;
-    this.errorNueva = '';
-
-    const body: ICrearCreditoAdmin = {
-      ...this.creditoForm,
-      productos: this.carrito.map(i => ({
-        id_producto:     i.producto.id_producto,
-        cantidad:        i.cantidad,
-        precio_unitario: Number(i.producto.precio),
-        subtotal:        Number(i.producto.precio) * i.cantidad
-      }))
-    };
-
-    this.creditoService.crearAdmin(body).subscribe({
-      next: () => {
-        this.guardando = false;
-        this.exitoNueva = true;
-        this.mensajeExitoNueva = '¡Crédito creado y activo!';
-        this.productosAll = [];
-        this.toastService.success('Crédito creado y activo');
-        setTimeout(() => { this.cerrarNuevaVenta(); this.cargar(); }, 1200);
-      },
-      error: (err) => {
-        this.guardando = false;
-        this.errorNueva = err?.error?.mensaje || 'Error al registrar el crédito';
+        this.toastService.error('Error al registrar', err?.error?.mensaje || 'No se pudo registrar la venta.');
       }
     });
   }
@@ -264,13 +214,4 @@ export class VentasComponent implements OnInit {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v || 0);
   }
 
-  private creditoFormVacio(): ICrearCreditoAdmin {
-    return {
-      nombre_cliente: '',
-      telefono_cliente: '',
-      plazo: '1_quincena',
-      observaciones: '',
-      productos: []
-    };
-  }
 }

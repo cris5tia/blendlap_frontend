@@ -1,362 +1,435 @@
-<div class="dashboard-page">
+<div class="dash-page">
 
-  <div class="cargando" *ngIf="cargando">
-    <i class="fas fa-spinner fa-spin"></i> Cargando dashboard...
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-header__title">Dashboard</h1>
+      <p class="dash-header__sub">{{ periodoLabel }}</p>
+    </div>
+    <div class="dash-header__actions">
+      <button class="btn-action btn-pdf" (click)="exportarPDF()" [disabled]="descargando || cargandoReporte">
+        <i class="bi bi-file-earmark-pdf"></i>
+        {{ descargando ? 'Generando...' : 'Exportar PDF' }}
+      </button>
+    </div>
   </div>
 
+  <!-- ── Selector de período ─────────────────────────────────────────── -->
+  <div class="periodo-bar">
 
-
-  <ng-container *ngIf="!cargando && data">
-
-    <!-- Header -->
-    <div class="page-header">
-      <div>
-        <h1 class="page-header__title">Dashboard</h1>
-        <p class="page-header__sub">Resumen financiero del negocio</p>
-      </div>
-      <button class="btn-refresh" (click)="cargarDatos()">
-        <i class="fas fa-sync-alt"></i> Actualizar
+    <div class="periodo-tabs">
+      <button class="periodo-tab" [class.active]="tipoPeriodo === 'semanal'"
+        (click)="tipoPeriodo = 'semanal'; onPeriodoChange()">
+        <i class="bi bi-calendar-week"></i> Semanal
+      </button>
+      <button class="periodo-tab" [class.active]="tipoPeriodo === 'quincenal'"
+        (click)="tipoPeriodo = 'quincenal'; onPeriodoChange()">
+        <i class="bi bi-calendar2-range"></i> Quincenal
+      </button>
+      <button class="periodo-tab" [class.active]="tipoPeriodo === 'mensual'"
+        (click)="tipoPeriodo = 'mensual'; onPeriodoChange()">
+        <i class="bi bi-calendar3"></i> Mensual
+      </button>
+      <button class="periodo-tab" [class.active]="tipoPeriodo === 'anual'"
+        (click)="tipoPeriodo = 'anual'; onPeriodoChange()">
+        <i class="bi bi-calendar4-range"></i> Anual
       </button>
     </div>
 
-    <!-- KPIs -->
-    <div class="kpis-grid">
-      <div class="kpi kpi--accent">
-        <div class="kpi__icon"><i class="fas fa-calendar-check"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Citas hoy</span>
-          <span class="kpi__valor">{{ data.reservasHoy }}</span>
+    <div class="periodo-picker">
+
+      <div class="picker-group" *ngIf="tipoPeriodo === 'semanal'">
+        <label>Semana del día</label>
+        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" />
+      </div>
+
+      <div class="picker-group" *ngIf="tipoPeriodo === 'quincenal'">
+        <label>Día dentro de la quincena</label>
+        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" />
+      </div>
+
+      <div class="picker-group" *ngIf="tipoPeriodo === 'mensual'">
+        <label>Mes</label>
+        <input type="month" [(ngModel)]="selectedMonth" (change)="onDateChange()" />
+      </div>
+
+      <div class="picker-group" *ngIf="tipoPeriodo === 'anual'">
+        <label>Año</label>
+        <select [(ngModel)]="selectedYear" (change)="onDateChange()">
+          <option *ngFor="let a of anioOpciones" [value]="a">{{ a }}</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="periodo-loader" *ngIf="cargandoReporte">
+      <span class="loader-dot"></span>
+      <span class="loader-dot"></span>
+      <span class="loader-dot"></span>
+    </div>
+
+  </div>
+
+  <!-- ── Live bar ────────────────────────────────────────────────────── -->
+  <div class="live-bar" *ngIf="!cargando && data">
+    <div class="live-kpi">
+      <i class="bi bi-scissors"></i>
+      <span class="live-kpi__num">{{ data.reservasHoy ?? 0 }}</span>
+      <span class="live-kpi__label">Citas hoy</span>
+    </div>
+    <div class="live-kpi" *ngIf="data.topBarbero">
+      <i class="bi bi-trophy"></i>
+      <span class="live-kpi__num">{{ data.topBarbero.nombre }} {{ data.topBarbero.apellido }}</span>
+      <span class="live-kpi__label">Top barbero del mes</span>
+    </div>
+    <div class="live-kpi" *ngIf="data.topServicio">
+      <i class="bi bi-star"></i>
+      <span class="live-kpi__num">{{ data.topServicio.nombre_servicio }}</span>
+      <span class="live-kpi__label">Servicio más solicitado</span>
+    </div>
+    <div class="live-dot"><span>EN VIVO</span></div>
+  </div>
+
+  <!-- ── KPI skeleton ────────────────────────────────────────────────── -->
+  <div class="kpi-grid" *ngIf="cargandoReporte && !reporte">
+    <div class="skeleton-kpi" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+  </div>
+
+  <!-- ── KPIs período ────────────────────────────────────────────────── -->
+  <div class="kpi-grid" *ngIf="reporte">
+
+    <div class="kpi-card kpi-ingresos">
+      <div class="kpi-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Ingresos totales</span>
+        <span class="kpi-card__value">{{ formatCurrency(kpis?.ingresos_total) }}</span>
+        <span class="kpi-card__sub">Servicios + Productos</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-ganancia">
+      <div class="kpi-card__icon"><i class="bi bi-cash-coin"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Ganancia neta</span>
+        <span class="kpi-card__value" [class.negative]="(kpis?.ganancia_neta ?? 0) < 0">
+          {{ formatCurrency(kpis?.ganancia_neta) }}
+        </span>
+        <span class="kpi-card__sub">Margen {{ margenNeto }}%</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-gastos">
+      <div class="kpi-card__icon"><i class="bi bi-arrow-down-circle"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Total gastos</span>
+        <span class="kpi-card__value">{{ formatCurrency(kpis?.total_gastos) }}</span>
+        <span class="kpi-card__sub">Egresos del período</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-comision">
+      <div class="kpi-card__icon"><i class="bi bi-person-check"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Comisiones barberos</span>
+        <span class="kpi-card__value">{{ formatCurrency(kpis?.total_comisiones_barbero) }}</span>
+        <span class="kpi-card__sub">Pagos a staff</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-reservas">
+      <div class="kpi-card__icon"><i class="bi bi-calendar-check"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Reservas completadas</span>
+        <span class="kpi-card__value">{{ kpis?.reservas_completadas ?? 0 }}</span>
+        <span class="kpi-card__sub">{{ tasaCompletacion }}% tasa de completación</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-ventas">
+      <div class="kpi-card__icon"><i class="bi bi-bag-check"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Ventas totales</span>
+        <span class="kpi-card__value">{{ kpis?.cantidad_ventas ?? 0 }}</span>
+        <span class="kpi-card__sub">Transacciones del período</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-clientes">
+      <div class="kpi-card__icon"><i class="bi bi-people"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Clientes nuevos</span>
+        <span class="kpi-card__value">{{ kpis?.clientes_nuevos ?? 0 }}</span>
+        <span class="kpi-card__sub">Registros en el período</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-creditos">
+      <div class="kpi-card__icon"><i class="bi bi-credit-card-2-front"></i></div>
+      <div class="kpi-card__body">
+        <span class="kpi-card__label">Créditos pendientes</span>
+        <span class="kpi-card__value">{{ formatCurrency(kpis?.monto_creditos_pendiente) }}</span>
+        <span class="kpi-card__sub">{{ kpis?.creditos_pendientes ?? 0 }} créditos activos</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Row 1: Área + Radial ─────────────────────────────────────────── -->
+  <div class="charts-row" *ngIf="reporte">
+
+    <div class="chart-card chart-lg">
+      <div class="chart-card__header">
+        <span class="chart-card__title">
+          <i class="bi bi-bar-chart-line"></i>
+          Ingresos vs Gastos — {{ periodoLabel }}
+        </span>
+        <div class="chart-legend">
+          <span class="legend-dot" style="background:#fbc447"></span><span>Ingresos</span>
+          <span class="legend-dot" style="background:#dc3545"></span><span>Gastos</span>
+          <span class="legend-dot legend-line" style="background:#28a745"></span><span>Ganancia</span>
         </div>
       </div>
-      <div class="kpi">
-        <div class="kpi__icon"><i class="fas fa-calendar-alt"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Citas este mes</span>
-          <span class="kpi__valor">{{ data.reservasMes }}</span>
-        </div>
+      <div *ngIf="chartAreaOptions; else sinDatosArea">
+        <apx-chart
+          [series]="chartAreaOptions.series"
+          [chart]="chartAreaOptions.chart"
+          [xaxis]="chartAreaOptions.xaxis"
+          [yaxis]="chartAreaOptions.yaxis"
+          [colors]="chartAreaOptions.colors"
+          [plotOptions]="chartAreaOptions.plotOptions"
+          [stroke]="chartAreaOptions.stroke"
+          [markers]="chartAreaOptions.markers"
+          [dataLabels]="chartAreaOptions.dataLabels"
+          [fill]="chartAreaOptions.fill"
+          [grid]="chartAreaOptions.grid"
+          [tooltip]="chartAreaOptions.tooltip"
+          [legend]="chartAreaOptions.legend">
+        </apx-chart>
       </div>
-      <div class="kpi">
-        <div class="kpi__icon kpi__icon--green"><i class="fas fa-dollar-sign"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Ingresos mes</span>
-          <span class="kpi__valor">{{ formatCurrency(data.ingresosMes) }}</span>
-        </div>
+      <ng-template #sinDatosArea>
+        <div class="chart-empty"><i class="bi bi-bar-chart-line"></i><br>Sin ventas en el período</div>
+      </ng-template>
+    </div>
+
+    <div class="chart-card chart-sm">
+      <div class="chart-card__header">
+        <span class="chart-card__title">
+          <i class="bi bi-pie-chart"></i>
+          Resumen financiero
+        </span>
       </div>
-      <div class="kpi">
-        <div class="kpi__icon kpi__icon--red"><i class="fas fa-receipt"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Gastos mes</span>
-          <span class="kpi__valor">{{ formatCurrency(data.gastosMes) }}</span>
-        </div>
+      <div *ngIf="chartRadialOptions">
+        <apx-chart
+          [series]="chartRadialOptions.series"
+          [chart]="chartRadialOptions.chart"
+          [labels]="chartRadialOptions.labels"
+          [colors]="chartRadialOptions.colors"
+          [plotOptions]="chartRadialOptions.plotOptions"
+          [stroke]="chartRadialOptions.stroke"
+          [fill]="chartRadialOptions.fill"
+          [legend]="chartRadialOptions.legend"
+          [dataLabels]="chartRadialOptions.dataLabels">
+        </apx-chart>
       </div>
-      <div class="kpi">
-        <div class="kpi__icon kpi__icon--orange"><i class="fas fa-hand-holding-usd"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Comisiones mes</span>
-          <span class="kpi__valor">{{ formatCurrency(data.comisionesMes) }}</span>
+      <div class="resumen-financiero" *ngIf="kpis">
+        <div class="resumen-row">
+          <span class="resumen-label"><span class="dot dot-ing"></span>Ingresos</span>
+          <span class="resumen-val">{{ formatCurrency(kpis.ingresos_total) }}</span>
         </div>
-      </div>
-      <div class="kpi kpi--neta">
-        <div class="kpi__icon kpi__icon--purple"><i class="fas fa-store"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Ganancia neta</span>
-          <span class="kpi__valor" [class.negativo]="data.gananciaNeta < 0">
-            {{ formatCurrency(data.gananciaNeta) }}
-          </span>
+        <div class="resumen-row">
+          <span class="resumen-label"><span class="dot dot-gas"></span>Gastos</span>
+          <span class="resumen-val text-danger">{{ formatCurrency(kpis.total_gastos) }}</span>
         </div>
-      </div>
-      <div class="kpi">
-        <div class="kpi__icon kpi__icon--teal"><i class="fas fa-users"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Total clientes</span>
-          <span class="kpi__valor">{{ data.totalClientes }}</span>
-        </div>
-      </div>
-      <div class="kpi">
-        <div class="kpi__icon kpi__icon--pink"><i class="fas fa-user-plus"></i></div>
-        <div class="kpi__info">
-          <span class="kpi__label">Clientes nuevos</span>
-          <span class="kpi__valor">{{ data.clientesNuevosMes }}</span>
+        <div class="resumen-row">
+          <span class="resumen-label"><span class="dot dot-net"></span>Ganancia neta</span>
+          <span class="resumen-val text-success">{{ formatCurrency(kpis.ganancia_neta) }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Fila graficas -->
-    <!-- Fila graficas -->
-    <div class="charts-row">
+  </div>
 
-      <!-- Área: tendencia meses -->
-      <div class="chart-card chart-card--lg">
-        <div class="chart-card__header">
+  <!-- ── Row 2: Top servicios + Métodos pago ──────────────────────────── -->
+  <div class="charts-row" *ngIf="reporte">
+
+    <div class="chart-card chart-md">
+      <div class="chart-card__header">
+        <span class="chart-card__title"><i class="bi bi-list-ol"></i> Top servicios</span>
+      </div>
+      <div *ngIf="barServiciosOpts; else sinServicios">
+        <apx-chart
+          [series]="barServiciosOpts.series"
+          [chart]="barServiciosOpts.chart"
+          [xaxis]="barServiciosOpts.xaxis"
+          [yaxis]="barServiciosOpts.yaxis"
+          [colors]="barServiciosOpts.colors"
+          [plotOptions]="barServiciosOpts.plotOptions"
+          [dataLabels]="barServiciosOpts.dataLabels"
+          [grid]="barServiciosOpts.grid"
+          [tooltip]="barServiciosOpts.tooltip">
+        </apx-chart>
+      </div>
+      <ng-template #sinServicios>
+        <div class="chart-empty">Sin datos de servicios</div>
+      </ng-template>
+    </div>
+
+    <div class="chart-card chart-sm">
+      <div class="chart-card__header">
+        <span class="chart-card__title"><i class="bi bi-credit-card"></i> Métodos de pago</span>
+      </div>
+      <div *ngIf="donutMetodosOpts; else sinMetodos">
+        <apx-chart
+          [series]="donutMetodosOpts.series"
+          [chart]="donutMetodosOpts.chart"
+          [labels]="donutMetodosOpts.labels"
+          [colors]="donutMetodosOpts.colors"
+          [dataLabels]="donutMetodosOpts.dataLabels"
+          [legend]="donutMetodosOpts.legend"
+          [tooltip]="donutMetodosOpts.tooltip"
+          [plotOptions]="donutMetodosOpts.plotOptions">
+        </apx-chart>
+      </div>
+      <ng-template #sinMetodos>
+        <div class="chart-empty">Sin datos de pagos</div>
+      </ng-template>
+    </div>
+
+  </div>
+
+  <!-- ── Gráfica barberos ──────────────────────────────────────────────── -->
+  <div class="chart-card chart-full" *ngIf="reporte">
+    <div class="chart-card__header">
+      <span class="chart-card__title"><i class="bi bi-people"></i> Rendimiento por barbero — {{ periodoLabel }}</span>
+    </div>
+    <div *ngIf="barBarberosOpts; else sinBarberos">
+      <apx-chart
+        [series]="barBarberosOpts.series"
+        [chart]="barBarberosOpts.chart"
+        [xaxis]="barBarberosOpts.xaxis"
+        [yaxis]="barBarberosOpts.yaxis"
+        [colors]="barBarberosOpts.colors"
+        [plotOptions]="barBarberosOpts.plotOptions"
+        [dataLabels]="barBarberosOpts.dataLabels"
+        [legend]="barBarberosOpts.legend"
+        [grid]="barBarberosOpts.grid"
+        [tooltip]="barBarberosOpts.tooltip">
+      </apx-chart>
+    </div>
+    <ng-template #sinBarberos>
+      <div class="chart-empty">Sin datos de barberos</div>
+    </ng-template>
+  </div>
+
+  <!-- ── Ranking barberos tabla ────────────────────────────────────────── -->
+  <div class="table-card" *ngIf="reporte?.barberos?.length">
+    <div class="table-card__header">
+      <span class="chart-card__title"><i class="bi bi-trophy"></i> Ranking barberos — {{ periodoLabel }}</span>
+    </div>
+    <div class="table-wrap">
+      <table class="rep-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Barbero</th>
+            <th class="center">Reservas</th>
+            <th class="right">Ingresos generados</th>
+            <th class="right">Comisión barbero</th>
+            <th class="right">Barbería recibe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of reporte!.barberos; let i = index">
+            <td class="rank">{{ i + 1 }}</td>
+            <td>
+              <div class="barbero-cell">
+                <img *ngIf="b.foto" [src]="b.foto" class="barbero-avatar" [alt]="b.barbero" />
+                <div *ngIf="!b.foto" class="barbero-avatar-ph">{{ b.barbero.charAt(0) }}</div>
+                <div>
+                  <div class="barbero-name">{{ b.barbero }}</div>
+                  <div class="barbero-titulo">{{ b.titulo }} · {{ b.comision }}% comisión</div>
+                </div>
+              </div>
+            </td>
+            <td class="center">{{ b.total_reservas }}</td>
+            <td class="amount">{{ formatCurrency(b.total_servicios) }}</td>
+            <td class="amount">
+              <span class="badge badge-warning">{{ formatCurrency(b.comision_barbero) }}</span>
+            </td>
+            <td class="amount text-success">{{ formatCurrency(b.comision_barberia) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>TOTAL</strong></td>
+            <td class="amount right"><strong>{{ formatCurrency(kpis?.ingresos_servicios) }}</strong></td>
+            <td class="amount right"><strong>{{ formatCurrency(kpis?.total_comisiones_barbero) }}</strong></td>
+            <td class="amount right text-success">
+              <strong>{{ formatCurrency((kpis?.ingresos_servicios ?? 0) - (kpis?.total_comisiones_barbero ?? 0)) }}</strong>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Últimas reservas ──────────────────────────────────────────────── -->
+  <div class="table-card" *ngIf="!cargando && data?.ultimasReservas?.length">
+    <div class="table-card__header">
+      <span class="chart-card__title"><i class="bi bi-clock-history"></i> Últimas reservas</span>
+    </div>
+
+    <!-- Desktop: tabla -->
+    <div class="table-wrap hide-mobile">
+      <table class="rep-table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Barbero</th>
+            <th>Servicio</th>
+            <th class="right">Monto</th>
+            <th class="center">Estado</th>
+            <th class="center">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of data.ultimasReservas">
+            <td><strong>{{ r.nombre_cliente }}</strong></td>
+            <td>{{ r.nombre_barbero }}</td>
+            <td>{{ r.nombre_servicio }}</td>
+            <td class="amount">{{ formatCurrency(r.precio) }}</td>
+            <td class="center">
+              <span class="badge" [ngClass]="getEstadoClass(r.estado)">{{ r.estado }}</span>
+            </td>
+            <td class="center nowrap-cell">{{ r.fecha | date:'dd MMM' }} {{ r.hora }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile: cards -->
+    <div class="reserva-cards show-mobile">
+      <div class="reserva-card" *ngFor="let r of data.ultimasReservas">
+        <div class="reserva-card__top">
           <div>
-            <div class="chart-card__titulo">
-              <i class="fas fa-chart-bar"></i>
-              Ingresos vs Gastos — últimos 3 meses
-            </div>
-            <div class="chart-card__sub">Barras por mes · línea de ganancia neta</div>
-          </div>
-          <div class="chart-legend">
-            <span class="chart-legend__item">
-              <span class="chart-legend__dot" style="background:#fbc447"></span> Ingresos
-            </span>
-            <span class="chart-legend__item">
-              <span class="chart-legend__dot" style="background:#dc3545"></span> Gastos
-            </span>
-            <span class="chart-legend__item">
-              <span class="chart-legend__dot" style="background:#28a745;border-radius:50%"></span> Ganancia neta
-            </span>
-          </div>
-        </div>
-        <div class="chart-card__body">
-          <apx-chart *ngIf="chartAreaOptions" [series]="chartAreaOptions.series!" [chart]="chartAreaOptions.chart!"
-            [xaxis]="chartAreaOptions.xaxis!" [yaxis]="chartAreaOptions.yaxis!" [stroke]="chartAreaOptions.stroke!"
-            [fill]="chartAreaOptions.fill!" [markers]="chartAreaOptions.markers!" [grid]="chartAreaOptions.grid!"
-            [tooltip]="chartAreaOptions.tooltip!" [colors]="chartAreaOptions.colors!"
-            [legend]="chartAreaOptions.legend!" [dataLabels]="chartAreaOptions.dataLabels!"
-            [plotOptions]="chartAreaOptions.plotOptions!"></apx-chart>
-          <div class="chart-empty" *ngIf="!chartAreaOptions">
-            <i class="fas fa-chart-bar"></i>
-            <p>Sin datos suficientes</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Radial: resumen mes -->
-      <div class="chart-card chart-card--sm">
-        <div class="chart-card__header">
-          <div class="chart-card__titulo">
-            <i class="fas fa-chart-pie"></i>
-            Resumen del mes
-          </div>
-        </div>
-        <div class="chart-card__body chart-card__body--radial">
-          <apx-chart *ngIf="chartRadialOptions" [series]="chartRadialOptions.series!"
-            [chart]="chartRadialOptions.chart!" [labels]="chartRadialOptions.labels!"
-            [colors]="chartRadialOptions.colors!" [plotOptions]="chartRadialOptions.plotOptions!"
-            [stroke]="chartRadialOptions.stroke!" [fill]="chartRadialOptions.fill!"
-            [legend]="chartRadialOptions.legend!" [responsive]="chartRadialOptions.responsive!"
-            [dataLabels]="chartRadialOptions.dataLabels!"></apx-chart>
-          <div class="chart-radial-labels">
-            <div class="chart-radial-labels__item">
-              <span class="dot" style="background:#fbc447"></span>
-              <span class="lbl">Ingresos</span>
-              <span class="val">{{ formatCurrency(data.ingresosMes) }}</span>
-            </div>
-            <div class="chart-radial-labels__item">
-              <span class="dot" style="background:#dc3545"></span>
-              <span class="lbl">Gastos</span>
-              <span class="val val--red">{{ formatCurrency(data.gastosMes) }}</span>
-            </div>
-            <div class="chart-radial-labels__item">
-              <span class="dot" style="background:#28a745"></span>
-              <span class="lbl">Ganancia neta</span>
-              <span class="val val--green">{{ formatCurrency(data.gananciaNeta) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Fila info -->
-    <div class="info-row">
-
-      <!-- Resumen financiero -->
-      <div class="info-card">
-        <div class="info-card__header">
-          <i class="fas fa-calculator"></i>
-          <span>Resumen financiero</span>
-        </div>
-        <div class="resumen-list">
-          <div class="resumen-item">
-            <span>Ingresos brutos</span>
-            <span class="val-green">{{ formatCurrency(data.ingresosMes) }}</span>
-          </div>
-          <div class="resumen-item">
-            <span>Comisiones barberos</span>
-            <span class="val-red">— {{ formatCurrency(data.comisionesMes) }}</span>
-          </div>
-          <div class="resumen-item">
-            <span>Ganancia bruta</span>
-            <span class="val-green">{{ formatCurrency(data.gananciaBrutaMes) }}</span>
-          </div>
-          <div class="resumen-item">
-            <span>Gastos operativos</span>
-            <span class="val-red">— {{ formatCurrency(data.gastosMes) }}</span>
-          </div>
-          <div class="resumen-item resumen-item--total">
-            <span>Ganancia neta</span>
-            <span [class.val-green]="data.gananciaNeta >= 0" [class.val-red]="data.gananciaNeta < 0">
-              {{ formatCurrency(data.gananciaNeta) }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top barbero -->
-      <div class="info-card" *ngIf="data.topBarbero">
-        <div class="info-card__header">
-          <i class="fas fa-trophy"></i>
-          <span>Top barbero del mes</span>
-        </div>
-        <div class="top-barbero">
-          <div class="top-barbero__foto">
-            <img *ngIf="data.topBarbero.foto" [src]="data.topBarbero.foto | imgUrl" />
-            <i *ngIf="!data.topBarbero.foto" class="fas fa-user-tie"></i>
-          </div>
-          <div class="top-barbero__info">
-            <span class="top-barbero__titulo">{{ data.topBarbero.titulo || 'Barbero' }}</span>
-            <span class="top-barbero__nombre">{{ data.topBarbero.nombre }} {{ data.topBarbero.apellido }}</span>
-            <div class="top-barbero__stats">
-              <span><i class="fas fa-calendar-check"></i> {{ data.topBarbero.total_citas }} citas</span>
-              <span><i class="fas fa-dollar-sign"></i> {{ formatCurrency(data.topBarbero.ingresos_generados) }}</span>
-            </div>
-          </div>
-          <div class="top-barbero__badge">
-            <i class="fas fa-crown"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top servicio -->
-      <div class="info-card" *ngIf="data.topServicio">
-        <div class="info-card__header">
-          <i class="fas fa-star"></i>
-          <span>Servicio mas solicitado</span>
-        </div>
-        <div class="top-servicio">
-          <div class="top-servicio__img">
-            <img *ngIf="data.topServicio.imagen"
-              [src]="data.topServicio.imagen | imgUrl" />
-            <i *ngIf="!data.topServicio.imagen" class="fas fa-cut"></i>
-          </div>
-          <div>
-            <span class="top-servicio__nombre">{{ data.topServicio.nombre_servicio }}</span>
-            <span class="top-servicio__total">
-              <i class="fas fa-redo"></i> {{ data.topServicio.total }} solicitudes este mes
-            </span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Ranking barberos -->
-    <div class="tabla-card" *ngIf="data.rankingBarberos?.length > 0">
-      <div class="tabla-card__header">
-        <i class="fas fa-medal"></i>
-        <span>Rendimiento barberos — este mes</span>
-      </div>
-      <div class="ranking-list">
-        <div class="ranking-item" *ngFor="let b of data.rankingBarberos; let i = index">
-          <div class="ranking-item__pos" [class.pos--gold]="i===0" [class.pos--silver]="i===1"
-            [class.pos--bronze]="i===2">
-            {{ i + 1 }}
-          </div>
-          <div class="ranking-item__foto">
-            <img *ngIf="b.foto" [src]="b.foto | imgUrl" />
-            <i *ngIf="!b.foto" class="fas fa-user-tie"></i>
-          </div>
-          <div class="ranking-item__info">
-            <span class="ranking-item__nombre">{{ b.nombre }} {{ b.apellido }}</span>
-            <div class="ranking-item__bar-wrap">
-              <div class="ranking-item__bar" [style.width.%]="porcentajeCitas(b.total_citas)"></div>
-            </div>
-            <span class="ranking-item__citas">{{ b.total_citas }} citas</span>
-          </div>
-          <div class="ranking-item__nums">
-            <span class="val-green">{{ formatCurrency(b.ingresos_generados) }}</span>
-            <span class="val-gray">{{ b.comision }}% comision</span>
-            <span class="val-accent">{{ formatCurrency(b.comision_total) }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ultimas reservas — lista + modal -->
-    <div class="tabla-card">
-      <div class="tabla-card__header">
-        <i class="fas fa-clock"></i>
-        <span>Últimas reservas</span>
-      </div>
-
-      <div class="reservas-lista" *ngIf="data.ultimasReservas?.length > 0">
-        <div class="reserva-row"
-             *ngFor="let r of data.ultimasReservas"
-             (click)="abrirDetalleReserva(r)">
-          <div class="cliente-cell">
-            <div class="cliente-cell__avatar">{{ r.nombre_cliente?.charAt(0) }}</div>
-            <span class="cliente-cell__nombre">{{ r.nombre_cliente }}</span>
+            <div class="reserva-card__cliente">{{ r.nombre_cliente }}</div>
+            <div class="reserva-card__servicio">{{ r.nombre_servicio }}</div>
           </div>
           <span class="badge" [ngClass]="getEstadoClass(r.estado)">{{ r.estado }}</span>
-          <i class="fas fa-chevron-right reserva-row__arrow"></i>
         </div>
-      </div>
-
-      <div class="tabla-empty" *ngIf="!data.ultimasReservas?.length">
-        <i class="fas fa-calendar-times"></i>
-        <p>No hay reservas recientes</p>
+        <div class="reserva-card__bottom">
+          <span class="reserva-card__barbero"><i class="bi bi-scissors"></i> {{ r.nombre_barbero }}</span>
+          <span class="reserva-card__fecha"><i class="bi bi-clock"></i> {{ r.fecha | date:'dd MMM' }} {{ r.hora }}</span>
+          <span class="reserva-card__precio">{{ formatCurrency(r.precio) }}</span>
+        </div>
       </div>
     </div>
-
-  </ng-container>
-
-</div>
-
-<!-- ── Modal detalle reserva ────────────────────────────────── -->
-<div class="modal-overlay" *ngIf="reservaDetalle" (click)="cerrarDetalleReserva()">
-  <div class="modal-detalle" (click)="$event.stopPropagation()">
-
-    <div class="modal-detalle__header">
-      <div class="modal-detalle__titulo">
-        <i class="fas fa-calendar-check"></i>
-        Detalle de reserva
-      </div>
-      <button class="modal-detalle__close" (click)="cerrarDetalleReserva()">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
-    <div class="modal-detalle__body">
-
-      <!-- Cliente -->
-      <div class="detalle-cliente">
-        <div class="detalle-cliente__avatar">{{ reservaDetalle.nombre_cliente?.charAt(0) }}</div>
-        <div>
-          <div class="detalle-cliente__nombre">{{ reservaDetalle.nombre_cliente }}</div>
-          <span class="badge" [ngClass]="getEstadoClass(reservaDetalle.estado)">{{ reservaDetalle.estado }}</span>
-        </div>
-      </div>
-
-      <!-- Datos -->
-      <div class="detalle-grid">
-        <div class="detalle-item">
-          <span class="detalle-item__label"><i class="fas fa-user-tie"></i> Barbero</span>
-          <span class="detalle-item__val">{{ reservaDetalle.nombre_barbero }}</span>
-        </div>
-        <div class="detalle-item">
-          <span class="detalle-item__label"><i class="fas fa-cut"></i> Servicio</span>
-          <span class="detalle-item__val">{{ reservaDetalle.nombre_servicio || '—' }}</span>
-        </div>
-        <div class="detalle-item">
-          <span class="detalle-item__label"><i class="fas fa-calendar"></i> Fecha</span>
-          <span class="detalle-item__val">{{ reservaDetalle.fecha | date:'dd/MM/yyyy' }}</span>
-        </div>
-        <div class="detalle-item">
-          <span class="detalle-item__label"><i class="fas fa-clock"></i> Hora</span>
-          <span class="detalle-item__val">{{ reservaDetalle.hora }}</span>
-        </div>
-        <div class="detalle-item" *ngIf="reservaDetalle.precio_total > 0">
-          <span class="detalle-item__label"><i class="fas fa-dollar-sign"></i> Total</span>
-          <span class="detalle-item__val val-green">${{ reservaDetalle.precio_total | number:'1.0-0' }}</span>
-        </div>
-        <div class="detalle-item">
-          <span class="detalle-item__label"><i class="fas fa-hashtag"></i> ID</span>
-          <span class="detalle-item__val">#{{ reservaDetalle.id_reserva }}</span>
-        </div>
-      </div>
-
-    </div>
-
   </div>
+
+  <!-- ── Cargando inicial ──────────────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="cargando">
+    <div class="spinner-ring"></div>
+    <p>Cargando dashboard...</p>
+  </div>
+
 </div>

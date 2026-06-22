@@ -281,7 +281,10 @@ export class CreditosComponent implements OnInit {
         this.cargar();
         this.toastService.success('Solicitud rechazada');
       },
-      error: () => { this.procesando = false; }
+      error: () => {
+        this.toastService.error('Error al rechazar', 'No se pudo rechazar la solicitud.');
+        this.procesando = false;
+      }
     });
   }
 

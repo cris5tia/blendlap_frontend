@@ -2,7 +2,7 @@
 <app-toast></app-toast>
 <app-barbero-presencial-modal></app-barbero-presencial-modal>
 
-<!-- PWA Notifications Toast -->
+<!-- PWA Install Toast -->
 <div class="app-pwa-toast" *ngIf="showInstallPrompt" [@slideInOut]>
   <div class="app-pwa-toast__content">
     <div class="app-pwa-toast__icon"><i class="fas fa-download"></i></div>
@@ -15,22 +15,6 @@
     Instalar
   </button>
   <button type="button" class="app-pwa-toast__close" (click)="hideInstallPrompt()" aria-label="Cerrar">
-    <i class="fas fa-times"></i>
-  </button>
-</div>
-
-<div class="app-pwa-toast" *ngIf="showNotificationPrompt" [@slideInOut]>
-  <div class="app-pwa-toast__content">
-    <div class="app-pwa-toast__icon app-pwa-toast__icon--bell"><i class="fas fa-bell"></i></div>
-    <div class="app-pwa-toast__text">
-      <p class="app-pwa-toast__title">Activar notificaciones</p>
-      <p class="app-pwa-toast__desc">Recibe recordatorios de tus citas</p>
-    </div>
-  </div>
-  <button type="button" class="app-pwa-toast__action app-pwa-toast__action--primary" (click)="enableNotifications()">
-    Activar
-  </button>
-  <button type="button" class="app-pwa-toast__close" (click)="hideNotificationPrompt()" aria-label="Cerrar">
     <i class="fas fa-times"></i>
   </button>
 </div>
