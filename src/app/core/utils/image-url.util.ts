@@ -7,6 +7,7 @@ export function resolveMediaUrl(value?: string | null, folder?: string): string 
   const raw = (value ?? '').trim();
   if (!raw) return FALLBACK;
   if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('data:')) return raw;
   if (raw.startsWith('assets/') || raw.startsWith('/assets/')) {
     return raw.startsWith('/') ? raw.slice(1) : raw;
   }

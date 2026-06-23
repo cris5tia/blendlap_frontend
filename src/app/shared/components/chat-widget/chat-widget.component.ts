@@ -50,6 +50,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   mensajes: IChatMessage[] = [];
   permitirMensajeFlotante = true;
 
+  private readonly PENDING_ACTION_KEY = 'blendlap_chat_pending_action';
+  private prevUserId: number | null = null;
+
   @ViewChild('mensajesContainer') mensajesContainer?: ElementRef<HTMLDivElement>;
 
   private sub?: Subscription;
@@ -65,13 +68,38 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.sub = new Subscription();
 
     const userSub = this.authService.usuario$.subscribe(u => {
+      const currentUserId = u?.id_usuario ?? null;
+      const justLoggedIn = !this.prevUserId && currentUserId !== null && u?.rol === 'cliente';
       this.usuario = u;
+
+      if (justLoggedIn) {
+        const pendingAction = sessionStorage.getItem(this.PENDING_ACTION_KEY);
+        if (pendingAction) {
+          sessionStorage.removeItem(this.PENDING_ACTION_KEY);
+          this.mensajes = [{ role: 'bot', text: this.mensajeBienvenida(), at: new Date() }];
+          this.actualizarSugerencias();
+          this.abierto = true;
+          this.permitirMensajeFlotante = false;
+          setTimeout(() => {
+            this.input = pendingAction;
+            this.enviar();
+          }, 400);
+          this.prevUserId = currentUserId;
+          return;
+        }
+      }
+
+      this.prevUserId = currentUserId;
       this.cargarEstadoDeStorage();
     });
 
     const routeSub = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
+        if (this.abierto) {
+          this.abierto = false;
+          this.permitirMensajeFlotante = true;
+        }
         this.actualizarSugerencias();
       });
 
@@ -153,25 +181,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }, delayMs);
   }
 
-  private crearMensajeBot(res: NonNullable<IChatMessage['text']> extends string ? any : never, meta?: {
-    reply: string;
-    meta?: {
-      products?: IChatProductCard[];
-      catalogCards?: IChatCatalogCard[];
-      requiresAuth?: boolean;
-    };
-  }): IChatMessage {
-    const catalogCards = this.parseCatalogCards(meta?.meta);
-    return {
-      role: 'bot',
-      text: meta?.reply || '',
-      at: new Date(),
-      products: catalogCards.length ? undefined : this.parseProducts(meta?.meta?.products),
-      catalogCards: catalogCards.length ? catalogCards : undefined,
-      requiresAuth: Boolean(meta?.meta?.requiresAuth),
-    };
-  }
-
   toggle(): void {
     this.abierto = !this.abierto;
     if (!this.abierto) {
@@ -198,28 +207,56 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   irALogin(): void {
+    this.guardarAccionPendiente();
     this.cerrar();
     this.router.navigate(['/login']);
   }
 
   irARegistro(): void {
+    this.guardarAccionPendiente();
     this.cerrar();
     this.router.navigate(['/registro']);
+  }
+
+  private guardarAccionPendiente(): void {
+    const lastUserMsg = [...this.mensajes].reverse().find(m => m.role === 'user');
+    if (lastUserMsg) {
+      sessionStorage.setItem(this.PENDING_ACTION_KEY, lastUserMsg.text);
+    }
   }
 
   enviar(): void {
     const texto = this.input.trim();
     if (!texto || this.enviando) return;
-
     this.input = '';
+    this.despacharMensaje(texto, texto);
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.enviar();
+    }
+  }
+
+  usarSugerencia(label: string, value: string): void {
+    if (this.enviando) return;
+    if (value.trim().toLowerCase() === 'volver al inicio') {
+      this.router.navigate(['/']);
+      return;
+    }
+    this.despacharMensaje(label, value);
+  }
+
+  private despacharMensaje(textoVisible: string, valorBackend: string): void {
     this.error = '';
-    this.mensajes.push({ role: 'user', text: texto, at: new Date() });
+    this.mensajes.push({ role: 'user', text: textoVisible, at: new Date() });
     this.guardarEstadoEnStorage();
     this.scrollAlFinal();
     this.enviando = true;
     this.scrollAlFinal();
 
-    this.chatService.sendMessage(texto, this.esInvitado).subscribe({
+    this.chatService.sendMessage(valorBackend, this.esInvitado).subscribe({
       next: (res) => {
         this.enviando = false;
         if (res.ok && res.data?.reply) {
@@ -244,9 +281,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           } else {
             this.mensajes.push(botMsg);
           }
+
           const step = res.data.meta?.['step'];
           const intent = res.data.intent;
-
           if (step) {
             this.reservaActiva = true;
           } else if (res.data.meta?.freshStart || intent !== 'create_reservation') {
@@ -255,11 +292,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
           let opciones = res.data.meta?.options;
           if (!opciones || opciones.length === 0) {
-            if (this.reservaActiva) {
-              opciones = [{ label: 'Cancelar', value: 'cancelar' }];
-            } else {
-              opciones = this.esCliente ? this.sugerenciasCliente : this.sugerenciasInvitado;
-            }
+            opciones = this.reservaActiva
+              ? [{ label: 'Cancelar', value: 'Cancelar' }]
+              : (this.esCliente ? this.sugerenciasCliente : this.sugerenciasInvitado);
           }
           this.sugerencias = this.filtrarSugerencias(opciones);
           this.guardarEstadoEnStorage();
@@ -278,22 +313,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         this.scrollAlFinal();
       }
     });
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.enviar();
-    }
-  }
-
-  usarSugerencia(texto: string): void {
-    if (this.enviando) return;
-    if (texto.trim().toLowerCase() === 'volver al inicio') {
-      this.router.navigate(['/']);
-    }
-    this.input = texto;
-    this.enviar();
   }
 
   tieneTarjetas(m: IChatMessage): boolean {
@@ -355,8 +374,10 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   onDateSelected(event: any): void {
     const val = event.target.value;
     if (!val || this.enviando) return;
-    this.input = val;
-    this.enviar();
+    const [y, m, d] = val.split('-');
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const etiqueta = `${parseInt(d)} de ${meses[parseInt(m) - 1]} de ${y}`;
+    this.despacharMensaje(etiqueta, val);
   }
 
   formatHoraLegible(hora: string): string {
@@ -372,26 +393,17 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   seleccionarSlot(slot: string): void {
     if (this.enviando) return;
-    this.input = slot;
-    this.enviar();
+    this.despacharMensaje(this.formatHoraLegible(slot), slot);
   }
 
   seleccionarCard(c: IChatCatalogCard): void {
     if (this.enviando) return;
     if (c.mediaFolder === 'servicios') {
-      if (this.reservaActiva) {
-        this.input = c.nombre;
-      } else {
-        this.input = `Agendar ${c.nombre}`;
-      }
-      this.enviar();
+      const valor = this.reservaActiva ? c.nombre : `Agendar ${c.nombre}`;
+      this.despacharMensaje(valor, valor);
     } else if (c.mediaFolder === 'barberos') {
-      if (this.reservaActiva) {
-        this.input = c.nombre;
-      } else {
-        this.input = `Agendar con ${c.nombre}`;
-      }
-      this.enviar();
+      const valor = this.reservaActiva ? c.nombre : `Agendar con ${c.nombre}`;
+      this.despacharMensaje(valor, valor);
     }
   }
 

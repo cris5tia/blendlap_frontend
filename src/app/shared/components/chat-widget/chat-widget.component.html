@@ -141,7 +141,7 @@
         type="button"
         class="chat-widget__chip"
         *ngFor="let s of sugerencias"
-        (click)="usarSugerencia(s.value)">
+        (click)="usarSugerencia(s.label, s.value)">
         {{ s.label }}
       </button>
     </div>
