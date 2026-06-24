@@ -22,9 +22,6 @@ export class ServiciosComponent implements OnInit {
   formulario: IServicio = this.formularioVacio();
   guardando = false;
 
-  modalEliminar = false;
-  servicioAEliminar: IServicio | null = null;
-  eliminando = false;
 
   categoriaOpen = false;
 
@@ -152,30 +149,6 @@ export class ServiciosComponent implements OnInit {
     }
   }
 
-  confirmarEliminar(servicio: IServicio): void {
-    this.servicioAEliminar = servicio;
-    this.modalEliminar = true;
-  }
-
-  eliminar(): void {
-    if (!this.servicioAEliminar?.id_servicio) return;
-    this.eliminando = true;
-    const id = Number(this.servicioAEliminar.id_servicio);
-    this.servicioService.delete(id).subscribe({
-      next: () => {
-        this.servicios = this.servicios.filter(s => s.id_servicio !== this.servicioAEliminar!.id_servicio);
-        this.filtrar();
-        this.eliminando = false;
-        this.modalEliminar = false;
-        this.servicioAEliminar = null;
-        this.toastService.success('Servicio eliminado');
-      },
-      error: () => {
-        this.toastService.error('Error al eliminar el servicio');
-        this.eliminando = false;
-      }
-    });
-  }
 
   private formularioVacio(): IServicio {
     return { nombre_servicio: '', descripcion: '', precio: 0, duracion: 30, imagen: '', categoria: '' };

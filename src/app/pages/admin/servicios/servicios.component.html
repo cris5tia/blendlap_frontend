@@ -62,9 +62,6 @@
                 <i class="fas" [class.fa-eye-slash]="s.estado === 'activo'"
                   [class.fa-eye]="s.estado === 'inactivo'"></i>
               </button>
-              <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(s)" title="Eliminar">
-                <i class="fas fa-trash"></i>
-              </button>
             </div>
           </div>
         </div>
@@ -183,35 +180,10 @@
   </div>
 </div>
 
-<!-- Modal Confirmar Eliminar -->
-<div class="modal-overlay" *ngIf="modalEliminar" (click)="modalEliminar = false">
-  <div class="modal modal--sm" (click)="$event.stopPropagation()">
-    <div class="modal__header modal__header--danger">
-      <h2 class="modal__title">
-        <i class="fas fa-trash"></i>
-        Eliminar servicio
-      </h2>
-    </div>
-    <div class="modal__body">
-      <p class="modal__confirm-text">
-        ¿Estás seguro de eliminar <strong>{{ servicioAEliminar?.nombre_servicio }}</strong>?
-        Esta acción no se puede deshacer.
-      </p>
-    </div>
-    <div class="modal__footer">
-      <button class="btn-cancelar" (click)="modalEliminar = false">Cancelar</button>
-      <button class="btn-eliminar" (click)="eliminar()" [disabled]="eliminando">
-        <i class="fas" [ngClass]="eliminando ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-        {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
-      </button>
-    </div>
-  </div>
-</div>
 <!-- Modal Cambiar Estado -->
 <div class="modal-overlay" *ngIf="modalEstado" (click)="modalEstado = false">
   <div class="modal modal--sm" (click)="$event.stopPropagation()">
-    <div class="modal__header" [class.modal__header--danger]="servicioEstado?.estado === 'activo'"
-      [class.modal__header--success]="servicioEstado?.estado === 'inactivo'">
+    <div class="modal__header">
       <h2 class="modal__title">
         <i class="fas" [class.fa-eye-slash]="servicioEstado?.estado === 'activo'"
           [class.fa-eye]="servicioEstado?.estado === 'inactivo'"></i>

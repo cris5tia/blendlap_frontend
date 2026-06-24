@@ -626,25 +626,6 @@
     }
 }
 
-.btn-eliminar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.4rem;
-    border-radius: 9px;
-    border: none;
-    background: #dc3545;
-    color: #fff;
-    font-size: 0.87rem;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font-secondary);
-    transition: var(--transition);
-
-    &:hover {
-        background: #b02a37;
-    }
-}
 
 // ─── Animaciones ─────────────────────────────────────────────
 @keyframes fadeIn {

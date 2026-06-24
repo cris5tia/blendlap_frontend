@@ -138,8 +138,8 @@ export class BarberosComponent implements OnInit {
           this.cerrarModal();
           this.toastService.success('Barbero creado');
         },
-        error: () => {
-          this.toastService.error('Error al crear barbero');
+        error: (err) => {
+          this.toastService.error(err?.error?.mensaje || 'Error al crear barbero');
           this.guardando = false;
         }
       });
@@ -154,9 +154,10 @@ export class BarberosComponent implements OnInit {
   eliminar(): void {
     if (!this.barberoAEliminar) return;
     this.eliminando = true;
-    this.barberoService.eliminar(Number(this.barberoAEliminar.id_usuario)).subscribe({
+    const id = this.barberoAEliminar.id_usuario;
+    this.barberoService.eliminar(Number(id)).subscribe({
       next: () => {
-        const idx = this.barberos.findIndex(b => b.id_usuario === this.barberoAEliminar!.id_usuario);
+        const idx = this.barberos.findIndex(b => b.id_usuario === id);
         if (idx !== -1) this.barberos[idx] = { ...this.barberos[idx], estado: 'inactivo' };
         this.filtrar();
         this.eliminando = false;
@@ -164,8 +165,8 @@ export class BarberosComponent implements OnInit {
         this.barberoAEliminar = null;
         this.toastService.success('Barbero desactivado');
       },
-      error: () => {
-        this.toastService.error('Error al eliminar barbero');
+      error: (err) => {
+        this.toastService.error(err?.error?.mensaje || 'Error al desactivar barbero');
         this.eliminando = false;
       }
     });
@@ -191,8 +192,6 @@ export class BarberosComponent implements OnInit {
   }
   barberosFiltrados: IBarbero[] = [];
   busqueda = '';
-
-
 
   filtrar(): void {
     const q = this.busqueda.toLowerCase().trim();

@@ -217,7 +217,18 @@
       color: #fff;
     }
   }
+
+  &--orange {
+    background: rgba(253, 126, 20, 0.08);
+    color: #fd7e14;
+
+    &:hover {
+      background: #fd7e14;
+      color: #fff;
+    }
+  }
 }
+
 
 .acciones {
   display: flex;
@@ -566,6 +577,34 @@
     max-width: 420px;
   }
 
+  &__title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  &__header--danger &__title {
+    color: #dc3545;
+  }
+
+  &__header--danger {
+    border-bottom-color: #fce8ea;
+    background: #fff5f5;
+  }
+
+  &__confirm-text {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 0;
+    line-height: 1.5;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -847,6 +886,7 @@ input[type="number"] {
     .cat-tab__count { background: rgba(255,255,255,0.2); color: #fff; }
   }
 
+  &--todos.active     { background: var(--color-primary); border-color: var(--color-primary); }
   &--barberia.active  { background: #b8860b; border-color: #b8860b; }
   &--ropa.active      { background: #6f42c1; border-color: #6f42c1; }
   &--accesorios.active{ background: #117a8b; border-color: #117a8b; }
@@ -1360,3 +1400,19 @@ input[type="number"] {
     }
   }
 }
+
+// ─── Botones modal eliminar ───────────────────────────────────
+.btn-cancelar {
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  border: 1.5px solid #dee2e6;
+  background: #fff;
+  color: #555;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: #f1f3f5; border-color: #adb5bd; }
+}
+

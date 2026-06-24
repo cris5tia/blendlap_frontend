@@ -34,7 +34,7 @@
       <button class="btn-primary" type="button" (click)="cargarBarberos()">Reintentar</button>
     </div>
     <div class="equipo__grid" *ngIf="!cargandoBarberos && !errorBarberos">
-      <div class="barbero-card" *ngFor="let barbero of barberos" (click)="abrirModalBarbero(barbero)"
+      <div class="barbero-card" *ngFor="let barbero of barberosMostrados" (click)="abrirModalBarbero(barbero)"
         style="cursor:pointer">
         <div class="barbero-card__imagen">
           <img *ngIf="barbero.foto" [src]="barbero.foto | imgUrl" loading="lazy" decoding="async"
@@ -83,6 +83,10 @@
           <small>años</small>
         </div>
       </div>
+    </div>
+    <div class="equipo__dots" *ngIf="!esMobil() && totalPaginasBarbero.length > 1">
+      <button class="equipo__dot" *ngFor="let p of totalPaginasBarbero; let i = index"
+        [class.active]="paginaBarbero === i" (click)="irPaginaBarbero(i)"></button>
     </div>
   </div>
 </section>

@@ -3,8 +3,6 @@ import { VentaService, IVenta } from '../../../core/services/venta.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
 
-export type TipoVista = 'todos' | 'servicios' | 'productos';
-
 interface ICarritoItem {
   producto: IProducto;
   cantidad: number;
@@ -27,10 +25,9 @@ export class VentasComponent implements OnInit {
   filtroMetodo = '';
   busqueda     = '';
 
-  tipoVista: TipoVista = 'todos';
   mostrarDetalle = false;
 
-  metodos      = ['efectivo', 'tarjeta', 'transferencia', 'nequi', 'otro'];
+  metodos      = ['efectivo', 'transferencia', 'otro'];
   metodosModal = ['efectivo', 'transferencia'];
 
   // ── Nueva venta presencial ──────────────────────────────────
@@ -74,20 +71,9 @@ export class VentasComponent implements OnInit {
     this.ventasFiltradas = lista;
   }
 
-  cambiarVista(tipo: TipoVista): void { this.tipoVista = tipo; }
+  get listaActiva(): IVenta[] { return this.ventasFiltradas; }
 
-  get ventasServicios(): IVenta[] { return this.ventasFiltradas.filter(v => !!v.id_reserva); }
-  get ventasProductos(): IVenta[] { return this.ventasFiltradas.filter(v => !v.id_reserva); }
-
-  get listaActiva(): IVenta[] {
-    if (this.tipoVista === 'servicios') return this.ventasServicios;
-    if (this.tipoVista === 'productos') return this.ventasProductos;
-    return this.ventasFiltradas;
-  }
-
-  get totalFiltrado(): number          { return this.listaActiva.reduce((s, v) => s + Number(v.total), 0); }
-  get totalServiciosFiltrado(): number  { return this.ventasServicios.reduce((s, v) => s + Number(v.total), 0); }
-  get totalProductosFiltrado(): number  { return this.ventasProductos.reduce((s, v) => s + Number(v.total), 0); }
+  get totalFiltrado(): number { return this.ventasFiltradas.reduce((s, v) => s + Number(v.total), 0); }
 
   // ── Ver detalle ──────────────────────────────────────────────
   verDetalle(id: number): void {
@@ -175,12 +161,11 @@ export class VentasComponent implements OnInit {
     };
     this.ventaService.create(body).subscribe({
       next: () => {
-        this.guardando  = false;
-        this.exitoNueva = true;
-        this.mensajeExitoNueva = '¡Venta registrada correctamente!';
+        this.guardando = false;
         this.productosAll = [];
         this.toastService.success('Venta registrada', '¡La venta fue registrada correctamente!');
-        setTimeout(() => { this.cerrarNuevaVenta(); this.cargar(); }, 1200);
+        this.cerrarNuevaVenta();
+        this.cargar();
       },
       error: (err) => {
         this.guardando  = false;
@@ -191,22 +176,17 @@ export class VentasComponent implements OnInit {
   }
 
   // ── Helpers ──────────────────────────────────────────────────
-  esServicio(v: IVenta): boolean { return !!v.id_reserva; }
-  tipoBadge(v: IVenta): string   { return v.id_reserva ? 'badge-servicio' : 'badge-producto'; }
-
   nombreVenta(v: IVenta): string {
-    return v.nombre_cajero || (v.id_reserva ? 'Sin cajero' : 'Compra en línea');
+    return v.nombre_cajero || 'Compra en línea';
   }
 
-  metodoPagoLabel(m: string, esProductoSinReserva = false): string {
-    if (esProductoSinReserva && m === 'otro') return 'Pasarela de pago';
-    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Otro', credito: 'Crédito' };
+  metodoPagoLabel(m: string): string {
+    const map: any = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', otro: 'Pasarela de pago', credito: 'Crédito' };
     return map[m] || m;
   }
 
-  metodoBadgeClass(m: string, esProductoSinReserva = false): string {
-    if (esProductoSinReserva && m === 'otro') return 'badge-online';
-    const map: any = { efectivo: 'badge-success', tarjeta: 'badge-info', transferencia: 'badge-warning', nequi: 'badge-nequi', otro: 'badge-default' };
+  metodoBadgeClass(m: string): string {
+    const map: any = { efectivo: 'badge-success', tarjeta: 'badge-info', transferencia: 'badge-warning', nequi: 'badge-nequi', otro: 'badge-online' };
     return map[m] || 'badge-default';
   }
 

@@ -58,31 +58,21 @@
           <tr>
             <th>Cliente</th>
             <th>Contacto</th>
-            <th>Servicio frecuente</th>
             <th class="text-center">Cortes</th>
             <th class="nowrap">Registro</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Ver</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of clientesFiltrados" (click)="abrirHistorial(c)">
+          <tr *ngFor="let c of clientesFiltrados">
             <td>
               <div class="cliente-cell">
                 <div class="cliente-cell__avatar">{{ c.nombre.charAt(0) }}</div>
-                <div class="cliente-cell__info">
-                  <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
-                  <span class="estado-dot"
-                    [class.estado-dot--activo]="c.estado === 'activo'"
-                    [class.estado-dot--inactivo]="c.estado !== 'activo'">
-                    {{ c.estado }}
-                  </span>
-                </div>
+                <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
               </div>
             </td>
             <td class="text-gray text-sm">{{ c.correo_electronico }}</td>
-            <td>
-              <span class="servicio-tag" *ngIf="c.servicio_frecuente">{{ c.servicio_frecuente }}</span>
-              <span class="text-muted" *ngIf="!c.servicio_frecuente">—</span>
-            </td>
             <td class="text-center">
               <div class="cortes-cell">
                 <span class="cortes-cell__num">{{ c.cortes_ciclo }}<span class="cortes-cell__total">/11</span></span>
@@ -92,6 +82,18 @@
               </div>
             </td>
             <td class="nowrap text-gray text-sm">{{ c.fecha_creacion | date:'dd MMM yyyy' }}</td>
+            <td class="text-center">
+              <span class="estado-dot"
+                [class.estado-dot--activo]="c.estado === 'activo'"
+                [class.estado-dot--inactivo]="c.estado !== 'activo'">
+                {{ c.estado }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button class="btn-ver" (click)="abrirHistorial(c)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>

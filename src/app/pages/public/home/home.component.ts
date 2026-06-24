@@ -153,6 +153,8 @@ export class HomeComponent implements OnInit {
   cargandoBarberos = false;
   errorBarberos = false;
   barberoSeleccionado: IBarbero | null = null;
+  paginaBarbero = 0;
+  readonly BARBEROS_POR_PAGINA = 3;
 
   cargarBarberos(): void {
     this.cargandoBarberos = true;
@@ -160,6 +162,7 @@ export class HomeComponent implements OnInit {
     this.barberoService.getAll().subscribe({
       next: (res) => {
         this.barberos = res.data;
+        this.paginaBarbero = 0;
         this.cargandoBarberos = false;
       },
       error: () => {
@@ -168,6 +171,21 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+
+  get barberosPagina(): IBarbero[] {
+    const inicio = this.paginaBarbero * this.BARBEROS_POR_PAGINA;
+    return this.barberos.slice(inicio, inicio + this.BARBEROS_POR_PAGINA);
+  }
+
+  get barberosMostrados(): IBarbero[] {
+    return this.esMobil() ? this.barberos : this.barberosPagina;
+  }
+
+  get totalPaginasBarbero(): number[] {
+    return Array(Math.ceil(this.barberos.length / this.BARBEROS_POR_PAGINA)).fill(0);
+  }
+
+  irPaginaBarbero(i: number): void { this.paginaBarbero = i; }
 
   getEstrellas(rating: number): number[] { return Array(Math.floor(rating)).fill(0); }
 

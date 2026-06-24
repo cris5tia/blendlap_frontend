@@ -4,7 +4,7 @@
   <div class="page-header">
     <div>
       <h1 class="page-header__title">Ventas</h1>
-      <p class="page-header__sub">Servicios realizados y productos vendidos</p>
+      <p class="page-header__sub">Registro de ventas de productos</p>
     </div>
     <button class="btn-accent" (click)="abrirNuevaVenta()">
       <i class="fas fa-plus"></i> Nueva venta
@@ -16,47 +16,17 @@
     <div class="kpi-card">
       <div class="kpi-card__icon"><i class="fas fa-receipt"></i></div>
       <div class="kpi-card__info">
-        <div class="kpi-card__label">{{ tipoVista === 'todos' ? 'Total' : (tipoVista === 'servicios' ? 'Servicios' : 'Productos') }}</div>
+        <div class="kpi-card__label">Total ventas</div>
         <div class="kpi-card__valor">{{ listaActiva.length }}</div>
-      </div>
-    </div>
-    <div class="kpi-card kpi-card--blue" *ngIf="tipoVista !== 'productos' && ventasServicios.length">
-      <div class="kpi-card__icon kpi-card__icon--blue"><i class="fas fa-cut"></i></div>
-      <div class="kpi-card__info">
-        <div class="kpi-card__label">Servicios</div>
-        <div class="kpi-card__valor">{{ formatCurrency(totalServiciosFiltrado) }}</div>
-      </div>
-    </div>
-    <div class="kpi-card kpi-card--purple" *ngIf="tipoVista !== 'servicios' && ventasProductos.length">
-      <div class="kpi-card__icon kpi-card__icon--purple"><i class="fas fa-shopping-bag"></i></div>
-      <div class="kpi-card__info">
-        <div class="kpi-card__label">Productos en línea</div>
-        <div class="kpi-card__valor">{{ formatCurrency(totalProductosFiltrado) }}</div>
       </div>
     </div>
     <div class="kpi-card kpi-card--green">
       <div class="kpi-card__icon kpi-card__icon--green"><i class="fas fa-dollar-sign"></i></div>
       <div class="kpi-card__info">
-        <div class="kpi-card__label">Monto {{ tipoVista === 'todos' ? 'total' : 'filtrado' }}</div>
+        <div class="kpi-card__label">Monto total</div>
         <div class="kpi-card__valor">{{ formatCurrency(totalFiltrado) }}</div>
       </div>
     </div>
-  </div>
-
-  <!-- Tabs tipo -->
-  <div class="tipo-tabs" *ngIf="!cargando">
-    <button class="tipo-tab" [class.activa]="tipoVista === 'todos'" (click)="cambiarVista('todos')">
-      <i class="fas fa-list"></i> Todos
-      <span class="tipo-tab__count">{{ ventasFiltradas.length }}</span>
-    </button>
-    <button class="tipo-tab tipo-tab--servicio" [class.activa]="tipoVista === 'servicios'" (click)="cambiarVista('servicios')">
-      <i class="fas fa-cut"></i> Servicios
-      <span class="tipo-tab__count">{{ ventasServicios.length }}</span>
-    </button>
-    <button class="tipo-tab tipo-tab--producto" [class.activa]="tipoVista === 'productos'" (click)="cambiarVista('productos')">
-      <i class="fas fa-shopping-bag"></i> Productos / En línea
-      <span class="tipo-tab__count">{{ ventasProductos.length }}</span>
-    </button>
   </div>
 
   <!-- Filtros -->
@@ -106,8 +76,8 @@
             <td class="nowrap">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
             <td>{{ nombreVenta(v) }}</td>
             <td>
-              <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago, !v.id_reserva)">
-                {{ metodoPagoLabel(v.metodo_pago, !v.id_reserva) }}
+              <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">
+                {{ metodoPagoLabel(v.metodo_pago) }}
               </span>
             </td>
             <td class="text-right monto-verde">{{ formatCurrency(v.total) }}</td>
@@ -125,18 +95,15 @@
     <div class="cards-mobile">
       <div class="ventas-lista" *ngIf="listaActiva.length > 0">
         <div class="venta-row" *ngFor="let v of listaActiva" (click)="verDetalle(v.id_venta)">
-          <span class="venta-row__tipo" [ngClass]="tipoBadge(v)">
-            <i class="fas" [ngClass]="v.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
+          <span class="venta-row__tipo badge-producto">
+            <i class="fas fa-shopping-bag"></i>
           </span>
           <div class="venta-row__info">
             <span class="venta-row__cajero">{{ nombreVenta(v) }}</span>
-            <span class="venta-row__fecha">
-              {{ v.fecha | date:'dd/MM/yyyy HH:mm' }}
-              <span class="venta-row__subtipo" *ngIf="!v.id_reserva">· Compra en línea</span>
-            </span>
+            <span class="venta-row__fecha">{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
-          <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago, !v.id_reserva)">
-            {{ metodoPagoLabel(v.metodo_pago, !v.id_reserva) }}
+          <span class="badge" [ngClass]="metodoBadgeClass(v.metodo_pago)">
+            {{ metodoPagoLabel(v.metodo_pago) }}
           </span>
           <span class="venta-row__total">{{ formatCurrency(v.total) }}</span>
           <i class="fas fa-chevron-right venta-row__arrow"></i>
@@ -146,9 +113,7 @@
 
     <div class="tabla-empty" *ngIf="listaActiva.length === 0">
       <i class="fas fa-receipt"></i>
-      <p *ngIf="tipoVista === 'servicios'">No hay ventas de servicios con estos filtros</p>
-      <p *ngIf="tipoVista === 'productos'">No hay compras de productos con estos filtros</p>
-      <p *ngIf="tipoVista === 'todos'">No se encontraron ventas</p>
+      <p>No se encontraron ventas con estos filtros</p>
     </div>
 
   </div>
@@ -161,8 +126,8 @@
 
     <div class="modal-detalle__header">
       <div class="modal-detalle__titulo">
-        <i class="fas" [ngClass]="ventaDetalle?.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
-        {{ ventaDetalle?.id_reserva ? 'Servicio' : 'Producto' }} #{{ ventaDetalle?.id_venta }}
+        <i class="fas fa-shopping-bag"></i>
+        Venta #{{ ventaDetalle?.id_venta }}
       </div>
       <button class="modal-detalle__close" (click)="cerrarModal()">
         <i class="fas fa-times"></i>
@@ -177,20 +142,11 @@
 
       <ng-container *ngIf="ventaDetalle">
 
-        <!-- Tipo banner -->
-        <div class="detalle-tipo-banner" [ngClass]="ventaDetalle.id_reserva ? 'banner-servicio' : 'banner-producto'">
-          <i class="fas" [ngClass]="ventaDetalle.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
-          {{ ventaDetalle.id_reserva ? 'Venta de servicio — Reserva #' + ventaDetalle.id_reserva : 'Compra de producto en línea' }}
-        </div>
-
         <!-- Info básica -->
         <div class="detalle-grid">
           <div class="detalle-item">
-            <span class="detalle-item__label">
-              <i class="fas fa-user"></i>
-              {{ ventaDetalle.id_reserva ? 'Cajero' : 'Cliente / Comprador' }}
-            </span>
-            <span class="detalle-item__val">{{ ventaDetalle.nombre_cajero || (ventaDetalle.id_reserva ? '—' : 'Compra en línea') }}</span>
+            <span class="detalle-item__label"><i class="fas fa-user"></i> Cajero</span>
+            <span class="detalle-item__val">{{ ventaDetalle.nombre_cajero || 'Compra en línea' }}</span>
           </div>
           <div class="detalle-item">
             <span class="detalle-item__label"><i class="fas fa-calendar"></i> Fecha</span>
@@ -199,18 +155,17 @@
           <div class="detalle-item">
             <span class="detalle-item__label"><i class="fas fa-credit-card"></i> Método de pago</span>
             <span class="detalle-item__val">
-              <span class="badge" [ngClass]="metodoBadgeClass(ventaDetalle.metodo_pago, !ventaDetalle.id_reserva)">
-                {{ metodoPagoLabel(ventaDetalle.metodo_pago, !ventaDetalle.id_reserva) }}
+              <span class="badge" [ngClass]="metodoBadgeClass(ventaDetalle.metodo_pago)">
+                {{ metodoPagoLabel(ventaDetalle.metodo_pago) }}
               </span>
             </span>
           </div>
         </div>
 
-        <!-- Productos/Servicios -->
+        <!-- Productos -->
         <div class="detalle-productos">
           <div class="detalle-productos__titulo">
-            <i class="fas" [ngClass]="ventaDetalle.id_reserva ? 'fa-cut' : 'fa-shopping-bag'"></i>
-            {{ ventaDetalle.id_reserva ? 'Servicios realizados' : 'Productos comprados' }}
+            <i class="fas fa-shopping-bag"></i> Productos comprados
             <span class="detalle-productos__count" *ngIf="ventaDetalle.detalles?.length">
               {{ ventaDetalle.detalles!.length }}
             </span>
@@ -259,12 +214,7 @@
       </button>
     </div>
 
-    <!-- Éxito -->
-    <div class="nv-exito" *ngIf="exitoNueva">
-      <i class="fas fa-check-circle"></i> {{ mensajeExitoNueva }}
-    </div>
-
-    <div class="modal-nueva__body" *ngIf="!exitoNueva">
+    <div class="modal-nueva__body">
 
       <!-- Columna izquierda: búsqueda de productos -->
       <div class="nv-productos">
@@ -364,7 +314,7 @@
           </div>
           <button class="nv-btn-registrar" (click)="registrarVenta()" [disabled]="guardando">
             <i class="fas" [ngClass]="guardando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-            {{ guardando ? 'Registrando...' : (metodoPagoNueva === 'credito' ? 'Registrar crédito' : 'Registrar venta') }}
+            {{ guardando ? 'Registrando...' : 'Registrar venta' }}
           </button>
         </div>
       </div>

@@ -69,8 +69,8 @@
                         <button class="btn-accion btn-accion--editar" (click)="abrirModal(b)">
                             <i class="fas fa-pen"></i> Editar
                         </button>
-                        <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(b)">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn-accion btn-accion--eliminar" (click)="confirmarEliminar(b)" title="Desactivar barbero">
+                            <i class="fas fa-user-slash"></i>
                         </button>
                     </ng-container>
                     <button class="btn-accion btn-accion--reactivar" *ngIf="b.estado === 'inactivo'"
@@ -198,17 +198,15 @@
 <!-- Modal Desactivar -->
 <div class="modal-overlay" *ngIf="modalEliminar" (click)="modalEliminar = false">
     <div class="modal modal--sm" (click)="$event.stopPropagation()">
-        <div class="modal__header modal__header--danger">
+        <div class="modal__header">
             <h2 class="modal__title">
-                <i class="fas fa-user-slash"></i>
-                Desactivar barbero
+                <i class="fas fa-user-slash"></i> Desactivar barbero
             </h2>
         </div>
         <div class="modal__body">
             <p class="modal__confirm-text">
-                ¿Estás seguro de desactivar a <strong>{{ barberoAEliminar?.nombre }} {{ barberoAEliminar?.apellido
-                    }}</strong>?
-                El barbero no aparecerá en el home ni podrá recibir reservas, pero su historial se conservará.
+                ¿Desactivar a <strong>{{ barberoAEliminar?.nombre }} {{ barberoAEliminar?.apellido }}</strong>?
+                No aparecerá en el home ni podrá recibir reservas, pero su historial se conservará.
             </p>
         </div>
         <div class="modal__footer">

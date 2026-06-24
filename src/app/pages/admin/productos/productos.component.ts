@@ -25,6 +25,10 @@ export class ProductosComponent implements OnInit {
   productoSeleccionado: IProducto | null = null;
   guardando = false;
 
+  modalDesactivar = false;
+  productoDesactivar: IProducto | null = null;
+  procesandoEstado = false;
+
   // Imagen
   imagenFile: File | null = null;
   imagenPreview: string | null = null;
@@ -50,16 +54,26 @@ export class ProductosComponent implements OnInit {
     if (window.innerWidth <= 768) {
       this.filtroCategoria = 'barberia';
     }
-    this.cargar();
+    this.cargar(true);
   }
 
-  cargar(): void {
+  cargar(avisarStockBajo = false): void {
     this.cargando = true;
     this.productoService.getAll().subscribe({
       next: (res) => {
         this.productos = res.data;
         this.filtrar();
         this.cargando = false;
+        if (avisarStockBajo) {
+          const bajos = this.productos.filter(p => p.stock <= 5 && p.stock > 0 && p.estado === 'activo');
+          const agotados = this.productos.filter(p => p.stock === 0 && p.estado === 'activo');
+          if (agotados.length > 0)
+            this.toastService.error(`${agotados.length} producto${agotados.length > 1 ? 's' : ''} agotado${agotados.length > 1 ? 's' : ''}`,
+              agotados.map(p => p.nombre_producto).join(', '));
+          if (bajos.length > 0)
+            this.toastService.warning(`${bajos.length} producto${bajos.length > 1 ? 's' : ''} con stock bajo`,
+              bajos.map(p => `${p.nombre_producto}: ${p.stock} uds`).join(' · '));
+        }
       },
       error: () => { this.toastService.error('Error al cargar productos'); this.cargando = false; }
     });
@@ -201,8 +215,11 @@ export class ProductosComponent implements OnInit {
     this.guardando = true;
     this.productoService.registrarMovimiento(this.movimientoForm).subscribe({
       next: (res) => {
-        const msg = `Stock actual: ${res.stock_actual}` + (res.alerta_stock_bajo ? ' — stock bajo' : '');
-        this.toastService.success('Movimiento registrado', msg);
+        this.toastService.success('Movimiento registrado', `Stock actual: ${res.stock_actual} uds`);
+        if (res.alerta_stock_bajo && res.stock_actual > 0)
+          this.toastService.warning('Stock bajo', `Quedan solo ${res.stock_actual} unidades`);
+        if (res.stock_actual === 0)
+          this.toastService.error('Producto agotado', 'El stock llegó a 0 unidades');
         this.cerrarModal();
         this.cargar();
         this.guardando = false;
@@ -215,14 +232,29 @@ export class ProductosComponent implements OnInit {
     });
   }
 
-  eliminar(p: IProducto): void {
-    if (!confirm(`¿Eliminar "${p.nombre_producto}"?`)) return;
-    this.productoService.delete(p.id_producto).subscribe({
+  confirmarCambioEstado(p: IProducto): void {
+    this.productoDesactivar = p;
+    this.modalDesactivar = true;
+  }
+
+  cambiarEstadoProducto(): void {
+    if (!this.productoDesactivar) return;
+    this.procesandoEstado = true;
+    const nuevoEstado = this.productoDesactivar.estado === 'activo' ? 'inactivo' : 'activo';
+    this.productoService.update(this.productoDesactivar.id_producto, { estado: nuevoEstado } as any).subscribe({
       next: () => {
-        this.toastService.success('Producto eliminado exitosamente');
-        this.cargar();
+        const idx = this.productos.findIndex(p => p.id_producto === this.productoDesactivar!.id_producto);
+        if (idx !== -1) this.productos[idx] = { ...this.productos[idx], estado: nuevoEstado };
+        this.filtrar();
+        this.toastService.success(nuevoEstado === 'activo' ? 'Producto activado' : 'Producto desactivado');
+        this.modalDesactivar = false;
+        this.productoDesactivar = null;
+        this.procesandoEstado = false;
       },
-      error: (err) => this.toastService.error('Error al eliminar', err?.error?.mensaje || 'Error inesperado')
+      error: () => {
+        this.toastService.error('Error al cambiar el estado del producto');
+        this.procesandoEstado = false;
+      }
     });
   }
 
@@ -246,6 +278,7 @@ export class ProductosComponent implements OnInit {
   }
 
   setCategoria(cat: string): void { this.filtroCategoria = cat; this.filtrar(); }
+
   setEstado(e: string): void      { this.filtroEstado = e;       this.filtrar(); }
 
   tieneStock(p: IProducto): boolean { return p.stock > 5; }

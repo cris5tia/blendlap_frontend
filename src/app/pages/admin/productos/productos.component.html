@@ -16,11 +16,16 @@
     {{ stockBajoCount }} producto{{ stockBajoCount !== 1 ? 's' : '' }} con stock bajo o agotado
   </div>
 
-  <!-- Tabs de categoría (sin Todos) -->
+  <!-- Tabs de categoría -->
   <div class="cat-tabs">
+    <button class="cat-tab cat-tab--todos" [class.active]="filtroCategoria === ''" (click)="setCategoria('')">
+      <i class="fas fa-th-large"></i>
+      Todos
+      <span class="cat-tab__count">{{ productos.length }}</span>
+    </button>
     <button class="cat-tab cat-tab--{{ c }}" *ngFor="let c of categorias"
       [class.active]="filtroCategoria === c"
-      (click)="setCategoria(filtroCategoria === c ? '' : c)">
+      (click)="setCategoria(c)">
       <i class="fas {{ categoriaIcon(c) }}"></i>
       {{ categoriaLabel(c) }}
       <span class="cat-tab__count">{{ countByCategoria(c) }}</span>
@@ -79,7 +84,10 @@
           <button class="btn-icon btn-icon--blue"  title="Editar"      (click)="abrirEditar(p)"><i class="fas fa-pen"></i></button>
           <button class="btn-icon btn-icon--green" title="Movimiento"  (click)="abrirMovimiento(p)"><i class="fas fa-exchange-alt"></i></button>
           <button class="btn-icon btn-icon--gray"  title="Historial"   (click)="abrirMovimientos(p)"><i class="fas fa-history"></i></button>
-          <button class="btn-icon btn-icon--red"   title="Eliminar"    (click)="eliminar(p)"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon" [class.btn-icon--orange]="p.estado === 'activo'" [class.btn-icon--green]="p.estado === 'inactivo'"
+            [title]="p.estado === 'activo' ? 'Desactivar' : 'Activar'" (click)="confirmarCambioEstado(p)">
+            <i class="fas" [class.fa-eye-slash]="p.estado === 'activo'" [class.fa-eye]="p.estado === 'inactivo'"></i>
+          </button>
         </div>
       </div>
 
@@ -324,5 +332,34 @@
       </span>
     </div>
 
+  </div>
+</div>
+
+<!-- ── MODAL DESACTIVAR / ACTIVAR ── -->
+<div class="modal-overlay" *ngIf="modalDesactivar" (click)="modalDesactivar = false; productoDesactivar = null">
+  <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal__header">
+      <h2 class="modal__title">
+        <i class="fas" [class.fa-eye-slash]="productoDesactivar?.estado === 'activo'"
+          [class.fa-eye]="productoDesactivar?.estado === 'inactivo'"></i>
+        {{ productoDesactivar?.estado === 'activo' ? 'Desactivar producto' : 'Activar producto' }}
+      </h2>
+    </div>
+    <div class="modal__body">
+      <p class="modal__confirm-text">
+        ¿{{ productoDesactivar?.estado === 'activo' ? 'Desactivar' : 'Activar' }}
+        <strong>{{ productoDesactivar?.nombre_producto }}</strong>?
+        {{ productoDesactivar?.estado === 'activo'
+          ? 'El producto no aparecerá en la tienda.'
+          : 'El producto volverá a estar disponible.' }}
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancelar" (click)="modalDesactivar = false; productoDesactivar = null">Cancelar</button>
+      <button class="btn-primary" (click)="cambiarEstadoProducto()" [disabled]="procesandoEstado">
+        <i class="fas" [ngClass]="procesandoEstado ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+        {{ procesandoEstado ? 'Procesando...' : 'Confirmar' }}
+      </button>
+    </div>
   </div>
 </div>
