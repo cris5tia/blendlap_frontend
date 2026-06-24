@@ -48,6 +48,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
   presencialMesActual: Date = new Date();
   presencialDiasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
   presencialHoy: Date = new Date();
+  proximasMesActual: Date = new Date();
 
   private destroy$ = new Subject<void>();
   private clockInterval: any;
@@ -504,6 +505,53 @@ export class AgendaComponent implements OnInit, OnDestroy {
     if (!this.filtroFecha || !fechas.includes(this.filtroFecha)) {
       this.filtroFecha = fechas[0];
     }
+    const [y, m] = this.filtroFecha.split('-').map(Number);
+    this.proximasMesActual = new Date(y, m - 1, 1);
+  }
+
+  // ─── Mini-calendario próximas ─────────────────────────────────
+  get proximasDiasCalendario(): { fecha: Date | null; tieneReservas: boolean; cantReservas: number }[] {
+    const año = this.proximasMesActual.getFullYear();
+    const mes = this.proximasMesActual.getMonth();
+    const primerDia = new Date(año, mes, 1).getDay();
+    const diasEnMes = new Date(año, mes + 1, 0).getDate();
+    const dias: { fecha: Date | null; tieneReservas: boolean; cantReservas: number }[] = [];
+    for (let i = 0; i < primerDia; i++) {
+      dias.push({ fecha: null, tieneReservas: false, cantReservas: 0 });
+    }
+    for (let d = 1; d <= diasEnMes; d++) {
+      const fecha = new Date(año, mes, d);
+      const iso = `${año}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const cant = this.proximas.filter(r => this.normalizarFecha(r.fecha) === iso).length;
+      dias.push({ fecha, tieneReservas: cant > 0, cantReservas: cant });
+    }
+    return dias;
+  }
+
+  get proximasNombreMes(): string {
+    return this.proximasMesActual.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+  }
+
+  proximasMesAnterior(): void {
+    this.proximasMesActual = new Date(this.proximasMesActual.getFullYear(), this.proximasMesActual.getMonth() - 1, 1);
+  }
+
+  proximasMesSiguiente(): void {
+    this.proximasMesActual = new Date(this.proximasMesActual.getFullYear(), this.proximasMesActual.getMonth() + 1, 1);
+  }
+
+  seleccionarDiaProximas(dia: { fecha: Date | null; tieneReservas: boolean }): void {
+    if (!dia.fecha || !dia.tieneReservas) return;
+    const f = dia.fecha;
+    const iso = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+    this.seleccionarFechaProxima(iso);
+  }
+
+  esDiaSeleccionadoProximas(dia: { fecha: Date | null }): boolean {
+    if (!dia.fecha) return false;
+    const f = dia.fecha;
+    const iso = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+    return this.fechaProximaSeleccionada === iso;
   }
 
   cantidadPorFecha(fecha: string): number {

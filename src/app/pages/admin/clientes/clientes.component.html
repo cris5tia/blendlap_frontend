@@ -58,43 +58,40 @@
           <tr>
             <th>Cliente</th>
             <th>Contacto</th>
-            <th class="text-center">Descuento</th>
-            <th>Registro</th>
-            <th class="text-center">Estado</th>
-            <th class="text-center">Ver</th>
+            <th>Servicio frecuente</th>
+            <th class="text-center">Cortes</th>
+            <th class="nowrap">Registro</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let c of clientesFiltrados">
+          <tr *ngFor="let c of clientesFiltrados" (click)="abrirHistorial(c)">
             <td>
               <div class="cliente-cell">
                 <div class="cliente-cell__avatar">{{ c.nombre.charAt(0) }}</div>
-                <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
+                <div class="cliente-cell__info">
+                  <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
+                  <span class="estado-dot"
+                    [class.estado-dot--activo]="c.estado === 'activo'"
+                    [class.estado-dot--inactivo]="c.estado !== 'activo'">
+                    {{ c.estado }}
+                  </span>
+                </div>
               </div>
             </td>
-            <td class="text-gray">{{ c.correo_electronico }}</td>
-            <td class="text-center">
-              <span class="descuento-badge" [ngClass]="{
-                'descuento-badge--proximo': c.cortes_para_descuento === 1,
-                'descuento-badge--cerca':   c.cortes_para_descuento <= 3 && c.cortes_para_descuento > 1
-              }">
-                <i class="fas fa-gift" *ngIf="c.cortes_para_descuento === 1"></i>
-                <i class="fas fa-scissors" *ngIf="c.cortes_para_descuento > 1"></i>
-                {{ c.cortes_para_descuento === 1 ? '¡Desc!' : c.cortes_para_descuento + ' cortes' }}
-              </span>
-            </td>
-            <td class="nowrap text-gray">{{ c.fecha_creacion | date:'dd MMM yyyy' }}</td>
-            <td class="text-center">
-              <span class="estado-badge"
-                [ngClass]="c.estado === 'activo' ? 'estado-badge--activo' : 'estado-badge--inactivo'">
-                {{ c.estado | titlecase }}
-              </span>
+            <td class="text-gray text-sm">{{ c.correo_electronico }}</td>
+            <td>
+              <span class="servicio-tag" *ngIf="c.servicio_frecuente">{{ c.servicio_frecuente }}</span>
+              <span class="text-muted" *ngIf="!c.servicio_frecuente">—</span>
             </td>
             <td class="text-center">
-              <button class="btn-detalle" (click)="abrirHistorial(c)">
-                <i class="fas fa-eye"></i>
-              </button>
+              <div class="cortes-cell">
+                <span class="cortes-cell__num">{{ c.cortes_ciclo }}<span class="cortes-cell__total">/11</span></span>
+                <span class="descuento-badge descuento-badge--proximo" *ngIf="c.cortes_para_descuento === 1">
+                  <i class="fas fa-gift"></i> ¡Desc!
+                </span>
+              </div>
             </td>
+            <td class="nowrap text-gray text-sm">{{ c.fecha_creacion | date:'dd MMM yyyy' }}</td>
           </tr>
         </tbody>
       </table>
@@ -108,20 +105,21 @@
             <div class="cliente-cell__avatar">{{ c.nombre.charAt(0) }}</div>
             <div class="cliente-cell__info">
               <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
-              <span class="cliente-cell__sub">{{ c.correo_electronico }}</span>
+              <span class="cliente-cell__sub" *ngIf="c.servicio_frecuente">
+                <i class="fas fa-scissors" style="font-size:0.6rem;color:#b8860b;"></i>
+                {{ c.servicio_frecuente }}
+              </span>
+              <span class="cliente-cell__sub" *ngIf="!c.servicio_frecuente">{{ c.correo_electronico }}</span>
             </div>
           </div>
           <div class="cliente-row__badges">
-            <span class="descuento-badge" [ngClass]="{
-              'descuento-badge--proximo': c.cortes_para_descuento === 1,
-              'descuento-badge--cerca':   c.cortes_para_descuento <= 3 && c.cortes_para_descuento > 1
-            }" *ngIf="c.cortes_para_descuento <= 3">
-              <i class="fas fa-gift" *ngIf="c.cortes_para_descuento === 1"></i>
-              <i class="fas fa-scissors" *ngIf="c.cortes_para_descuento > 1"></i>
-              {{ c.cortes_para_descuento === 1 ? '¡Desc!' : c.cortes_para_descuento + ' ctes' }}
+            <span class="cortes-mini">{{ c.cortes_ciclo }}/11</span>
+            <span class="descuento-badge descuento-badge--proximo" *ngIf="c.cortes_para_descuento === 1">
+              <i class="fas fa-gift"></i>
             </span>
-            <span class="estado-badge"
-              [ngClass]="c.estado === 'activo' ? 'estado-badge--activo' : 'estado-badge--inactivo'">
+            <span class="estado-dot"
+              [class.estado-dot--activo]="c.estado === 'activo'"
+              [class.estado-dot--inactivo]="c.estado !== 'activo'">
               {{ c.estado }}
             </span>
           </div>

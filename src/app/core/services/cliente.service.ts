@@ -15,6 +15,7 @@ export interface ICliente {
   total_cortes: number;
   cortes_ciclo: number;
   cortes_para_descuento: number;
+  servicio_frecuente?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

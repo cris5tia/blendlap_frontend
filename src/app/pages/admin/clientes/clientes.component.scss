@@ -144,7 +144,7 @@
   border-radius: 16px;
   border: 1px solid #f0f0ec;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   box-sizing: border-box;
 }
@@ -206,7 +206,7 @@
   &__info {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.2rem;
     min-width: 0;
   }
 
@@ -226,6 +226,70 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+// ─── Estado dot (inline, compacto) ───────────────────────────
+.estado-dot {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 0.12rem 0.5rem;
+  border-radius: 20px;
+  width: fit-content;
+
+  &--activo   { background: rgba(40,167,69,0.1); color: #1e7e34; }
+  &--inactivo { background: rgba(220,53,69,0.08); color: #dc3545; }
+}
+
+// ─── Servicio frecuente tag ───────────────────────────────────
+.servicio-tag {
+  display: inline-block;
+  background: rgba(251,196,71,0.12);
+  color: #7a5800;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-muted { color: #ccc; font-size: 0.82rem; }
+.text-sm    { font-size: 0.8rem; }
+
+// ─── Cortes cell ─────────────────────────────────────────────
+.cortes-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+
+  &__num {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    font-family: var(--font-primary);
+  }
+
+  &__total {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-gray);
+  }
+}
+
+// ─── Cortes mini (mobile) ─────────────────────────────────────
+.cortes-mini {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: #f5f5f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
 }
 
 // ─── Badges ───────────────────────────────────────────────────
@@ -540,15 +604,6 @@
 .id-badge    { color: var(--color-gray); font-size: 0.78rem; font-weight: 600; }
 
 
-.btn-detalle {
-  width: 30px; height: 30px;
-  border-radius: 7px; border: 1px solid #dde2e8;
-  background: transparent; color: #3b82f6;
-  cursor: pointer; font-size: 0.78rem;
-  display: inline-flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-  &:hover { background: rgba(59,130,246,0.1); border-color: #3b82f6; }
-}
 
 @media (max-width: 768px) {
   .tabla-desktop { display: none; }

@@ -116,15 +116,28 @@
 
       <div class="proximas-inner" *ngIf="proximas.length > 0">
 
-        <!-- Filtro por día -->
-        <div class="prox-filtro">
-          <button class="prox-filtro__chip"
-            *ngFor="let f of fechasUnicas"
-            [class.active]="fechaProximaSeleccionada === f"
-            (click)="seleccionarFechaProxima(f)">
-            {{ etiquetaFecha(f) }}
-            <span class="prox-filtro__count">{{ cantidadPorFecha(f) }}</span>
-          </button>
+        <!-- Mini-calendario filtro -->
+        <div class="prox-cal">
+          <div class="prox-cal__nav">
+            <button (click)="proximasMesAnterior()"><i class="fas fa-chevron-left"></i></button>
+            <span>{{ proximasNombreMes }}</span>
+            <button (click)="proximasMesSiguiente()"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="prox-cal__header">
+            <span>D</span><span>L</span><span>M</span>
+            <span>X</span><span>J</span><span>V</span><span>S</span>
+          </div>
+          <div class="prox-cal__grid">
+            <div *ngFor="let dia of proximasDiasCalendario"
+              class="prox-cal__dia"
+              [class.vacio]="!dia.fecha"
+              [class.con-citas]="dia.tieneReservas"
+              [class.seleccionado]="esDiaSeleccionadoProximas(dia)"
+              (click)="seleccionarDiaProximas(dia)">
+              <span class="prox-cal__num" *ngIf="dia.fecha">{{ dia.fecha.getDate() }}</span>
+              <span class="prox-cal__dot" *ngIf="dia.tieneReservas"></span>
+            </div>
+          </div>
         </div>
 
         <div class="citas-resumen citas-resumen--proximas" *ngIf="fechaProximaSeleccionada">
@@ -179,7 +192,7 @@
                    [class.tl-cita--proxima]="getEstadoCita(cita) === 'proxima'"
                    (click)="abrirModalCita(cita)">
                 <div class="tl-cita__inner">
-                  <span class="tl-cita__time">{{ formatHora(cita.hora) }} â€” {{ getHoraFin(cita) }}</span>
+                  <span class=”tl-cita__time”>{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
                   <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
                   <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
                   <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>

@@ -480,8 +480,8 @@
           <div class="kpi-card__icon"><i class="fas fa-crown"></i></div>
           <div class="kpi-card__body">
             <span class="kpi-card__label">Top cliente</span>
-            <span class="kpi-card__value kpi-name">{{ datos.top_clientes[0]?.cliente ?? '—' }}</span>
-            <span class="kpi-card__sub">{{ fmtCOP(datos.top_clientes[0]?.total_gastado ?? 0) }}</span>
+            <span class="kpi-card__value kpi-name">{{ datos.top_clientes[0] ? datos.top_clientes[0].cliente : '—' }}</span>
+            <span class="kpi-card__sub">{{ fmtCOP(datos.top_clientes[0] ? datos.top_clientes[0].total_gastado : 0) }}</span>
           </div>
         </div>
       </div>
