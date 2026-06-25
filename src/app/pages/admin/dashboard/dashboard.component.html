@@ -44,11 +44,11 @@
     <div class="periodo-picker">
       <div class="picker-group" *ngIf="tipoPeriodo === 'semanal'">
         <label>Semana del día</label>
-        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" />
+        <app-mat-date [(ngModel)]="selectedDate" (ngModelChange)="onDateChange()"></app-mat-date>
       </div>
       <div class="picker-group" *ngIf="tipoPeriodo === 'quincenal'">
         <label>Día dentro de la quincena</label>
-        <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" />
+        <app-mat-date [(ngModel)]="selectedDate" (ngModelChange)="onDateChange()"></app-mat-date>
       </div>
       <div class="picker-group" *ngIf="tipoPeriodo === 'mensual'">
         <label>Mes</label>

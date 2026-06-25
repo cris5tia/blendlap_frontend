@@ -66,6 +66,9 @@
           <span class="pf-sep" *ngIf="memberDesde && clienteId">·</span>
           <span *ngIf="clienteId"><i class="fas fa-id-card"></i> {{ clienteId }}</span>
         </div>
+        <button class="pf-btn-editar" (click)="abrirModalEditar()">
+          <i class="fas fa-pen"></i> Editar perfil
+        </button>
       </div>
 
       <div class="pf-hero-card__stats">
@@ -386,6 +389,69 @@
     </div>
 
   </ng-container>
+</div>
+
+<!-- ══ MODAL EDITAR PERFIL ══════════════════════════════════════ -->
+<div class="pf-modal-overlay" *ngIf="modalEditar" (click)="cerrarModalEditar()">
+  <div class="pf-modal pf-modal--editar" (click)="$event.stopPropagation()">
+    <div class="pf-modal__head">
+      <h3><i class="fas fa-pen"></i> Editar perfil</h3>
+      <button class="pf-modal__close" (click)="cerrarModalEditar()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="pf-modal__body">
+
+      <!-- Foto -->
+      <div class="pf-modal-foto">
+        <label class="pf-modal-foto__thumb" for="pf-foto-modal">
+          <img *ngIf="perfilFotoPreview" [src]="perfilFotoPreview" />
+          <img *ngIf="!perfilFotoPreview && perfilFotoActual" [src]="perfilFotoActual | imgUrl" />
+          <div *ngIf="!perfilFotoPreview && !perfilFotoActual" class="pf-modal-foto__empty">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="pf-modal-foto__cam"><i class="fas fa-camera"></i></div>
+        </label>
+        <input id="pf-foto-modal" type="file" accept="image/*" (change)="onFotoChange($event)" style="display:none" />
+        <button *ngIf="perfilFotoPreview || perfilFotoActual" class="pf-btn-quitar" (click)="quitarFoto()">
+          <i class="fas fa-trash-alt"></i> Quitar foto
+        </button>
+      </div>
+
+      <!-- Campos -->
+      <div class="pf-modal-form">
+        <div class="pf-modal-form__row">
+          <div class="pf-modal-form__field">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="perfilNombre" placeholder="Tu nombre" />
+          </div>
+          <div class="pf-modal-form__field">
+            <label>Apellido</label>
+            <input type="text" [(ngModel)]="perfilApellido" placeholder="Tu apellido" />
+          </div>
+        </div>
+        <div class="pf-modal-form__field">
+          <label>Teléfono</label>
+          <input type="tel" [(ngModel)]="perfilTelefono" placeholder="Ej: 3001234567" />
+        </div>
+        <div class="pf-modal-form__field">
+          <label>Correo electrónico</label>
+          <input type="email" [value]="perfilCorreo" readonly class="pf-modal-form__readonly" />
+        </div>
+      </div>
+
+      <div class="pf-alert pf-alert--err" *ngIf="perfilError">
+        <i class="fas fa-exclamation-circle"></i> {{ perfilError }}
+      </div>
+      <div class="pf-alert pf-alert--ok" *ngIf="perfilExito">
+        <i class="fas fa-check-circle"></i> Perfil actualizado
+      </div>
+
+      <button class="pf-btn-save pf-btn-save--modal" (click)="guardarPerfil()" [disabled]="perfilGuardando">
+        <i class="fas" [ngClass]="perfilGuardando ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+        {{ perfilGuardando ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+
+    </div>
+  </div>
 </div>
 
 <!-- ══ MODAL COMPRAS ════════════════════════════════════════════ -->

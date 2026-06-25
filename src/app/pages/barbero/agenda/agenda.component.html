@@ -116,28 +116,10 @@
 
       <div class="proximas-inner" *ngIf="proximas.length > 0">
 
-        <!-- Mini-calendario filtro -->
-        <div class="prox-cal">
-          <div class="prox-cal__nav">
-            <button (click)="proximasMesAnterior()"><i class="fas fa-chevron-left"></i></button>
-            <span>{{ proximasNombreMes }}</span>
-            <button (click)="proximasMesSiguiente()"><i class="fas fa-chevron-right"></i></button>
-          </div>
-          <div class="prox-cal__header">
-            <span>D</span><span>L</span><span>M</span>
-            <span>X</span><span>J</span><span>V</span><span>S</span>
-          </div>
-          <div class="prox-cal__grid">
-            <div *ngFor="let dia of proximasDiasCalendario"
-              class="prox-cal__dia"
-              [class.vacio]="!dia.fecha"
-              [class.con-citas]="dia.tieneReservas"
-              [class.seleccionado]="esDiaSeleccionadoProximas(dia)"
-              (click)="seleccionarDiaProximas(dia)">
-              <span class="prox-cal__num" *ngIf="dia.fecha">{{ dia.fecha.getDate() }}</span>
-              <span class="prox-cal__dot" *ngIf="dia.tieneReservas"></span>
-            </div>
-          </div>
+        <!-- Filtro de fecha -->
+        <div class="prox-date-filter">
+          <i class="fas fa-calendar-alt prox-date-filter__icon"></i>
+          <app-mat-date [(ngModel)]="filtroFecha" placeholder="Seleccionar día"></app-mat-date>
         </div>
 
         <div class="citas-resumen citas-resumen--proximas" *ngIf="fechaProximaSeleccionada">

@@ -19,6 +19,7 @@ export class PerfilComponent implements OnInit, OnDestroy {
 
   modalCompras  = false;
   modalCreditos = false;
+  modalEditar   = false;
 
   usuario: any = null;
   perfilNombre = '';
@@ -79,12 +80,23 @@ export class PerfilComponent implements OnInit, OnDestroy {
   abrirModalCreditos(): void { this.modalCreditos = true; this.bloquearScroll(); }
   cerrarModalCreditos():void { this.modalCreditos = false; this.liberarScrollSiNoHayModal(); }
 
+  abrirModalEditar(): void {
+    this.perfilError = '';
+    this.perfilExito = false;
+    this.perfilFotoFile = null;
+    this.perfilFotoPreview = '';
+    this.perfilEliminarFoto = false;
+    this.modalEditar = true;
+    this.bloquearScroll();
+  }
+  cerrarModalEditar(): void { this.modalEditar = false; this.liberarScrollSiNoHayModal(); }
+
   private bloquearScroll(): void {
     document.body.style.overflow = 'hidden';
   }
 
   private liberarScrollSiNoHayModal(): void {
-    if (!this.modalCompras && !this.modalCreditos) {
+    if (!this.modalCompras && !this.modalCreditos && !this.modalEditar) {
       document.body.style.overflow = '';
     }
   }
@@ -301,7 +313,10 @@ export class PerfilComponent implements OnInit, OnDestroy {
         this.perfilFotoPreview = '';
         this.perfilFotoFile   = null;
         this.authService.actualizarUsuarioLocal(res.data);
-        setTimeout(() => { this.perfilExito = false; }, 3000);
+        setTimeout(() => {
+          this.perfilExito = false;
+          if (this.modalEditar) this.cerrarModalEditar();
+        }, 1800);
       },
       error: (err) => {
         this.perfilGuardando = false;

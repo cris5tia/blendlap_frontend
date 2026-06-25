@@ -144,8 +144,8 @@
             <button *ngIf="usuario.rol === 'cliente'" class="navbar__dropdown-item" (click)="irAPerfil()">
               <i class="fas fa-user-circle"></i> Mi perfil
             </button>
-            <!-- Otros roles: abre modal -->
-            <button *ngIf="usuario.rol !== 'cliente'" class="navbar__dropdown-item" (click)="abrirModalPerfil()">
+            <!-- Admin: abre modal -->
+            <button *ngIf="usuario.rol !== 'cliente' && usuario.rol !== 'barbero'" class="navbar__dropdown-item" (click)="abrirModalPerfil()">
               <i class="fas fa-user-circle"></i> Mi perfil
             </button>
             <div class="navbar__dropdown-divider"></div>
