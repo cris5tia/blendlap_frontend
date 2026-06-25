@@ -1,4 +1,4 @@
-<div class="chat-widget" *ngIf="mostrarChatbot">
+<div class="chat-widget" *ngIf="mostrarChatbot" [class.chat-widget--scrolled]="scrolled">
 
   <div class="chat-widget__fab-wrap" [class.chat-widget__fab-wrap--abierto]="abierto" (mouseleave)="onMouseLeaveWrap()">
     <p

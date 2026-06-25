@@ -247,6 +247,39 @@ export class PerfilComponent implements OnInit, OnDestroy {
     this.perfilEliminarFoto = true;
   }
 
+  guardarSoloFoto(): void {
+    if (!this.perfilFotoFile && !this.perfilEliminarFoto) return;
+    this.perfilGuardando = true;
+    const fd = new FormData();
+    fd.append('nombre',   this.perfilNombre.trim());
+    fd.append('apellido', this.perfilApellido.trim());
+    fd.append('telefono', this.perfilTelefono.trim());
+    if (this.perfilEliminarFoto) fd.append('eliminarFoto', 'true');
+    if (this.perfilFotoFile)     fd.append('foto', this.perfilFotoFile);
+    this.authService.actualizarMiPerfil(fd).subscribe({
+      next: (res) => {
+        this.perfilGuardando    = false;
+        this.perfilFotoActual   = res.data.foto || '';
+        this.perfilFotoPreview  = '';
+        this.perfilFotoFile     = null;
+        this.perfilEliminarFoto = false;
+        this.authService.actualizarUsuarioLocal(res.data);
+      },
+      error: () => { this.perfilGuardando = false; }
+    });
+  }
+
+  cancelarFoto(): void {
+    this.perfilFotoPreview = '';
+    this.perfilFotoFile    = null;
+  }
+
+  eliminarFotoDirecto(): void {
+    this.perfilEliminarFoto = true;
+    this.perfilFotoActual   = '';
+    this.guardarSoloFoto();
+  }
+
   guardarPerfil(): void {
     if (!this.perfilNombre.trim() || !this.perfilApellido.trim()) {
       this.perfilError = 'Nombre y apellido son obligatorios';

@@ -12,7 +12,6 @@ import { ServiciosComponent } from './pages/admin/servicios/servicios.component'
 import { ProductosComponent } from './pages/admin/productos/productos.component';
 import { VentasComponent } from './pages/admin/ventas/ventas.component';
 import { TurnosComponent } from './pages/admin/turnos/turnos.component';
-import { ReportesComponent } from './pages/admin/reportes/reportes.component';
 import { AgendarComponent } from './pages/public/agendar/agendar.component';
 import { authGuard } from './core/guards/auth.guard';
 import { BarberosComponent } from './pages/admin/barberos/barberos.component';
@@ -68,7 +67,7 @@ const routes: Routes = [
       { path: 'productos', component: ProductosComponent },
       { path: 'ventas',    component: VentasComponent    },
       { path: 'turnos',    component: TurnosComponent    },
-      { path: 'reportes',  component: ReportesComponent  },
+      { path: 'reportes',  redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'barberos',  component: BarberosComponent  },
       { path: 'gastos',    component: GastosComponent    },
       { path: 'creditos',    component: CreditosComponent   },

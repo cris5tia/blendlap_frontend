@@ -36,6 +36,21 @@
           <div class="pf-avatar__cam"><i class="fas fa-camera"></i></div>
         </label>
         <input id="pf-foto-hero" type="file" accept="image/*" (change)="onFotoChange($event)" style="display:none" />
+
+        <div class="pf-ava-actions" *ngIf="perfilFotoPreview">
+          <button class="pf-ava-btn pf-ava-btn--save" (click)="guardarSoloFoto()" [disabled]="perfilGuardando">
+            <i class="fas" [ngClass]="perfilGuardando ? 'fa-spinner fa-spin' : 'fa-check'"></i> Guardar
+          </button>
+          <button class="pf-ava-btn pf-ava-btn--cancel" (click)="cancelarFoto()" [disabled]="perfilGuardando">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="pf-ava-actions" *ngIf="!perfilFotoPreview && perfilFotoActual">
+          <button class="pf-ava-btn pf-ava-btn--del" (click)="eliminarFotoDirecto()" [disabled]="perfilGuardando">
+            <i class="fas" [ngClass]="perfilGuardando ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i> Eliminar
+          </button>
+        </div>
       </div>
 
       <div class="pf-hero-card__info">
@@ -76,6 +91,25 @@
          OVERVIEW
     ═══════════════════════════════════════════════════════════ -->
     <div class="pf-grid" *ngIf="tab==='overview'">
+
+      <!-- Mi nivel — full width, first -->
+      <div class="pf-card pf-card--tier pf-card--tier-full" [class]="'tier-' + tier">
+        <div class="pf-card__head">
+          <h3><i class="fas" [ngClass]="tierIcon"></i> Mi nivel</h3>
+        </div>
+        <div class="pf-card__body pf-tier-body">
+          <div class="pf-tier-big"><i class="fas" [ngClass]="tierIcon"></i></div>
+          <div class="pf-tier-info">
+            <h4>{{ tierLabel }}</h4>
+            <p>{{ citasCompletadas }} cita{{ citasCompletadas !== 1 ? 's' : '' }} completada{{ citasCompletadas !== 1 ? 's' : '' }}</p>
+            <div class="pf-tier-bar" *ngIf="tier !== 'legendario'">
+              <div class="pf-tier-bar__fill" [class]="'fill-' + tier" [style.width.%]="tierProgress"></div>
+            </div>
+            <span class="pf-tier-next" *ngIf="tier !== 'legendario'">{{ tierProximoLabel }}</span>
+            <span class="pf-tier-max" *ngIf="tier === 'legendario'"><i class="fas fa-star"></i> Nivel máximo</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Historial de citas -->
       <div class="pf-card" *ngIf="false">
@@ -177,24 +211,6 @@
         </div>
       </div>
 
-      <!-- Mi nivel -->
-      <div class="pf-card pf-card--tier" [class]="'tier-' + tier">
-        <div class="pf-card__head">
-          <h3><i class="fas" [ngClass]="tierIcon"></i> Mi nivel</h3>
-        </div>
-        <div class="pf-card__body pf-tier-body">
-          <div class="pf-tier-big"><i class="fas" [ngClass]="tierIcon"></i></div>
-          <div class="pf-tier-info">
-            <h4>{{ tierLabel }}</h4>
-            <p>{{ citasCompletadas }} cita{{ citasCompletadas !== 1 ? 's' : '' }} completada{{ citasCompletadas !== 1 ? 's' : '' }}</p>
-            <div class="pf-tier-bar" *ngIf="tier !== 'legendario'">
-              <div class="pf-tier-bar__fill" [class]="'fill-' + tier" [style.width.%]="tierProgress"></div>
-            </div>
-            <span class="pf-tier-next" *ngIf="tier !== 'legendario'">{{ tierProximoLabel }}</span>
-            <span class="pf-tier-max" *ngIf="tier === 'legendario'"><i class="fas fa-star"></i> Nivel máximo</span>
-          </div>
-        </div>
-      </div>
 
     </div>
 

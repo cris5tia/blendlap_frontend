@@ -31,8 +31,8 @@
 
         <nav class="sidebar__nav">
             <a routerLink="/admin/dashboard" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
-                <i class="fas fa-chart-line"></i>
-                <span *ngIf="!sidebarCollapsed || sidebarOpen">Dashboard</span>
+                <i class="fas fa-chart-bar"></i>
+                <span *ngIf="!sidebarCollapsed || sidebarOpen">Reportes</span>
             </a>
             <a routerLink="/admin/creditos" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-hand-holding-usd"></i>
@@ -42,11 +42,7 @@
                 <i class="fas fa-cash-register"></i>
                 <span *ngIf="!sidebarCollapsed || sidebarOpen">Ventas</span>
             </a>
-            <a routerLink="/admin/reportes" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
-                <i class="fas fa-chart-bar"></i>
-                <span *ngIf="!sidebarCollapsed || sidebarOpen">Reportes</span>
-            </a>
-            <a routerLink="/admin/reservas" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
+<a routerLink="/admin/reservas" routerLinkActive="active" class="sidebar__item" (click)="closeSidebar()">
                 <i class="fas fa-calendar-check"></i>
                 <span *ngIf="!sidebarCollapsed || sidebarOpen">Reservas</span>
             </a>

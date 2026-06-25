@@ -680,83 +680,79 @@ $pad:     1.75rem;
 
 // ── PASO 4: CONFIRMACIÓN ─────────────────────────────────────
 .ag-card--confirm {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.ag-confirm-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba($accent, 0.1);
-  border: 2px solid rgba($accent, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 0.75rem;
-  font-size: 1.3rem;
-  color: $accent;
-  animation: pulseGold 2.5s ease infinite;
-}
-
-@keyframes pulseGold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba($accent, 0.3); }
-  50%       { box-shadow: 0 0 0 10px rgba($accent, 0); }
-}
-
-.ag-confirm-list {
-  border: 1.5px solid $border;
-  border-radius: 12px;
+  padding: 0;
   overflow: hidden;
-  margin-bottom: 1.5rem;
+  border: 1px solid $border;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.08);
 }
 
-.ag-confirm-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 1.1rem;
-  border-bottom: 1px solid $border;
+// Header centrado
+.ag-c-header {
+  text-align: center;
+  padding: 2.25rem 8rem 1.75rem;
+  position: relative;
 
-  &:last-child { border-bottom: none; }
-
-  .ag-confirm-label {
-    display: block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: $gray;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 0.15rem;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 8rem;
+    right: 8rem;
+    height: 1px;
+    background: $border;
   }
 
-  strong {
-    display: block;
-    font-size: 0.92rem;
-    font-weight: 800;
-    color: $dark;
-    font-family: var(--font-primary);
-  }
-
-  .ag-confirm-sub {
-    font-size: 0.72rem;
-    color: $accent;
-    font-weight: 600;
+  &__icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba($accent, 0.08);
+    border: 2px solid rgba($accent, 0.22);
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    margin-top: 0.1rem;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.4rem;
+    color: $accent;
+  }
 
-    i { font-size: 0.65rem; }
+  h2 {
+    font-family: var(--font-primary);
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: $dark;
+    margin: 0 0 0.3rem;
+  }
+
+  p {
+    font-size: 0.82rem;
+    color: $gray;
+    margin: 0;
   }
 }
 
-.ag-confirm-row--barbero {
-  background: rgba($accent, 0.03);
+// Barbero
+.ag-c-barbero {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.35rem 8rem;
+  background: #fafbfc;
+  position: relative;
 
-  .ag-confirm-barbero-foto {
-    width: 48px;
-    height: 48px;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 8rem;
+    right: 8rem;
+    height: 1px;
+    background: $border;
+  }
+
+  &__foto {
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -764,90 +760,121 @@ $pad:     1.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $accent;
-    font-size: 1.1rem;
+    color: rgba($accent, 0.5);
+    font-size: 1.2rem;
+    border: 2.5px solid $accent;
+    box-shadow: 0 0 0 4px rgba($accent, 0.1);
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top;
+    img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-family: var(--font-primary);
+      font-size: 1.02rem;
+      font-weight: 900;
+      color: $dark;
+      margin: 0.1rem 0 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
 
-.ag-confirm-icon-sm {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: rgba($accent, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: $accent;
-  font-size: 0.85rem;
+.ag-c-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: $gray;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
 }
 
-.ag-confirm-row--servicio {
-  .ag-confirm-servicio-img {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: #eee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #bbb;
-    font-size: 0.9rem;
-
-    img { width: 100%; height: 100%; object-fit: cover; }
-  }
-
-  .ag-confirm-servicio-info { flex: 1; }
-
-  .ag-confirm-precio {
-    font-family: var(--font-primary);
-    font-size: 1.05rem;
-    font-weight: 900;
-    color: $accent;
-    white-space: nowrap;
-  }
+.ag-c-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: darken($accent, 10%);
 }
 
-.ag-confirm-divider {
-  height: 1px;
-  background: $border;
-}
+// Filas: etiqueta izq | valor der
+.ag-c-details {}
 
-.ag-confirm-total {
+.ag-c-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.1rem;
-  background: rgba($accent, 0.05);
+  padding: 1.05rem 8rem;
+  position: relative;
+  border-bottom: none;
 
-  span {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: $gray;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 8rem;
+    right: 8rem;
+    height: 1px;
+    background: $border;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba($accent, 0.08);
+      border: 1px solid rgba($accent, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: $accent;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: $gray;
+    }
   }
 
   strong {
     font-family: var(--font-primary);
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: $accent;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: $dark;
+    text-align: right;
+  }
+
+  &__price {
+    font-size: 1.1rem !important;
+    color: $accent !important;
   }
 }
 
+// Footer: botón
+.ag-c-footer {
+  padding: 1.5rem 8rem 2.25rem;
+}
+
 .ag-btn-confirmar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   width: 100%;
-  padding: 0.95rem;
+  margin: 0;
+  padding: 1rem;
   border-radius: 12px;
   border: none;
   background: $dark;
@@ -856,22 +883,20 @@ $pad:     1.75rem;
   font-weight: 800;
   font-family: var(--font-secondary);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
+  letter-spacing: 0.4px;
+  transition: all 0.22s ease;
+  box-shadow: 6px 0 20px rgba($dark, 0.15), -6px 0 20px rgba($dark, 0.15);
 
   &:hover:not(:disabled) {
     background: $accent;
     color: $dark;
+    box-shadow: 6px 0 20px rgba($accent,0.2), -6px 0 20px rgba($accent,0.2);
+    transform: translateY(-2px);
   }
 
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
+  &:active:not(:disabled) { transform: translateY(0); }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 // ── AUTO-MODAL ────────────────────────────────────────────────
@@ -1223,6 +1248,26 @@ $pad:     1.75rem;
   .ag-card { padding: 1.25rem; }
   .ag-card--confirm { max-width: 100%; }
 
+  // Confirmar cita — reducir padding horizontal en móvil
+  .ag-c-header {
+    padding: 1.75rem 1.25rem 1.4rem;
+    &::after { left: 1.25rem; right: 1.25rem; }
+  }
+
+  .ag-c-barbero {
+    padding: 1.1rem 1.25rem;
+    &::after { left: 1.25rem; right: 1.25rem; }
+  }
+
+  .ag-c-row {
+    padding: 0.85rem 1.25rem;
+    &:not(:last-child)::after { left: 1.25rem; right: 1.25rem; }
+  }
+
+  .ag-c-footer {
+    padding: 1.25rem 1.25rem 1.75rem;
+  }
+
   // Modal planes en móvil — scroll uniforme, tamaño cómodo
   .planes-overlay { align-items: flex-start; padding: 0.65rem 0.75rem; }
 
@@ -1231,6 +1276,8 @@ $pad:     1.75rem;
     overflow-y: auto;
     padding: 1.1rem 1rem 0.9rem;
     border-radius: 16px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
   }
 
   .planes-logo__img { height: 62px; }

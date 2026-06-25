@@ -15,8 +15,8 @@ $xl: 1200px;
 }
 
 // ─── Responsive helpers ───────────────────────────────────────────────────────
-.hide-mobile  { display: block;  }
-.show-mobile  { display: none;   }
+.hide-mobile  { display: block;           }
+.show-mobile  { display: none !important; }
 
 @media (max-width: #{$md - 1}) {
   .hide-mobile  { display: none !important; }
@@ -391,6 +391,8 @@ $xl: 1200px;
   grid-template-columns: 1fr;
   gap: 1rem;
 
+  > * { min-width: 0; }
+
   @media (min-width: $md) {
     grid-template-columns: 1fr 1fr;
   }
@@ -407,6 +409,14 @@ $xl: 1200px;
   border-radius: 14px;
   padding: 1rem 1.1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  overflow: hidden;
+  min-width: 0;
+
+  apx-chart {
+    display: block;
+    max-width: 100%;
+    svg { max-width: 100%; }
+  }
 
   &.chart-full { width: 100%; box-sizing: border-box; }
 
@@ -682,10 +692,9 @@ $xl: 1200px;
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  &.btn-pdf {
-    background: #fef2f2; color: #dc2626;
-    &:not(:disabled):hover { background: #dc2626; color: #fff; }
-  }
+  &.btn-pdf      { background: #fef2f2; color: #dc2626; &:not(:disabled):hover { background: #dc2626; color: #fff; } }
+  &.btn-excel    { background: #f0fdf4; color: #16a34a; &:not(:disabled):hover { background: #16a34a; color: #fff; } }
+  &.btn-whatsapp { background: #f0fdf4; color: #15803d; &:not(:disabled):hover { background: #25d366; color: #fff; } }
 }
 
 // ─── Empty / Spinner ──────────────────────────────────────────────────────────
@@ -709,3 +718,56 @@ $xl: 1200px;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+// ─── KPI grid small variant ───────────────────────────────────────────────────
+.kpi-grid--sm {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.kpi-name { font-size: 1rem !important; }
+
+.text-primary { color: #2563eb !important; }
+
+// ─── Badge extra variants ─────────────────────────────────────────────────────
+.badge {
+  &.badge-rechazado { background: #fdf4ff; color: #7c3aed; }
+  &.badge-nequi     { background: #fff0f9; color: #be185d; }
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+.tabs-bar {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-gray);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s;
+  font-family: var(--font-secondary);
+
+  i { font-size: 0.78rem; }
+
+  &:hover { background: #f8f9fa; color: var(--color-primary); }
+  &.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+  @media (max-width: #{$sm - 1}) {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+  }
+}

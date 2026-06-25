@@ -46,6 +46,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   enviando = false;
   error = '';
   input = '';
+  scrolled = false;
   usuario: IUsuario | null = null;
   mensajes: IChatMessage[] = [];
   permitirMensajeFlotante = true;
@@ -120,7 +121,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   get mostrarChatbot(): boolean {
+    const url = this.router?.url?.split('?')[0] || '';
+    if (url === '/login' || url === '/registro') return false;
     return !this.usuario || this.usuario.rol === 'cliente';
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.scrolled = window.scrollY > 80;
   }
 
   private actualizarSugerencias(): void {

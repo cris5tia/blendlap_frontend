@@ -28,6 +28,11 @@ export class CheckoutComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' } });
       return;
     }
+    const usuario = this.authService.getUsuario();
+    if (usuario?.rol === 'admin' || usuario?.rol === 'barbero') {
+      this.router.navigate([usuario.rol === 'admin' ? '/admin/dashboard' : '/barbero/agenda']);
+      return;
+    }
     this.items = this.carritoService.items;
     if (this.items.length === 0) {
       this.volverAlCarrito();

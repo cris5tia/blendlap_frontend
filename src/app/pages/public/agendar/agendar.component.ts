@@ -16,7 +16,13 @@ type Paso = 'servicio' | 'barbero' | 'fecha' | 'confirmacion';
 })
 export class AgendarComponent implements OnInit, OnDestroy {
 
-  pasoActual: Paso = 'servicio';
+  private _pasoActual: Paso = 'servicio';
+  get pasoActual(): Paso { return this._pasoActual; }
+  set pasoActual(v: Paso) {
+    this._pasoActual = v;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   barberoPreseleccionado = false;
   usuarioActual: IUsuario | null = null;
 
@@ -110,6 +116,13 @@ export class AgendarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    const usuarioCheck = this.authService.getUsuario();
+    if (usuarioCheck?.rol === 'admin' || usuarioCheck?.rol === 'barbero') {
+      this.toast.warning('Acción no disponible', 'El agendamiento de citas es exclusivo para clientes.');
+      this.router.navigate([usuarioCheck.rol === 'admin' ? '/admin/dashboard' : '/barbero/agenda']);
+      return;
+    }
+
     try {
       const pendiente = sessionStorage.getItem('reserva_pendiente');
       if (pendiente) {

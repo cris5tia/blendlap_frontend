@@ -206,87 +206,83 @@
        PASO 4 — CONFIRMAR
   ══════════════════════════════════════════════════════════════ -->
   <div class="ag-card ag-card--confirm" *ngIf="pasoActual === 'confirmacion'">
-    <div class="ag-card__head">
-      <div class="ag-confirm-icon"><i class="fas fa-calendar-check"></i></div>
+
+    <!-- Header centrado -->
+    <div class="ag-c-header">
+      <div class="ag-c-header__icon"><i class="fas fa-calendar-check"></i></div>
       <h2>Confirma tu cita</h2>
-      <p>Revisa los detalles antes de confirmar</p>
+      <p>Revisa los detalles antes de continuar</p>
     </div>
 
-    <div class="ag-confirm-list">
-
-      <!-- Barbero -->
-      <div class="ag-confirm-row ag-confirm-row--barbero">
-        <div class="ag-confirm-barbero-foto">
-          <img *ngIf="barberoSeleccionado?.foto"
-            [src]="barberoSeleccionado?.foto | imgUrl"
-            [alt]="barberoSeleccionado?.nombre" />
-          <i *ngIf="!barberoSeleccionado?.foto" class="fas fa-user-tie"></i>
-        </div>
-        <div class="ag-confirm-barbero-info">
-          <span class="ag-confirm-label">Tu barbero</span>
-          <strong>{{ barberoSeleccionado?.nombre }} {{ barberoSeleccionado?.apellido }}</strong>
-          <span class="ag-confirm-sub" *ngIf="barberoSeleccionado?.titulo">{{ barberoSeleccionado?.titulo }}</span>
-        </div>
+    <!-- Barbero -->
+    <div class="ag-c-barbero">
+      <div class="ag-c-barbero__foto">
+        <img *ngIf="barberoSeleccionado?.foto"
+          [src]="barberoSeleccionado?.foto | imgUrl"
+          [alt]="barberoSeleccionado?.nombre" />
+        <i *ngIf="!barberoSeleccionado?.foto" class="fas fa-user-tie"></i>
       </div>
-
-      <div class="ag-confirm-divider"></div>
-
-      <!-- Fecha y hora -->
-      <div class="ag-confirm-row">
-        <div class="ag-confirm-icon-sm"><i class="fas fa-calendar-alt"></i></div>
-        <div>
-          <span class="ag-confirm-label">Fecha</span>
-          <strong>{{ formatearFecha(fechaSeleccionada) }}</strong>
-        </div>
-      </div>
-
-      <div class="ag-confirm-row">
-        <div class="ag-confirm-icon-sm"><i class="fas fa-clock"></i></div>
-        <div>
-          <span class="ag-confirm-label">Hora de inicio</span>
-          <strong>{{ formatearHora(horaSeleccionada) }}</strong>
-        </div>
-      </div>
-
-      <div class="ag-confirm-row">
-        <div class="ag-confirm-icon-sm"><i class="fas fa-stopwatch"></i></div>
-        <div>
-          <span class="ag-confirm-label">Duración</span>
-          <strong>{{ duracionTotal }} min</strong>
-        </div>
-      </div>
-
-      <div class="ag-confirm-divider"></div>
-
-      <!-- Servicio -->
-      <div class="ag-confirm-row ag-confirm-row--servicio" *ngFor="let s of serviciosSeleccionados">
-        <div class="ag-confirm-servicio-img">
-          <img *ngIf="s.imagen"
-            [src]="s.imagen | imgUrl"
-            [alt]="s.nombre_servicio" />
-          <i *ngIf="!s.imagen" class="fas fa-cut"></i>
-        </div>
-        <div class="ag-confirm-servicio-info">
-          <span class="ag-confirm-label">Servicio</span>
-          <strong>{{ s.nombre_servicio }}</strong>
-          <span class="ag-confirm-sub"><i class="fas fa-clock"></i> {{ s.duracion }} min</span>
-        </div>
-        <span class="ag-confirm-precio">${{ s.precio | number:'1.0-0' }}</span>
-      </div>
-
-      <div class="ag-confirm-divider"></div>
-
-      <!-- Total -->
-      <div class="ag-confirm-total">
-        <span>Total a pagar</span>
-        <strong>${{ precioTotal | number:'1.0-0' }}</strong>
+      <div class="ag-c-barbero__info">
+        <span class="ag-c-label">Tu barbero</span>
+        <strong>{{ barberoSeleccionado?.nombre }} {{ barberoSeleccionado?.apellido }}</strong>
+        <span class="ag-c-badge" *ngIf="barberoSeleccionado?.titulo">{{ barberoSeleccionado?.titulo }}</span>
       </div>
     </div>
 
-    <button class="ag-btn-confirmar" (click)="confirmarReserva()" [disabled]="cargando">
-      <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-check-circle'"></i>
-      {{ cargando ? 'Confirmando...' : 'Confirmar cita' }}
-    </button>
+    <!-- Detalles: etiqueta izq — valor der -->
+    <div class="ag-c-details">
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Fecha</span>
+        </div>
+        <strong>{{ formatearFecha(fechaSeleccionada) }}</strong>
+      </div>
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-clock"></i>
+          <span>Hora de inicio</span>
+        </div>
+        <strong>{{ formatearHora(horaSeleccionada) }}</strong>
+      </div>
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-stopwatch"></i>
+          <span>Duración</span>
+        </div>
+        <strong>{{ duracionTotal }} min</strong>
+      </div>
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-cut"></i>
+          <span>Servicio</span>
+        </div>
+        <strong>{{ $any(serviciosSeleccionados[0])?.nombre_servicio }}</strong>
+      </div>
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Dirección</span>
+        </div>
+        <strong>Cl. 48 # 19-55, Armenia</strong>
+      </div>
+      <div class="ag-c-row">
+        <div class="ag-c-row__left">
+          <i class="fas fa-tag"></i>
+          <span>Precio del servicio</span>
+        </div>
+        <strong class="ag-c-row__price">${{ precioTotal | number:'1.0-0' }}</strong>
+      </div>
+    </div>
+
+    <!-- Botón -->
+    <div class="ag-c-footer">
+      <button class="ag-btn-confirmar" (click)="confirmarReserva()" [disabled]="cargando">
+        <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-check-circle'"></i>
+        {{ cargando ? 'Confirmando...' : 'Confirmar cita' }}
+      </button>
+    </div>
+
   </div>
 
 </div>

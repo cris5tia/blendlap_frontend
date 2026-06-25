@@ -101,7 +101,7 @@ $borde: #e5e7eb;
     0 6px 24px rgba(0, 0, 0, 0.32),
     0 2px 8px rgba(0, 0, 0, 0.18),
     0 0 0 4px rgba(251, 196, 71, 0.18);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease, width 0.25s ease, height 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,5 +633,18 @@ $borde: #e5e7eb;
 
   &:active {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-widget--scrolled {
+    .chat-widget__fab {
+      width: 50px;
+      height: 50px;
+    }
+
+    .chat-widget__fab-bubble {
+      display: none;
+    }
   }
 }

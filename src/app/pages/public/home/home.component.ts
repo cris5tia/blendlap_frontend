@@ -4,6 +4,7 @@ import { BarberoService, IBarbero } from '../../../core/services/barbero.service
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { CarritoService, IItemCarrito } from '../../../core/services/carrito.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Router } from '@angular/router';
 import { ResenaService } from '../../../core/services/resena.service';
 import { environment } from '../../../../environments/environment';
@@ -23,9 +24,15 @@ export class HomeComponent implements OnInit {
     private productoService: ProductoService,
     private carritoService: CarritoService,
     private authService: AuthService,
+    private toast: ToastService,
     private router: Router,
     private resenaService: ResenaService
   ) { }
+
+  get esRolRestringido(): boolean {
+    const rol = this.authService.getRol();
+    return rol === 'admin' || rol === 'barbero';
+  }
 
   ngOnInit(): void {
     this.categoriaActivaServicio = 'clasicos';
@@ -325,7 +332,10 @@ export class HomeComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
       return;
     }
-    if (usuario.rol === 'admin' || usuario.rol === 'barbero') return;
+    if (usuario.rol === 'admin' || usuario.rol === 'barbero') {
+      this.toast.warning('Acción no disponible', 'La compra de productos es exclusiva para clientes.');
+      return;
+    }
 
     this.carritoService.agregar(producto, 1, this.tallaElegida || undefined);
     this.cerrarModal();

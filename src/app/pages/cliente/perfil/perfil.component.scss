@@ -103,7 +103,10 @@ $legendario-c : #7c3aed;
     border-radius: $radius 0 0 $radius;
   }
 
-  &__left { flex-shrink: 0; }
+  &__left {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
 
   &__info {
     flex: 1; min-width: 180px;
@@ -174,6 +177,34 @@ $legendario-c : #7c3aed;
   &.plata      { background: rgba($plata-c,0.1);      border: 1px solid rgba($plata-c,0.35);      color: $plata-c; }
   &.oro        { background: rgba($oro-c,0.1);        border: 1px solid rgba($oro-c,0.4);         color: darken($oro-c, 5%); }
   &.legendario { background: rgba($legendario-c,0.1); border: 1px solid rgba($legendario-c,0.35); color: $legendario-c; }
+}
+
+// Avatar actions
+.pf-ava-actions {
+  display: flex; gap: 0.35rem; margin-top: 0.45rem; justify-content: center;
+}
+
+.pf-ava-btn {
+  display: flex; align-items: center; gap: 0.28rem;
+  padding: 0.28rem 0.65rem; border-radius: 6px; font-size: 0.66rem; font-weight: 700;
+  border: none; cursor: pointer; font-family: var(--font-secondary); transition: all 0.15s;
+  white-space: nowrap;
+
+  &--save {
+    background: $dark; color: $accent;
+    &:hover:not(:disabled) { background: $accent; color: $dark; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+  &--cancel {
+    background: #f1f3f5; color: $gray; border: 1px solid $border;
+    &:hover:not(:disabled) { background: #e8eaed; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+  &--del {
+    background: rgba(239,68,68,0.07); color: #dc2626; border: 1px solid rgba(239,68,68,0.2);
+    &:hover:not(:disabled) { background: rgba(239,68,68,0.13); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
 }
 
 // Avatar
@@ -269,7 +300,9 @@ $legendario-c : #7c3aed;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
 
-  @media (max-width: 720px) { grid-template-columns: 1fr; }
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 // ── CARD ──────────────────────────────────────────────────────
@@ -319,6 +352,10 @@ $legendario-c : #7c3aed;
     &.tier-legendario { border-top: 3px solid rgba($legendario-c, 0.5); }
     &.tier-plata      { border-top: 3px solid rgba($plata-c, 0.4); }
     &.tier-bronce     { border-top: 3px solid rgba($bronce-c, 0.5); }
+  }
+
+  &--tier-full {
+    grid-column: 1 / -1;
   }
 }
 
@@ -727,7 +764,7 @@ $legendario-c : #7c3aed;
 
 // ── RESPONSIVE ────────────────────────────────────────────────
 @media (max-width: 768px) {
-  .pf-page { padding: 1rem 0.85rem 2.5rem; }
+  .pf-page { padding: 1rem 0.85rem calc(64px + 2.5rem); }
   .pf-hero-card { padding: 1.1rem; gap: 1rem; }
   .pf-hero-card__stats { margin-left: 0; width: 100%; }
   .pf-hstat { padding: 0.65rem 1rem; }
@@ -758,7 +795,7 @@ $legendario-c : #7c3aed;
 
   .pf-hero-card {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: 0.9rem;
   }
@@ -766,6 +803,18 @@ $legendario-c : #7c3aed;
   .pf-avatar {
     width: 64px;
     height: 64px;
+  }
+
+  .pf-ava-actions {
+    flex-wrap: wrap;
+    max-width: 96px;
+  }
+
+  .pf-ava-btn {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.62rem;
+    flex: 1;
+    justify-content: center;
   }
 
   .pf-hero-card__info {
