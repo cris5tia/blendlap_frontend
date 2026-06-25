@@ -74,7 +74,7 @@
               </span>
               <div class="chat-widget__catalog-actions" *ngIf="(c.mediaFolder === 'servicios' || c.mediaFolder === 'barberos') && isLastMessage(m)">
                 <button type="button" class="chat-widget__card-btn" (click)="seleccionarCard(c)">
-                  {{ c.mediaFolder === 'barberos' ? 'Seleccionar' : (reservaActiva ? 'Reservar' : 'Seleccionar servicio') }}
+                  {{ c.mediaFolder === 'barberos' ? 'Agendar con él' : (reservaActiva ? 'Reservar' : 'Agendar') }}
                 </button>
               </div>
             </div>
@@ -124,6 +124,34 @@
             {{ formatHoraLegible(slot) }}
           </button>
         </div>
+
+        <!-- Input de contraseña (recuperación) -->
+        <div class="chat-widget__pass-wrap"
+          *ngIf="m.role === 'bot' && isLastMessage(m) && (m.step === 'nueva_pass' || m.step === 'confirmar_pass') && !enviando">
+          <input
+            type="password"
+            class="chat-widget__pass-field"
+            [(ngModel)]="passInput"
+            placeholder="Tu contraseña..."
+            (keydown.enter)="enviarPassword()"
+            autocomplete="new-password"
+          />
+          <button type="button" class="chat-widget__pass-btn" [disabled]="!passInput.trim()" (click)="enviarPassword()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Opciones de menú -->
+        <div class="chat-widget__opciones"
+          *ngIf="m.role === 'bot' && isLastMessage(m) && sugerencias.length && !enviando">
+          <button
+            type="button"
+            class="chat-widget__opcion"
+            *ngFor="let s of sugerencias"
+            (click)="usarSugerencia(s.label, s.value)">
+            <i class="fas fa-chevron-right"></i>{{ s.label }}
+          </button>
+        </div>
       </div>
 
       <div class="chat-widget__msg chat-widget__msg--bot chat-widget__msg--typing" *ngIf="enviando">
@@ -134,16 +162,6 @@
 
     <div class="chat-widget__error" *ngIf="error">
       <i class="fas fa-exclamation-circle"></i> {{ error }}
-    </div>
-
-    <div class="chat-widget__sugerencias" *ngIf="!enviando">
-      <button
-        type="button"
-        class="chat-widget__chip"
-        *ngFor="let s of sugerencias"
-        (click)="usarSugerencia(s.label, s.value)">
-        {{ s.label }}
-      </button>
     </div>
 
     <footer class="chat-widget__footer">

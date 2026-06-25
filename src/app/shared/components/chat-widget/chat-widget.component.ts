@@ -22,25 +22,27 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   readonly headerAvatarUrl = 'assets/images/navbar/barbux.png';
 
   readonly sugerenciasInvitado: IChatOption[] = [
+    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
     { label: 'Ver servicios', value: 'Ver servicios' },
     { label: 'Ver productos', value: 'Ver productos' },
-    { label: 'Ver barberos disponibles', value: 'Ver barberos disponibles' },
-    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
-    { label: 'Volver al inicio', value: 'Volver al inicio' },
+    { label: 'Ver barberos', value: 'Ver barberos' },
+    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
+    { label: 'Volver al menú principal', value: 'Volver al inicio' },
   ];
 
   readonly sugerenciasCliente: IChatOption[] = [
     { label: 'Agendar cita', value: 'Agendar cita' },
-    { label: 'Mis citas', value: 'Mis citas' },
+    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
     { label: 'Ver servicios', value: 'Ver servicios' },
     { label: 'Ver productos', value: 'Ver productos' },
-    { label: 'Ver barberos disponibles', value: 'Ver barberos disponibles' },
-    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
-    { label: 'Volver al inicio', value: 'Volver al inicio' },
+    { label: 'Ver barberos', value: 'Ver barberos' },
+    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
+    { label: 'Volver al menú principal', value: 'Volver al inicio' },
   ];
 
   sugerencias: IChatOption[] = [];
   reservaActiva = false;
+  passInput = '';
 
   abierto = false;
   enviando = false;
@@ -53,6 +55,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   private readonly PENDING_ACTION_KEY = 'blendlap_chat_pending_action';
   private prevUserId: number | null = null;
+  private pendingRestoring = false;
 
   @ViewChild('mensajesContainer') mensajesContainer?: ElementRef<HTMLDivElement>;
 
@@ -79,12 +82,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           sessionStorage.removeItem(this.PENDING_ACTION_KEY);
           this.mensajes = [{ role: 'bot', text: this.mensajeBienvenida(), at: new Date() }];
           this.actualizarSugerencias();
+          this.pendingRestoring = true;
           this.abierto = true;
           this.permitirMensajeFlotante = false;
-          setTimeout(() => {
-            this.input = pendingAction;
-            this.enviar();
-          }, 400);
+          if (pendingAction !== '__welcome__') {
+            setTimeout(() => {
+              this.input = pendingAction;
+              this.enviar();
+            }, 500);
+          }
           this.prevUserId = currentUserId;
           return;
         }
@@ -97,6 +103,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     const routeSub = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
+        if (this.pendingRestoring) {
+          this.pendingRestoring = false;
+          this.actualizarSugerencias();
+          return;
+        }
         if (this.abierto) {
           this.abierto = false;
           this.permitirMensajeFlotante = true;
@@ -143,7 +154,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     if (this.esInvitado) {
       filtered = filtered.filter((s) => {
         const v = s.value?.trim().toLowerCase() || '';
-        return v !== 'agendar cita' && v !== 'mis citas';
+        return v !== 'agendar cita';
       });
     }
 
@@ -183,7 +194,19 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   private scrollAlFinal(delayMs = 0): void {
     setTimeout(() => {
       const el = this.mensajesContainer?.nativeElement;
-      if (el) {
+      if (el) el.scrollTop = el.scrollHeight;
+    }, delayMs);
+  }
+
+  private scrollAlUltimoMensaje(delayMs = 80): void {
+    setTimeout(() => {
+      const el = this.mensajesContainer?.nativeElement as HTMLElement;
+      if (!el) return;
+      const msgs = el.querySelectorAll<HTMLElement>('.chat-widget__msg--bot:not(.chat-widget__msg--typing)');
+      const last = msgs[msgs.length - 1];
+      if (last) {
+        el.scrollTop = last.offsetTop - el.offsetTop;
+      } else {
         el.scrollTop = el.scrollHeight;
       }
     }, delayMs);
@@ -217,13 +240,13 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   irALogin(): void {
     this.guardarAccionPendiente();
     this.cerrar();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
   }
 
   irARegistro(): void {
     this.guardarAccionPendiente();
     this.cerrar();
-    this.router.navigate(['/registro']);
+    this.router.navigate(['/registro'], { queryParams: { returnUrl: '/' } });
   }
 
   private guardarAccionPendiente(): void {
@@ -249,8 +272,11 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   usarSugerencia(label: string, value: string): void {
     if (this.enviando) return;
-    if (value.trim().toLowerCase() === 'volver al inicio') {
-      this.router.navigate(['/']);
+    const v = value.trim().toLowerCase();
+    if (v === 'iniciar sesion' || v === 'iniciar sesión') {
+      sessionStorage.setItem(this.PENDING_ACTION_KEY, '__welcome__');
+      this.cerrar();
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
       return;
     }
     this.despacharMensaje(label, value);
@@ -284,7 +310,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
             if (products.length) botMsg.products = products;
           }
 
-          if (res.data.meta?.freshStart) {
+          const isFreshStart = Boolean(res.data.meta?.freshStart);
+
+          if (isFreshStart) {
             this.mensajes = [botMsg];
           } else {
             this.mensajes.push(botMsg);
@@ -294,26 +322,28 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           const intent = res.data.intent;
           if (step) {
             this.reservaActiva = true;
-          } else if (res.data.meta?.freshStart || intent !== 'create_reservation') {
+          } else if (isFreshStart || intent !== 'create_reservation') {
             this.reservaActiva = false;
           }
 
-          let opciones = res.data.meta?.options;
-          if (!opciones || opciones.length === 0) {
-            opciones = this.reservaActiva
-              ? [{ label: 'Cancelar', value: 'Cancelar' }]
-              : (this.esCliente ? this.sugerenciasCliente : this.sugerenciasInvitado);
+          if (isFreshStart) {
+            // Siempre usar el menú actualizado del componente en un reset
+            this.actualizarSugerencias();
+          } else {
+            let opciones = res.data.meta?.options;
+            if (!opciones || opciones.length === 0) {
+              opciones = this.reservaActiva
+                ? [{ label: 'Cancelar', value: 'Cancelar' }]
+                : (this.esCliente ? this.sugerenciasCliente : this.sugerenciasInvitado);
+            }
+            this.sugerencias = this.filtrarSugerencias(opciones);
           }
-          this.sugerencias = this.filtrarSugerencias(opciones);
           this.guardarEstadoEnStorage();
 
-          if (catalogCards.length || botMsg.products?.length) {
-            this.scrollAlFinal(150);
-          }
         } else {
           this.error = res.mensaje || 'No pude obtener una respuesta.';
         }
-        this.scrollAlFinal();
+        this.scrollAlUltimoMensaje();
       },
       error: (err) => {
         this.enviando = false;
@@ -328,8 +358,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   private parseCatalogCards(meta?: { catalogCards?: IChatCatalogCard[]; products?: IChatProductCard[] }): IChatCatalogCard[] {
-    if (Array.isArray(meta?.catalogCards) && meta.catalogCards.length) {
-      return meta.catalogCards
+    const cards = meta?.catalogCards;
+    if (Array.isArray(cards) && cards.length) {
+      return cards
         .filter((c): c is IChatCatalogCard => !!c && typeof c === 'object' && 'nombre' in c)
         .map((c) => ({
           nombre: String(c.nombre || ''),
@@ -415,6 +446,13 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }
   }
 
+  enviarPassword(): void {
+    const pass = this.passInput.trim();
+    if (!pass || this.enviando) return;
+    this.passInput = '';
+    this.despacharMensaje('••••••••', pass);
+  }
+
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent): void {
     if (!this.abierto) return;
@@ -439,7 +477,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       const state = {
         mensajes: this.mensajes,
         reservaActiva: this.reservaActiva,
-        sugerencias: this.sugerencias
+        savedAt: Date.now()
       };
       localStorage.setItem(this.getStorageKey(), JSON.stringify(state));
     } catch (e) {
@@ -453,20 +491,18 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       const stored = localStorage.getItem(key);
       if (stored) {
         const state = JSON.parse(stored);
-        if (state && Array.isArray(state.mensajes) && state.mensajes.length > 0) {
+        const expirado = !state.savedAt || (Date.now() - state.savedAt) > 60_000;
+        if (!expirado && Array.isArray(state.mensajes) && state.mensajes.length > 0) {
           this.mensajes = state.mensajes.map((m: any) => ({
             ...m,
             at: new Date(m.at)
           }));
           this.reservaActiva = Boolean(state.reservaActiva);
-          if (Array.isArray(state.sugerencias)) {
-            this.sugerencias = state.sugerencias;
-          } else {
-            this.actualizarSugerencias();
-          }
+          this.actualizarSugerencias();
           this.scrollAlFinal(50);
           return;
         }
+        localStorage.removeItem(key);
       }
     } catch (e) {
       console.error('Error loading chat state from localStorage', e);
