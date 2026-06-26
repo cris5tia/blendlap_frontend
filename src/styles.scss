@@ -579,6 +579,13 @@ img {
   &:hover { color: #1a1a1a !important; }
 }
 
+// Chat bot: slots de hora — sin wrap de texto
+.chat-widget__slot-btn {
+  white-space: nowrap !important;
+  font-size: 0.72rem !important;
+  padding: 0.45rem 0.2rem !important;
+}
+
 // Chat bot: sin scrollbar en mensajes y slots
 .chat-widget__mensajes,
 .chat-widget__slots {

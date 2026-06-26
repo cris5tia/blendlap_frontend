@@ -344,13 +344,13 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
           this.guardarEstadoEnStorage();
 
         } else {
-          this.error = res.mensaje || 'No pude obtener una respuesta.';
+          this.error = 'En este momento estoy ocupado. Intenta en unos segundos.';
         }
         this.scrollAlUltimoMensaje();
       },
-      error: (err) => {
+      error: () => {
         this.enviando = false;
-        this.error = err.error?.mensaje || 'Error al conectar con BARBUX. Verifica que el backend esté activo.';
+        this.error = 'En este momento estoy ocupado. Intenta en unos segundos.';
         this.scrollAlFinal();
       }
     });
@@ -433,7 +433,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     const h = parseInt(parts[0], 10);
     const m = parseInt(parts[1], 10);
     if (isNaN(h) || isNaN(m)) return hora;
-    const sufijo = h >= 12 ? 'p.m.' : 'a.m.';
+    const sufijo = h >= 12 ? 'pm' : 'am';
     const h12 = h % 12 || 12;
     return `${h12}:${String(m).padStart(2, '0')} ${sufijo}`;
   }
