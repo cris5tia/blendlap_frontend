@@ -22,27 +22,26 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   readonly headerAvatarUrl = 'assets/images/navbar/barbux.png';
 
   readonly sugerenciasInvitado: IChatOption[] = [
-    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
+    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
     { label: 'Ver servicios', value: 'Ver servicios' },
     { label: 'Ver productos', value: 'Ver productos' },
     { label: 'Ver barberos', value: 'Ver barberos' },
-    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
     { label: 'Volver al menú principal', value: 'Volver al inicio' },
   ];
 
   readonly sugerenciasCliente: IChatOption[] = [
+    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
     { label: 'Agendar cita', value: 'Agendar cita' },
-    { label: '¿Cómo hago una reserva?', value: '¿Cómo hago una reserva?' },
     { label: 'Ver servicios', value: 'Ver servicios' },
     { label: 'Ver productos', value: 'Ver productos' },
     { label: 'Ver barberos', value: 'Ver barberos' },
-    { label: 'Recuperar contraseña', value: 'Recuperar contraseña' },
     { label: 'Volver al menú principal', value: 'Volver al inicio' },
   ];
 
   sugerencias: IChatOption[] = [];
   reservaActiva = false;
   passInput = '';
+  showPassword = false;
 
   abierto = false;
   enviando = false;
@@ -286,7 +285,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.error = '';
     this.mensajes.push({ role: 'user', text: textoVisible, at: new Date() });
     this.guardarEstadoEnStorage();
-    this.scrollAlFinal();
     this.enviando = true;
     this.scrollAlFinal();
 
@@ -301,10 +299,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
             requiresAuth: Boolean(res.data.meta?.requiresAuth),
             step: res.data.meta?.['step'] as string,
             slots: res.data.meta?.['slots'] as string[],
+            categoryOverview: res.data.meta?.categoryOverview as any,
+            serviceOverview: res.data.meta?.serviceOverview as any,
           };
           const catalogCards = this.parseCatalogCards(res.data.meta);
           if (catalogCards.length) {
             botMsg.catalogCards = catalogCards;
+            if (catalogCards[0]?.mediaFolder === 'productos') {
+              botMsg.catalogDisplayLimit = 8;
+            }
           } else {
             const products = this.parseProducts(res.data.meta?.products);
             if (products.length) botMsg.products = products;
@@ -365,6 +368,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         .map((c) => ({
           nombre: String(c.nombre || ''),
           subtitulo: c.subtitulo ? String(c.subtitulo) : undefined,
+          subtitulo2: c.subtitulo2 ? String(c.subtitulo2) : undefined,
           imagen: c.imagen ?? null,
           mediaFolder: c.mediaFolder === 'barberos' || c.mediaFolder === 'servicios' ? c.mediaFolder : 'productos',
           badge: c.badge ? String(c.badge) : undefined,
@@ -396,6 +400,10 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         imagen: p.imagen ?? null,
         disponible: Boolean(p.disponible),
       }));
+  }
+
+  verMasProductos(m: IChatMessage): void {
+    m.catalogDisplayLimit = (m.catalogDisplayLimit ?? 8) + 8;
   }
 
   isLastMessage(m: IChatMessage): boolean {

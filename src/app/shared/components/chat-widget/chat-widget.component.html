@@ -53,8 +53,13 @@
           </button>
         </div>
 
-        <div class="chat-widget__catalog" *ngIf="m.catalogCards?.length">
-          <article class="chat-widget__catalog-item" *ngFor="let c of m.catalogCards">
+        <div class="chat-widget__catalog"
+          [class.chat-widget__catalog--grid2]="m.catalogCards?.[0]?.mediaFolder === 'productos'"
+          [class.chat-widget__catalog--barberos]="m.catalogCards?.[0]?.mediaFolder === 'barberos'"
+          *ngIf="m.catalogCards?.length">
+          <article class="chat-widget__catalog-item"
+            [class.chat-widget__catalog-item--barbero]="c.mediaFolder === 'barberos'"
+            *ngFor="let c of (m.catalogDisplayLimit != null ? (m.catalogCards | slice:0:m.catalogDisplayLimit) : m.catalogCards)">
             <img
               class="chat-widget__catalog-img"
               [src]="c.imagen | mediaUrl:c.mediaFolder"
@@ -64,6 +69,7 @@
             <div class="chat-widget__catalog-info">
               <strong>{{ c.nombre }}</strong>
               <span class="chat-widget__catalog-sub" *ngIf="c.subtitulo">{{ c.subtitulo }}</span>
+              <span class="chat-widget__catalog-sub2" *ngIf="c.subtitulo2">{{ c.subtitulo2 }}</span>
               <span
                 class="chat-widget__catalog-badge"
                 *ngIf="c.badge"
@@ -81,7 +87,7 @@
           </article>
         </div>
 
-        <div class="chat-widget__catalog" *ngIf="!m.catalogCards?.length && m.products?.length">
+        <div class="chat-widget__catalog chat-widget__catalog--grid2" *ngIf="!m.catalogCards?.length && m.products?.length">
           <article class="chat-widget__catalog-item" *ngFor="let p of m.products">
             <img
               class="chat-widget__catalog-img"
@@ -92,13 +98,56 @@
             <div class="chat-widget__catalog-info">
               <strong>{{ p.nombre }}</strong>
               <span class="chat-widget__catalog-sub">{{ p.precio }}</span>
-              <span
-                class="chat-widget__catalog-badge"
-                [class.chat-widget__catalog-badge--out]="!p.disponible">
-                {{ p.disponible ? 'Disponible' : 'Agotado' }}
-              </span>
             </div>
           </article>
+        </div>
+
+        <!-- Ver más productos (botón inline, no envía mensaje) -->
+        <div class="chat-ver-mas"
+          *ngIf="m.catalogDisplayLimit != null && m.catalogCards && m.catalogDisplayLimit < m.catalogCards.length">
+          <button type="button" class="chat-ver-mas__btn" (click)="verMasProductos(m)">
+            Ver más productos <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <!-- Service Overview Cards -->
+        <div class="chat-cat-overview" *ngIf="m.serviceOverview?.length">
+          <div class="chat-cat-card" *ngFor="let svc of m.serviceOverview">
+            <div class="chat-cat-card__header">
+              <div class="chat-cat-card__icon"><i [class]="svc.icon"></i></div>
+              <span class="chat-cat-card__name">{{ svc.label }}</span>
+            </div>
+            <p class="chat-cat-card__desc">{{ svc.descripcion }}</p>
+            <div class="chat-cat-card__productos">
+              <span class="chat-cat-card__prod-label">Servicios:</span>
+              <span class="chat-cat-card__prod-list">{{ svc.servicios }}</span>
+            </div>
+            <button type="button" class="chat-cat-card__btn"
+              *ngIf="isLastMessage(m)"
+              (click)="usarSugerencia(svc.btnLabel, svc.btnValue)">
+              {{ svc.btnLabel }} <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Overview Cards -->
+        <div class="chat-cat-overview" *ngIf="m.categoryOverview?.length">
+          <div class="chat-cat-card" *ngFor="let cat of m.categoryOverview">
+            <div class="chat-cat-card__header">
+              <div class="chat-cat-card__icon"><i [class]="cat.icon"></i></div>
+              <span class="chat-cat-card__name">{{ cat.label }}</span>
+            </div>
+            <p class="chat-cat-card__desc">{{ cat.descripcion }}</p>
+            <div class="chat-cat-card__productos">
+              <span class="chat-cat-card__prod-label">Productos:</span>
+              <span class="chat-cat-card__prod-list">{{ cat.productos }}</span>
+            </div>
+            <button type="button" class="chat-cat-card__btn"
+              *ngIf="isLastMessage(m)"
+              (click)="usarSugerencia(cat.btnLabel, cat.btnValue)">
+              {{ cat.btnLabel }} <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
 
         <!-- Selector de Fecha (Calendario) -->
@@ -128,14 +177,19 @@
         <!-- Input de contraseña (recuperación) -->
         <div class="chat-widget__pass-wrap"
           *ngIf="m.role === 'bot' && isLastMessage(m) && (m.step === 'nueva_pass' || m.step === 'confirmar_pass') && !enviando">
-          <input
-            type="password"
-            class="chat-widget__pass-field"
-            [(ngModel)]="passInput"
-            placeholder="Tu contraseña..."
-            (keydown.enter)="enviarPassword()"
-            autocomplete="new-password"
-          />
+          <div class="chat-widget__pass-input-wrap">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="chat-widget__pass-field"
+              [(ngModel)]="passInput"
+              placeholder="Tu contraseña..."
+              (keydown.enter)="enviarPassword()"
+              autocomplete="new-password"
+            />
+            <button type="button" class="chat-widget__pass-eye" (click)="showPassword = !showPassword" tabindex="-1">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
           <button type="button" class="chat-widget__pass-btn" [disabled]="!passInput.trim()" (click)="enviarPassword()">
             <i class="fas fa-arrow-right"></i>
           </button>

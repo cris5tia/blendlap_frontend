@@ -276,3 +276,315 @@ img {
 .tl-cita--corta .tl-cita__dur {
   display: none !important;
 }
+
+// Producto card móvil: footer en columna para evitar desborde de "Ver más"
+@media (max-width: 768px) {
+  .producto-card__footer {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.2rem !important;
+  }
+  .producto-card__btn {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+}
+
+// Chat bot: tarjetas de categoría de productos
+.chat-cat-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  width: 100%;
+}
+
+.chat-cat-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.05rem;
+  }
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(251, 196, 71, 0.12);
+    border: 1px solid rgba(251, 196, 71, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    i { font-size: 0.68rem; color: #d4a017; }
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: 0.01em;
+  }
+
+  &__desc {
+    font-size: 0.74rem;
+    color: #555555;
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  &__productos {
+    font-size: 0.73rem;
+    line-height: 1.45;
+  }
+
+  &__prod-label {
+    color: #c49010;
+    font-weight: 700;
+    margin-right: 0.2rem;
+  }
+
+  &__prod-list {
+    color: #444444;
+  }
+
+  &__btn {
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid #FBC447;
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    font-family: 'Montserrat', sans-serif;
+    text-align: left;
+    i { font-size: 0.6rem; color: #c49010; }
+    &:hover {
+      background: rgba(251, 196, 71, 0.08);
+      border-color: #d4a017;
+    }
+  }
+}
+
+// Chat bot: espaciado entre mensajes del bot
+.chat-widget__msg--bot + .chat-widget__msg--bot {
+  margin-top: 0.75rem !important;
+}
+.chat-widget__msg--bot {
+  margin-bottom: 0.1rem !important;
+}
+
+// Chat bot: mensaje con tarjetas — mismo ancho que mensajes normales
+.chat-widget__msg--wide {
+  max-width: 88% !important;
+}
+
+// Chat bot: catálogo en 2 columnas compactas (productos y barberos)
+.chat-widget__catalog--grid2 {
+  grid-template-columns: 1fr 1fr !important;
+  align-items: stretch !important;
+  gap: 0.5rem !important;
+
+  .chat-widget__catalog-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 0.35rem !important;
+    gap: 0 !important;
+    height: 100%;
+  }
+
+  .chat-widget__catalog-img {
+    width: 100% !important;
+    height: 80px !important;
+    border-radius: 6px !important;
+    margin-bottom: 0.3rem;
+    flex-shrink: 0;
+    object-fit: cover !important;
+  }
+
+  .chat-widget__catalog-info {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100%;
+
+    strong {
+      font-size: 0.7rem !important;
+      line-height: 1.2 !important;
+      height: 2.4em !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  .chat-widget__catalog-sub {
+    font-size: 0.65rem !important;
+    line-height: 1.2;
+  }
+
+  // Productos: sin badge
+  .chat-widget__catalog-badge {
+    display: none !important;
+  }
+}
+
+// Chat bot: tarjetas de barberos en fila horizontal (foto circular + info)
+.chat-widget__catalog--barberos {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+}
+
+.chat-widget__catalog-item--barbero {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.7rem !important;
+  padding: 0.55rem 0.6rem !important;
+  background: #fff !important;
+  border: 1px solid #f0f0f0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+
+  .chat-widget__catalog-img {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid rgba(251,196,71,0.4) !important;
+  }
+
+  .chat-widget__catalog-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+
+    strong {
+      display: block !important;
+      font-size: 0.84rem !important;
+      font-weight: 800 !important;
+      color: #1a1a1a !important;
+      margin-bottom: 0.1rem !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+
+  .chat-widget__catalog-sub {
+    font-size: 0.7rem !important;
+    color: #666 !important;
+    line-height: 1.3 !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .chat-widget__catalog-badge { display: none !important; }
+
+  .chat-widget__catalog-sub2 {
+    font-size: 0.67rem !important;
+    color: #999 !important;
+    line-height: 1.2 !important;
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin-top: 0.05rem !important;
+  }
+
+  .chat-widget__catalog-actions {
+    flex-shrink: 0 !important;
+    margin-top: 0 !important;
+
+    .chat-widget__card-btn {
+      font-size: 0.7rem !important;
+      padding: 0.3rem 0.65rem !important;
+      white-space: nowrap !important;
+    }
+  }
+}
+
+// Chat bot: botón "Ver más productos" centrado dentro del mensaje
+.chat-ver-mas {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 0.25rem;
+  width: 100%;
+}
+.chat-ver-mas__btn {
+  background: #ffffff;
+  border: 1.5px solid #FBC447;
+  border-radius: 20px;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.18s, border-color 0.18s;
+  i { font-size: 0.6rem; color: #c49010; }
+  &:hover {
+    background: rgba(251, 196, 71, 0.1);
+    border-color: #d4a017;
+  }
+}
+
+// Chat bot: campo de contraseña con ojo
+.chat-widget__pass-input-wrap {
+  position: relative !important;
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.chat-widget__pass-input-wrap .chat-widget__pass-field {
+  width: 100% !important;
+  padding-right: 2.2rem !important;
+}
+.chat-widget__pass-eye {
+  position: absolute !important;
+  right: 0.5rem !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #9e9e9e !important;
+  font-size: 0.82rem !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  &:hover { color: #1a1a1a !important; }
+}
+
+// Chat bot: sin scrollbar en mensajes y slots
+.chat-widget__mensajes,
+.chat-widget__slots {
+  scrollbar-width: none !important;
+}
+.chat-widget__mensajes::-webkit-scrollbar,
+.chat-widget__slots::-webkit-scrollbar {
+  display: none !important;
+}

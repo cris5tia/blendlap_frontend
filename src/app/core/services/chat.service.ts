@@ -22,9 +22,28 @@ export interface IChatProductCard {
 export interface IChatCatalogCard {
   nombre: string;
   subtitulo?: string;
+  subtitulo2?: string;
   imagen: string | null;
   mediaFolder: ChatMediaFolder;
   badge?: string;
+}
+
+export interface IChatCategoryOverviewItem {
+  label: string;
+  descripcion: string;
+  productos: string;
+  btnLabel: string;
+  btnValue: string;
+  icon: string;
+}
+
+export interface IChatServiceOverviewItem {
+  label: string;
+  descripcion: string;
+  servicios: string;
+  btnLabel: string;
+  btnValue: string;
+  icon: string;
 }
 
 export interface IChatMessage {
@@ -33,6 +52,9 @@ export interface IChatMessage {
   at: Date;
   products?: IChatProductCard[];
   catalogCards?: IChatCatalogCard[];
+  categoryOverview?: IChatCategoryOverviewItem[];
+  serviceOverview?: IChatServiceOverviewItem[];
+  catalogDisplayLimit?: number;
   requiresAuth?: boolean;
   step?: string;
   slots?: string[];
@@ -47,6 +69,8 @@ export interface IChatResponse {
       options?: IChatOption[];
       products?: IChatProductCard[];
       catalogCards?: IChatCatalogCard[];
+      categoryOverview?: IChatCategoryOverviewItem[];
+      serviceOverview?: IChatServiceOverviewItem[];
       requiresAuth?: boolean;
       freshStart?: boolean;
       [key: string]: unknown;
