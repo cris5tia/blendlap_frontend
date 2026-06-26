@@ -174,7 +174,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     const fechaCita = this.normalizarFecha(cita.fecha);
     const hoy = this.fechaLocalISO(new Date());
 
-    if (fechaCita && fechaCita > hoy) return 'proxima';
+    if (fechaCita && fechaCita > hoy) return cita.estado === 'completada' ? 'completada' : 'proxima';
     if (fechaCita && fechaCita < hoy) return cita.estado === 'completada' ? 'completada' : 'proxima';
 
     const [hh, mm] = cita.hora.split(':').map(Number);

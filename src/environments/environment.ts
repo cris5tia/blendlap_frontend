@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3001/api'
+  apiUrl: 'http://localhost:3001/api',
+  imageUrl: 'https://blendlap-backend.onrender.com/images'
 };

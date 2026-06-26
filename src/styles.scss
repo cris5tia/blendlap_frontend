@@ -244,3 +244,35 @@ img {
     z-index: 5000 !important;
   }
 }
+
+// ─── Agenda barbero: hora gruesa + sin scrollbar ──────────────
+.tl-cita .tl-cita__time {
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  letter-spacing: 0.02em !important;
+}
+.tl-cita--proxima .tl-cita__time {
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  letter-spacing: 0.02em !important;
+  color: #7a5800 !important;
+}
+
+.tl-scroll,
+.proximas-list,
+.bp-modal {
+  scrollbar-width: none !important;
+}
+.tl-scroll::-webkit-scrollbar,
+.proximas-list::-webkit-scrollbar,
+.bp-modal::-webkit-scrollbar {
+  display: none !important;
+}
+
+// Bloques cortos (≤40 min): ocultar badge y duración, el color verde ya indica completada
+.tl-cita--corta .tl-cita__completada-badge,
+.tl-cita--corta .tl-cita__dur {
+  display: none !important;
+}

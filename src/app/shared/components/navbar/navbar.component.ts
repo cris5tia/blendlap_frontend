@@ -65,7 +65,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   perfilFotoPreview = '';
   perfilEliminarFoto = false;
 
-  readonly API_IMG = `${environment.apiUrl.replace(/\/api\/?$/, '/images')}/clientes/`;
+  readonly API_IMG = `${environment.imageUrl}/clientes/`;
 
   constructor(
     private authService: AuthService,

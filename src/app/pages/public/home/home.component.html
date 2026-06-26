@@ -430,7 +430,7 @@
             </ng-container>
             <ng-container *ngIf="item.tipo === 'video'">
               <div class="galeria__video-wrapper" (mouseenter)="playVideo($event)" (mouseleave)="pauseVideo($event)">
-                <video [src]="item.src" loop muted playsinline preload="none"></video>
+                <video [src]="item.src" loop muted playsinline preload="metadata"></video>
                 <div class="galeria__play-icon"><i class="fas fa-play"></i></div>
               </div>
             </ng-container>

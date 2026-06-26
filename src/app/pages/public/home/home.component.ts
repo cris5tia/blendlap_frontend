@@ -290,7 +290,10 @@ export class HomeComponent implements OnInit {
   }
 
   verMasProductos(): void { this.productosVisibles += 4; }
-  verMenosProductos(): void { this.productosVisibles = 4; }
+  verMenosProductos(): void {
+    this.productosVisibles = 4;
+    setTimeout(() => document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
 
   getImagenProducto(p: IProducto): string {
     if (p.imagen?.startsWith('data:') || p.imagen?.startsWith('http') || p.imagen?.startsWith('assets/')) {

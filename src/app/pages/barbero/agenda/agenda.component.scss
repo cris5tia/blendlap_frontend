@@ -121,6 +121,8 @@
   min-height: 0;
   overflow-y: auto;
   padding: 0.5rem 0 1rem;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .tl-wrap {
@@ -235,9 +237,10 @@
   }
 
   &__time {
-    font-size: 0.6rem;
-    font-weight: 700;
-    opacity: 0.7;
+    font-size: 0.82rem;
+    font-weight: 900;
+    opacity: 1;
+    letter-spacing: 0.02em;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -268,11 +271,49 @@
     flex-shrink: 0;
   }
 
+  // ── Bloque corto (≤30 min) ──
+  &--corta {
+    padding: 5px 12px;
+    border-radius: 8px;
+
+    .tl-cita__inner {
+      flex-direction: column;
+      gap: 1px;
+      justify-content: center;
+    }
+
+    .tl-cita__time {
+      font-size: 0.78rem;
+      font-weight: 900;
+      opacity: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .tl-cita__nombre {
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tl-cita__servicio {
+      font-size: 0.62rem;
+      opacity: 0.65;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tl-cita__dur, .tl-cita__completada-badge { display: none; }
+  }
+
   // ── Próxima ──
   &--proxima {
     background: rgba(251,196,71,0.1);
     border-left-color: #fbc447;
-    .tl-cita__time, .tl-cita__nombre, .tl-cita__servicio, .tl-cita__dur { color: #7a5800; }
+    .tl-cita__time { color: #7a5800; font-weight: 900; }
+    .tl-cita__nombre, .tl-cita__servicio, .tl-cita__dur { color: #7a5800; }
   }
 
   // ── En curso ──
@@ -347,6 +388,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .prox-item {
@@ -448,10 +491,10 @@
 .btn-completar {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
   padding: 0.75rem; border-radius: 10px; border: none;
-  background: var(--color-primary); color: var(--color-accent);
+  background: #28a745; color: #fff;
   font-size: 0.88rem; font-weight: 700; cursor: pointer;
   font-family: var(--font-secondary); transition: all 0.2s;
-  &:hover { background: #28a745; color: #fff; }
+  &:hover { background: #218838; color: #fff; }
 }
 
 .btn-cancelar-cita {
@@ -535,8 +578,10 @@
 .modal-presencial {
   background: var(--color-white);
   border-radius: 20px; width: 100%; max-width: 500px;
-  max-height: calc(90vh - 80px); 
+  max-height: calc(90vh - 80px);
   overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   animation: slideUp 0.25s ease; position: relative;
 

@@ -1,4 +1,4 @@
-<div class="agenda-wrapper">
+﻿<div class="agenda-wrapper">
   <div class="alert-error" *ngIf="error">
     <i class="fas fa-exclamation-circle"></i> {{ error }}
   </div>
@@ -87,9 +87,10 @@
                  [class.tl-cita--completada]="getEstadoCita(cita) === 'completada'"
                  [class.tl-cita--en-curso]="getEstadoCita(cita) === 'en-curso'"
                  [class.tl-cita--proxima]="getEstadoCita(cita) === 'proxima'"
+                 [class.tl-cita--corta]="cita.duracion_total <= 40"
                  (click)="abrirModalCita(cita)">
               <div class="tl-cita__inner">
-                <span class="tl-cita__time">{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
+                <span class="tl-cita__time">{{ formatHora(cita.hora) }} &mdash; {{ getHoraFin(cita) }}</span>
                 <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
                 <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
                 <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>
@@ -172,9 +173,10 @@
                    [class.tl-cita--completada]="getEstadoCita(cita) === 'completada'"
                    [class.tl-cita--en-curso]="getEstadoCita(cita) === 'en-curso'"
                    [class.tl-cita--proxima]="getEstadoCita(cita) === 'proxima'"
+                   [class.tl-cita--corta]="cita.duracion_total <= 40"
                    (click)="abrirModalCita(cita)">
                 <div class="tl-cita__inner">
-                  <span class=”tl-cita__time”>{{ formatHora(cita.hora) }} — {{ getHoraFin(cita) }}</span>
+                  <span class="tl-cita__time">{{ formatHora(cita.hora) }} &mdash; {{ getHoraFin(cita) }}</span>
                   <span class="tl-cita__nombre">{{ cita.nombre_cliente }}</span>
                   <span class="tl-cita__servicio">{{ cita.nombre_servicio }}</span>
                   <span class="tl-cita__dur">{{ cita.duracion_total }} min</span>
