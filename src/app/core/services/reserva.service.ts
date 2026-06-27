@@ -46,6 +46,7 @@ export interface IReserva {
   hora: string;
   estado: string;
   nombre_cliente: string;
+  foto_cliente?: string | null;
   nombre_barbero: string;
   nombre_servicio?: string;
   precio?: number;

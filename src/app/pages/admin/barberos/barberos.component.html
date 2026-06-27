@@ -176,7 +176,8 @@
                 <div class="form-group">
                     <label>Descripción</label>
                     <textarea [(ngModel)]="formulario.descripcion" name="descripcion" rows="3"
-                        placeholder="Describe al barbero..."></textarea>
+                        placeholder="Describe al barbero..."
+                        (input)="autoResize($event)"></textarea>
                 </div>
 
             </div>

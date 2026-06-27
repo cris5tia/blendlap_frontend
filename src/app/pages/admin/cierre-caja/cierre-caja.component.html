@@ -35,7 +35,6 @@
     <div class="pdf-header print-only">
       <div class="pdf-header__logo">
         <img src="/assets/images/navbar/logo.png" alt="Blendlap" />
-        <span class="pdf-header__marca">BLENDLAP</span>
       </div>
       <div class="pdf-header__info">
         <h1>Cierre de Caja Diario</h1>
@@ -162,12 +161,6 @@
               <td class="text-right cc-monto-primary"><strong>{{ formatCurrency(ingresoNetoLocal) }}</strong></td>
             </tr>
           </tfoot>
-          <tfoot *ngIf="!hayComisiones">
-            <tr class="cc-tabla__total">
-              <td colspan="2"><strong>Total</strong></td>
-              <td class="text-right"><strong>{{ formatCurrency(totalReservas) }}</strong></td>
-            </tr>
-          </tfoot>
         </table>
       </div>
 
@@ -208,16 +201,20 @@
           <strong class="cc-monto-rojo">{{ formatCurrency(totalComisiones) }}</strong>
         </div>
         <div class="cc-dist-resumen__fila">
-          <span><i class="fas fa-scissors"></i> Local por servicios</span>
+          <span><i class="fas fa-scissors"></i> Servicios</span>
           <strong>{{ formatCurrency(ingresoNetoLocal) }}</strong>
         </div>
         <div class="cc-dist-resumen__fila" *ngIf="totalVentas > 0">
           <span><i class="fas fa-shopping-bag"></i> Ventas de productos</span>
           <strong>{{ formatCurrency(totalVentas) }}</strong>
         </div>
+        <div class="cc-dist-resumen__fila" *ngIf="totalAbonadoHoy > 0">
+          <span><i class="fas fa-hand-holding-usd"></i> Abonos de créditos</span>
+          <strong>{{ formatCurrency(totalAbonadoHoy) }}</strong>
+        </div>
         <div class="cc-dist-resumen__total">
-          <span><i class="fas fa-store"></i> Total neto para el local</span>
-          <strong>{{ formatCurrency(ingresoNetoLocal + totalVentas) }}</strong>
+          <span><i class="fas fa-store"></i> Total ingresos del día</span>
+          <strong>{{ formatCurrency(ingresoNetoLocal + totalVentas + totalAbonadoHoy) }}</strong>
         </div>
       </div>
     </div>
@@ -237,7 +234,7 @@
               <th>Método</th>
               <th class="text-right">Abono</th>
               <th class="text-right">Saldo pendiente</th>
-              <th class="text-center">Estado crédito</th>
+              <th class="text-center cc-col-estado">Estado crédito</th>
             </tr>
           </thead>
           <tbody>
@@ -253,7 +250,7 @@
               <td class="text-right" [class.cc-monto-rojo]="a.saldo_pendiente > 0">
                 {{ formatCurrency(a.saldo_pendiente) }}
               </td>
-              <td class="text-center">
+              <td class="text-center cc-col-estado">
                 <span class="badge"
                   [ngClass]="a.credito_estado === 'pagado' ? 'badge-success' : a.credito_estado === 'vencido' ? 'badge-danger' : 'badge-warning'">
                   {{ a.credito_estado | titlecase }}
@@ -291,7 +288,7 @@
     </div>
 
     <!-- ══ RESERVAS DEL DÍA ══ -->
-    <div class="cc-card" *ngIf="reservas.length">
+    <div class="cc-card cc-hide-print" *ngIf="reservas.length">
       <div class="cc-card__titulo">
         <i class="fas fa-calendar-alt"></i> Servicios realizados del día
         <span class="cc-card__count">{{ reservas.length }}</span>
@@ -431,21 +428,6 @@
       </div>
     </div>
 
-    <!-- ── Firma (solo en impresión) ── -->
-    <div class="pdf-firma print-only">
-      <div class="pdf-firma__item">
-        <div class="pdf-firma__linea"></div>
-        <span>Responsable del cierre</span>
-      </div>
-      <div class="pdf-firma__item">
-        <div class="pdf-firma__linea"></div>
-        <span>Gerencia / Propietario</span>
-      </div>
-      <div class="pdf-firma__item">
-        <div class="pdf-firma__linea"></div>
-        <span>Sello</span>
-      </div>
-    </div>
 
   </ng-container>
 

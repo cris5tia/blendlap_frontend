@@ -68,7 +68,10 @@
           <tr *ngFor="let c of clientesFiltrados">
             <td>
               <div class="cliente-cell">
-                <div class="cliente-cell__avatar">{{ c.nombre.charAt(0) }}</div>
+                <div class="cliente-cell__avatar" [class.cliente-cell__avatar--clickable]="c.foto" (click)="c.foto ? verFoto(c.foto, $event) : null">
+  <img *ngIf="c.foto" [src]="c.foto" [alt]="c.nombre" class="cliente-cell__avatar-img" />
+  <span *ngIf="!c.foto">{{ c.nombre.charAt(0) }}</span>
+</div>
                 <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
               </div>
             </td>
@@ -104,7 +107,10 @@
       <div class="clientes-lista" *ngIf="clientesFiltrados.length > 0">
         <div class="cliente-row" *ngFor="let c of clientesFiltrados" (click)="abrirHistorial(c)">
           <div class="cliente-cell">
-            <div class="cliente-cell__avatar">{{ c.nombre.charAt(0) }}</div>
+            <div class="cliente-cell__avatar" [class.cliente-cell__avatar--clickable]="c.foto" (click)="c.foto ? verFoto(c.foto, $event) : null">
+  <img *ngIf="c.foto" [src]="c.foto" [alt]="c.nombre" class="cliente-cell__avatar-img" />
+  <span *ngIf="!c.foto">{{ c.nombre.charAt(0) }}</span>
+</div>
             <div class="cliente-cell__info">
               <span class="cliente-cell__nombre">{{ c.nombre }} {{ c.apellido }}</span>
               <span class="cliente-cell__sub" *ngIf="c.servicio_frecuente">
@@ -149,7 +155,10 @@
 
     <!-- Header -->
     <div class="modal-historial__header">
-      <div class="modal-historial__avatar">{{ clienteSeleccionado?.nombre?.charAt(0) }}</div>
+      <div class="modal-historial__avatar" [class.cliente-cell__avatar--clickable]="clienteSeleccionado?.foto" (click)="clienteSeleccionado?.foto ? verFoto(clienteSeleccionado!.foto!, $event) : null">
+        <img *ngIf="clienteSeleccionado?.foto" [src]="clienteSeleccionado!.foto!" [alt]="clienteSeleccionado?.nombre" class="cliente-cell__avatar-img" />
+        <span *ngIf="!clienteSeleccionado?.foto">{{ clienteSeleccionado?.nombre?.charAt(0) }}</span>
+      </div>
       <div class="modal-historial__header-info">
         <h3>{{ clienteSeleccionado?.nombre }} {{ clienteSeleccionado?.apellido }}</h3>
         <p>{{ clienteSeleccionado?.correo_electronico }}</p>
@@ -228,5 +237,15 @@
 
     </div>
 
+  </div>
+</div>
+
+<!-- ── Lightbox foto cliente ─────────────────────────────────── -->
+<div class="foto-lightbox" *ngIf="fotoAmpliada" (click)="cerrarFoto()">
+  <div class="foto-lightbox__wrap" (click)="$event.stopPropagation()">
+    <button class="foto-lightbox__close" (click)="cerrarFoto()">
+      <i class="fas fa-times"></i>
+    </button>
+    <img [src]="fotoAmpliada" class="foto-lightbox__img" />
   </div>
 </div>

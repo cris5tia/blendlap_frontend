@@ -66,7 +66,7 @@ export interface ISolicitarCredito {
 export interface IRegistrarAbono {
   id_credito:   number;
   monto:        number;
-  metodo_pago:  'efectivo' | 'nequi' | 'otro';
+  metodo_pago:  'efectivo' | 'nequi' | 'transferencia' | 'otro';
   observacion?: string;
 }
 

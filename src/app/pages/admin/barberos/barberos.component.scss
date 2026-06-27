@@ -369,6 +369,8 @@
         overflow-y: auto;
         flex: 1;
         min-height: 0;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
     }
 
     // Footer siempre pegado al fondo, nunca scrollea
@@ -405,6 +407,11 @@
         text-transform: uppercase;
         letter-spacing: 0.8px;
         font-family: var(--font-secondary);
+    }
+
+    textarea {
+        overflow: hidden;
+        min-height: 80px;
     }
 
     input,

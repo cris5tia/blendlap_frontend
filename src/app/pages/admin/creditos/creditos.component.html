@@ -13,9 +13,9 @@
 
   <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-card stat-pendiente">
-      <span class="stat-num">{{ contadorPendientes }}</span>
-      <span class="stat-label">Pendientes de aprobar</span>
+    <div class="stat-card stat-recaudado">
+      <span class="stat-num">{{ formatCurrency(totalRecaudado) }}</span>
+      <span class="stat-label">Total recaudado</span>
     </div>
     <div class="stat-card stat-cobrar">
       <span class="stat-num">{{ formatCurrency(totalPorCobrar) }}</span>
@@ -633,15 +633,19 @@
         </button>
       </div>
       <div class="modal-body" *ngIf="creditoAbonar">
+        <div class="abono-cliente">
+          <div class="abono-cliente__row">
+            <span class="abono-cliente__label">Nombre:</span>
+            <span>{{ creditoAbonar.nombre_cliente }}</span>
+          </div>
+          <div class="abono-cliente__row">
+            <span class="abono-cliente__label">Teléfono:</span>
+            <span>{{ creditoAbonar.telefono_cliente }}</span>
+          </div>
+        </div>
         <div class="saldo-info">
           <span>Saldo pendiente</span>
           <strong>{{ formatCurrency(creditoAbonar.saldo_pendiente) }}</strong>
-        </div>
-        <div class="abono-cliente">
-          <i class="fas fa-user"></i>
-          <span>{{ creditoAbonar.nombre_cliente }}</span>
-          <span class="sep">·</span>
-          <span>{{ creditoAbonar.telefono_cliente }}</span>
         </div>
         <div class="form-group">
           <label>Monto del abono *</label>
@@ -653,15 +657,15 @@
           <div class="metodos-grid">
             <button *ngFor="let m of metodosAbono" class="btn-metodo"
               [class.metodo-activo]="abonoForm.metodo_pago === m" (click)="setMetodoPago(m)">
-              <i class="fas" [class.fa-money-bill]="m === 'efectivo'" [class.fa-mobile-alt]="m === 'nequi'"
-                [class.fa-ellipsis-h]="m === 'otro'"></i>
+              <i class="fas" [class.fa-money-bill]="m === 'efectivo'" [class.fa-exchange-alt]="m === 'transferencia'"></i>
               {{ m | titlecase }}
             </button>
           </div>
         </div>
         <div class="form-group" style="margin-top:1rem">
           <label>Observación</label>
-          <input type="text" [(ngModel)]="abonoForm.observacion" class="input-field" placeholder="Nota opcional..." />
+          <textarea [(ngModel)]="abonoForm.observacion" class="input-field abono-obs" placeholder="Nota opcional..."
+            rows="1" (input)="autoResizeObservacion($event)"></textarea>
         </div>
       </div>
       <div class="modal-footer">

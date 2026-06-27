@@ -125,18 +125,30 @@ img {
   }
 }
 
-// ─── Scrollbar personalizada ─────────────────────────────────
-::-webkit-scrollbar {
-  width: 6px;
+// ─── Scrollbar personalizada (solo desktop) ──────────────────
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-primary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
-  border-radius: 3px;
+// ─── Sin scrollbar en móvil (modales, drawers, listas) ───────
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none !important;
+  }
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
 }
 
 // ─── Responsive ──────────────────────────────────────────────
@@ -264,6 +276,15 @@ img {
 .proximas-list,
 .bp-modal {
   scrollbar-width: none !important;
+}
+
+// ─── Impresión: ocultar navegación global ─────────────────────
+@media print {
+  .admin-mobile-toggle,
+  .sidebar,
+  .sidebar-overlay {
+    display: none !important;
+  }
 }
 .tl-scroll::-webkit-scrollbar,
 .proximas-list::-webkit-scrollbar,

@@ -403,6 +403,8 @@
         overflow-y: auto;
         flex: 1;
         min-height: 0;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
     }
 
     // Footer siempre pegado al fondo

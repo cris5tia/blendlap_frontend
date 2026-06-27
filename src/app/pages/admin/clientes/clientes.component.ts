@@ -19,6 +19,17 @@ export class ClientesComponent implements OnInit {
   historial: any = null;
   cargandoHistorial = false;
 
+  fotoAmpliada: string | null = null;
+
+  verFoto(foto: string, event: Event): void {
+    event.stopPropagation();
+    this.fotoAmpliada = foto;
+  }
+
+  cerrarFoto(): void {
+    this.fotoAmpliada = null;
+  }
+
   constructor(
     private clienteService: ClienteService,
     private toastService: ToastService

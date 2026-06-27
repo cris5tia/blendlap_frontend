@@ -46,7 +46,7 @@ export class CreditosComponent implements OnInit {
   abonoForm: IRegistrarAbono = this.abonoVacio();
   guardandoAbono = false;
 
-  metodosAbono: Array<'efectivo' | 'nequi' | 'otro'> = ['efectivo', 'nequi', 'otro'];
+  metodosAbono: Array<'efectivo' | 'transferencia'> = ['efectivo', 'transferencia'];
 
   plazos = [
     { id: '1_semana',    label: '1 Semana'    },
@@ -120,6 +120,11 @@ export class CreditosComponent implements OnInit {
   }
 
   get contadorPendientes(): number { return this.todosLosCreditos.filter(c => c.estado === 'pendiente').length; }
+  get totalRecaudado(): number {
+    return this.todosLosCreditos
+      .filter(c => c.estado !== 'pendiente' && c.estado !== 'rechazado')
+      .reduce((sum, c) => sum + (Number(c.monto_total) - Number(c.saldo_pendiente)), 0);
+  }
   get totalPorCobrar(): number {
     return this.todosLosCreditos
       .filter(c => c.estado === 'activo' || c.estado === 'vencido')
@@ -296,8 +301,14 @@ export class CreditosComponent implements OnInit {
     this.modalAbonar            = true;
   }
 
-  setMetodoPago(m: 'efectivo' | 'nequi' | 'otro'): void {
+  setMetodoPago(m: 'efectivo' | 'transferencia'): void {
     this.abonoForm.metodo_pago = m;
+  }
+
+  autoResizeObservacion(event: Event): void {
+    const el = event.target as HTMLTextAreaElement;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
   }
 
   registrarAbono(): void {

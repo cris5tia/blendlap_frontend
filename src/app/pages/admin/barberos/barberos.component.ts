@@ -67,6 +67,16 @@ export class BarberosComponent implements OnInit {
     this.archivoSeleccionado = null;
     this.previewFoto = barbero?.foto ?? '';
     this.modalVisible = true;
+    setTimeout(() => {
+      const ta = document.querySelector<HTMLTextAreaElement>('.modal__body textarea[name="descripcion"]');
+      if (ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+    }, 50);
+  }
+
+  autoResize(event: Event): void {
+    const ta = event.target as HTMLTextAreaElement;
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
   }
 
   cerrarModal(): void {

@@ -101,7 +101,10 @@
             <td><span class="id-badge">#{{ r.id_reserva }}</span></td>
             <td>
               <div class="cliente-cell">
-                <div class="cliente-cell__avatar">{{ r.nombre_cliente.charAt(0) }}</div>
+                <div class="cliente-cell__avatar">
+                  <img *ngIf="r.foto_cliente" [src]="r.foto_cliente" [alt]="r.nombre_cliente" class="cliente-cell__avatar-img" />
+                  <span *ngIf="!r.foto_cliente">{{ r.nombre_cliente.charAt(0) }}</span>
+                </div>
                 <span class="cliente-cell__nombre">{{ r.nombre_cliente }}</span>
               </div>
             </td>
@@ -143,7 +146,10 @@
       <div class="reservas-lista" *ngIf="reservas.length > 0">
         <div class="reserva-row" *ngFor="let r of reservas" (click)="abrirDetalle(r)">
           <div class="cliente-cell">
-            <div class="cliente-cell__avatar">{{ r.nombre_cliente.charAt(0) }}</div>
+            <div class="cliente-cell__avatar">
+              <img *ngIf="r.foto_cliente" [src]="r.foto_cliente" [alt]="r.nombre_cliente" class="cliente-cell__avatar-img" />
+              <span *ngIf="!r.foto_cliente">{{ r.nombre_cliente.charAt(0) }}</span>
+            </div>
             <div class="cliente-cell__info">
               <span class="cliente-cell__nombre">{{ r.nombre_cliente }}</span>
               <span class="cliente-cell__fecha">{{ formatFecha(r.fecha) }} · {{ formatHora(r.hora) }}</span>
@@ -182,7 +188,10 @@
 
       <!-- Cliente -->
       <div class="detalle-cliente">
-        <div class="detalle-cliente__avatar">{{ reservaDetalle.nombre_cliente.charAt(0) }}</div>
+        <div class="detalle-cliente__avatar">
+          <img *ngIf="reservaDetalle.foto_cliente" [src]="reservaDetalle.foto_cliente" [alt]="reservaDetalle.nombre_cliente" class="detalle-cliente__avatar-img" />
+          <span *ngIf="!reservaDetalle.foto_cliente">{{ reservaDetalle.nombre_cliente.charAt(0) }}</span>
+        </div>
         <div>
           <div class="detalle-cliente__nombre">{{ reservaDetalle.nombre_cliente }}</div>
           <span [class]="'badge ' + getEstadoClass(reservaDetalle.estado)">{{ reservaDetalle.estado }}</span>
