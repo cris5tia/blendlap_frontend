@@ -334,8 +334,8 @@ $verde:       #22c55e;
   border-bottom: 1px solid $borde;
   display: flex; flex-direction: column; gap: 0.55rem;
   max-height: 200px; overflow-y: auto;
-  &::-webkit-scrollbar { width: 3px; }
-  &::-webkit-scrollbar-thumb { background: $borde; border-radius: 2px; }
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .si-row { display: flex; align-items: center; gap: 0.55rem; }

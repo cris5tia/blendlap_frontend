@@ -120,7 +120,7 @@
         <!-- Filtro de fecha -->
         <div class="prox-date-filter">
           <i class="fas fa-calendar-alt prox-date-filter__icon"></i>
-          <app-mat-date [(ngModel)]="filtroFecha" placeholder="Seleccionar día"></app-mat-date>
+          <app-mat-date [ngModel]="filtroFecha" (ngModelChange)="onFiltroFechaChange($event)" placeholder="Seleccionar día"></app-mat-date>
         </div>
 
         <div class="citas-resumen citas-resumen--proximas" *ngIf="fechaProximaSeleccionada">
@@ -161,7 +161,11 @@
                 <div class="tl-now__line"></div>
               </div>
 
-              <div class="tl-empty" *ngIf="proximasFiltradas.length === 0">
+              <div class="tl-empty" *ngIf="cargandoFecha">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Cargando citas...</span>
+              </div>
+              <div class="tl-empty" *ngIf="!cargandoFecha && proximasFiltradas.length === 0">
                 <i class="fas fa-calendar-times"></i>
                 <span>Sin citas para este d&iacute;a</span>
               </div>
@@ -213,6 +217,15 @@
       <i class="fas fa-clock"        *ngIf="getEstadoCita(citaSeleccionada!) === 'proxima'"></i>
       {{ getEstadoCita(citaSeleccionada!) === 'completada' ? 'Completada' :
          getEstadoCita(citaSeleccionada!) === 'en-curso' ? 'En curso' : 'Pendiente' }}
+    </div>
+    <div class="modal-cita__avatar">
+      <img *ngIf="citaSeleccionada?.foto_cliente"
+           [src]="citaSeleccionada?.foto_cliente"
+           [alt]="citaSeleccionada?.nombre_cliente"
+           class="modal-cita__avatar-img" />
+      <span *ngIf="!citaSeleccionada?.foto_cliente" class="modal-cita__avatar-initial">
+        {{ citaSeleccionada?.nombre_cliente?.charAt(0)?.toUpperCase() }}
+      </span>
     </div>
     <div class="modal-cita__cliente">{{ citaSeleccionada?.nombre_cliente }}</div>
     <div class="modal-cita__detalles">

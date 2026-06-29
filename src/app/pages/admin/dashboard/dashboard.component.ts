@@ -1,10 +1,7 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      import { Component, OnInit } from '@angular/core';
+﻿                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { ReporteService, IReporteCompleto, IKPIs } from '../../../core/services/reporte.service';
 import { ToastService } from '../../../core/services/toast.service';
-
-export type TipoPeriodo = 'semanal' | 'quincenal' | 'mensual' | 'anual';
-export type DashTab = 'general' | 'ventas' | 'reservas' | 'barberos' | 'creditos' | 'clientes' | 'gastos';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,52 +13,37 @@ export class DashboardComponent implements OnInit {
   // ── Live data ─────────────────────────────────────────────────────────
   cargando      = true;
   data: any     = null;
-  reservaDetalle: any = null;
 
   // ── Período analítico ─────────────────────────────────────────────────
   cargandoReporte = false;
   reporte: IReporteCompleto | null = null;
   descargando = false;
 
-  // ── Selector de período ───────────────────────────────────────────────
-  tipoPeriodo: TipoPeriodo = 'mensual';
-  selectedDate: string;
-  selectedMonth: string;
-  selectedYear: number;
-  anioOpciones: number[] = [];
+  // ── Rango de fechas ───────────────────────────────────────────────────
+  fechaInicio!: string;
+  fechaFin!:    string;
 
-  // ── Tab activo ────────────────────────────────────────────────────────
-  tabActivo: DashTab = 'general';
-
-  // ── Gráficas (tab General) ────────────────────────────────────────────
-  chartAreaOptions:   any = null;
-  chartRadialOptions: any = null;
-  donutMetodosOpts:   any = null;
-  barServiciosOpts:   any = null;
-  barBarberosOpts:    any = null;
-
-  // ── Gráficas (tabs detalle) ───────────────────────────────────────────
-  lineIngresosOpts:  any = {};
-  lineGastosOpts:    any = {};
-  barHoraOpts:       any = {};
-  barProductosOpts:  any = null;
-  donutReservasOpts: any = null;
-  donutCreditosOpts: any = null;
-  donutGastosOpts:   any = null;
-  barClientesOpts:   any = null;
+  // ── Gráficas ──────────────────────────────────────────────────────────
+  chartAreaOptions:    any = null;
+  chartRadialOptions:  any = null;
+  donutMetodosOpts:    any = null;
+  barServiciosOpts:    any = null;
+  barBarberosOpts:     any = null;
+  lineIngresosOpts:    any = {};
+  donutGastosOpts:     any = null;
+  donutReservasOpts:   any = null;
+  stackedReservasOpts: any = null;
 
   constructor(
     private dashboardService: DashboardService,
     private reporteService:   ReporteService,
     private toast:            ToastService
   ) {
-    const hoy   = new Date();
-    const year  = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    this.selectedDate  = hoy.toISOString().split('T')[0];
-    this.selectedMonth = `${year}-${month}`;
-    this.selectedYear  = year;
-    this.anioOpciones  = [year - 2, year - 1, year];
+    const hoy = new Date();
+    const y   = hoy.getFullYear();
+    const m   = hoy.getMonth();
+    this.fechaInicio = new Date(y, m, 1).toISOString().split('T')[0];
+    this.fechaFin    = new Date(y, m + 1, 0).toISOString().split('T')[0];
   }
 
   ngOnInit(): void {
@@ -80,63 +62,32 @@ export class DashboardComponent implements OnInit {
 
   // ── Período analítico ─────────────────────────────────────────────────
   cargarReporte(): void {
-    const { fechaInicio, fechaFin } = this.computeFechas();
     this.cargandoReporte = true;
-    this.reporteService.getCompleto({ fechaInicio, fechaFin }).subscribe({
+    this.reporteService.getCompleto({ fechaInicio: this.fechaInicio, fechaFin: this.fechaFin }).subscribe({
       next:  r => { this.reporte = r.data; this.buildCharts(); this.cargandoReporte = false; },
       error: () => { this.toast.error('Error al cargar analítica'); this.cargandoReporte = false; }
     });
   }
 
-  onPeriodoChange(): void { this.cargarReporte(); }
-  onDateChange():   void { this.cargarReporte(); }
-
-  // ── Cálculo de fechas ─────────────────────────────────────────────────
-  computeFechas(): { fechaInicio: string; fechaFin: string } {
-    switch (this.tipoPeriodo) {
-      case 'semanal': {
-        const d   = new Date(this.selectedDate + 'T12:00:00');
-        const dow = d.getDay();
-        const diffLun = dow === 0 ? -6 : 1 - dow;
-        const lun = new Date(d); lun.setDate(d.getDate() + diffLun);
-        const dom = new Date(lun); dom.setDate(lun.getDate() + 6);
-        return { fechaInicio: this.toISO(lun), fechaFin: this.toISO(dom) };
-      }
-      case 'quincenal': {
-        const d     = new Date(this.selectedDate + 'T12:00:00');
-        const year  = d.getFullYear();
-        const month = d.getMonth();
-        const day   = d.getDate();
-        if (day <= 15) {
-          return { fechaInicio: this.toISO(new Date(year, month, 1)), fechaFin: this.toISO(new Date(year, month, 15)) };
-        } else {
-          return { fechaInicio: this.toISO(new Date(year, month, 16)), fechaFin: this.toISO(new Date(year, month + 1, 0)) };
-        }
-      }
-      case 'mensual': {
-        const [y, m] = this.selectedMonth.split('-').map(Number);
-        return { fechaInicio: this.toISO(new Date(y, m - 1, 1)), fechaFin: this.toISO(new Date(y, m, 0)) };
-      }
-      case 'anual': {
-        return { fechaInicio: `${this.selectedYear}-01-01`, fechaFin: `${this.selectedYear}-12-31` };
-      }
-    }
-  }
-
-  private toISO(d: Date): string {
-    return d.toISOString().split('T')[0];
-  }
+  aplicarFiltro(): void { this.cargarReporte(); }
 
   get periodoLabel(): string {
-    const { fechaInicio, fechaFin } = this.computeFechas();
+    if (!this.fechaInicio || !this.fechaFin) return '';
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const ini   = new Date(fechaInicio + 'T12:00:00');
-    const fin   = new Date(fechaFin   + 'T12:00:00');
-    if (this.tipoPeriodo === 'anual') return String(this.selectedYear);
-    if (this.tipoPeriodo === 'mensual') return `${meses[ini.getMonth()]} ${ini.getFullYear()}`;
-    const mismoMes = ini.getMonth() === fin.getMonth() && ini.getFullYear() === fin.getFullYear();
-    if (mismoMes) return `${ini.getDate()}–${fin.getDate()} ${meses[ini.getMonth()]} ${ini.getFullYear()}`;
-    return `${ini.getDate()} ${meses[ini.getMonth()]} – ${fin.getDate()} ${meses[fin.getMonth()]} ${fin.getFullYear()}`;
+    const ini = new Date(this.fechaInicio + 'T12:00:00');
+    const fin = new Date(this.fechaFin   + 'T12:00:00');
+    const mismoAnio = ini.getFullYear() === fin.getFullYear();
+    const mismoMes  = mismoAnio && ini.getMonth() === fin.getMonth();
+    if (mismoMes)  return `${ini.getDate()}–${fin.getDate()} ${meses[ini.getMonth()]} ${ini.getFullYear()}`;
+    if (mismoAnio) return `${ini.getDate()} ${meses[ini.getMonth()]} – ${fin.getDate()} ${meses[fin.getMonth()]} ${ini.getFullYear()}`;
+    return `${ini.getDate()} ${meses[ini.getMonth()]} ${ini.getFullYear()} – ${fin.getDate()} ${meses[fin.getMonth()]} ${fin.getFullYear()}`;
+  }
+
+  get diffDias(): number {
+    if (!this.fechaInicio || !this.fechaFin) return 30;
+    const ini = new Date(this.fechaInicio + 'T12:00:00').getTime();
+    const fin = new Date(this.fechaFin   + 'T12:00:00').getTime();
+    return Math.round((fin - ini) / 86400000);
   }
 
   // ── Chart builders ────────────────────────────────────────────────────
@@ -147,7 +98,7 @@ export class DashboardComponent implements OnInit {
     this.buildDonutMetodos();
     this.buildBarServicios();
     this.buildBarBarberos();
-    this.buildChartsDetalle();
+    this.buildDetalle();
   }
 
   buildAreaChart(): void {
@@ -155,7 +106,7 @@ export class DashboardComponent implements OnInit {
     const gastos = this.reporte!.gastos_por_dia;
     let labels: string[], ingData: number[], gastoData: number[];
 
-    if (this.tipoPeriodo === 'anual') {
+    if (this.diffDias > 60) {
       const map: Record<string, { ing: number; gas: number }> = {};
       ventas.forEach((v: any) => {
         const k = String(v.dia).substring(0, 7);
@@ -262,58 +213,101 @@ export class DashboardComponent implements OnInit {
   }
 
   buildDonutMetodos(): void {
-    const metodos = this.reporte!.metodos_pago;
-    const PALETTE = ['#fbc447','#dc3545','#28a745','#17a2b8','#6f42c1','#fd7e14'];
+    const metodos  = this.reporte!.metodos_pago;
+    const metTotal = metodos.reduce((s: number, m: any) => s + Number(m.total), 0);
+    const PALETTE  = ['#fbc447','#dc3545','#28a745','#17a2b8','#6f42c1','#fd7e14'];
     this.donutMetodosOpts = metodos.length ? {
       series:      metodos.map((m: any) => Number(m.total)),
-      chart:       { type: 'donut', height: 240, fontFamily: 'inherit', toolbar: { show: false } },
+      chart:       { type: 'donut', height: 270, fontFamily: 'inherit', toolbar: { show: false }, animations: { speed: 500 } },
       labels:      metodos.map((m: any) => this.metodoPagoLabel(m.metodo_pago)),
       colors:      PALETTE,
       dataLabels:  { enabled: false },
-      legend:      { position: 'bottom', fontSize: '11px' },
-      tooltip:     { y: { formatter: (v: number) => this.formatCurrency(v) } },
-      plotOptions: { pie: { donut: { size: '65%' } } }
+      legend:      { position: 'bottom', fontSize: '11px', markers: { radius: 4, width: 10, height: 10 } },
+      tooltip:     { y: { formatter: (v: number) => `${this.formatCurrency(v)} · ${metTotal ? Math.round(v / metTotal * 100) : 0}%` } },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '66%',
+            labels: {
+              show: true,
+              total: { show: true, showAlways: true, label: 'Total', fontSize: '12px', fontWeight: 700, color: '#374151', formatter: () => this.fmtShort(metTotal) }
+            }
+          }
+        }
+      }
     } : null;
   }
 
   buildBarServicios(): void {
-    const top = this.reporte!.top_servicios.slice(0, 6);
+    const top = this.reporte!.top_servicios.slice(0, 7);
     this.barServiciosOpts = top.length ? {
-      series:      [{ name: 'Veces', data: top.map((s: any) => s.veces_solicitado) }],
-      chart:       { type: 'bar', height: 240, toolbar: { show: false }, fontFamily: 'inherit' },
-      xaxis:       { categories: top.map((s: any) => s.nombre_servicio), labels: { style: { fontSize: '10px' } } },
-      yaxis:       { labels: { formatter: (v: number) => String(v) } },
+      series:      [{ name: 'Reservas', data: top.map((s: any) => s.veces_solicitado) }],
+      chart:       { type: 'bar', height: Math.max(220, top.length * 38 + 60), toolbar: { show: false }, fontFamily: 'inherit', animations: { speed: 500 } },
+      xaxis:       { categories: top.map((s: any) => s.nombre_servicio.length > 22 ? s.nombre_servicio.slice(0, 22) + '…' : s.nombre_servicio), labels: { style: { fontSize: '11px' } } },
+      yaxis:       { labels: { formatter: (v: number) => String(v), style: { fontSize: '11px', colors: '#94a3b8' } } },
       colors:      ['#fbc447'],
-      plotOptions: { bar: { borderRadius: 5, horizontal: true } },
-      dataLabels:  { enabled: false },
-      grid:        { borderColor: '#f1f3f5' },
+      plotOptions: { bar: { borderRadius: 5, borderRadiusApplication: 'end', horizontal: true } },
+      dataLabels:  { enabled: true, offsetX: 5, style: { fontSize: '10px', colors: ['#374151'], fontWeight: 600 }, formatter: (v: number) => `${v}` },
+      grid:        { borderColor: '#f3f4f6', xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
       tooltip:     { y: { formatter: (_v: number, opts: any) => {
         const s = top[opts.dataPointIndex];
-        return `${s.veces_solicitado} veces · ${this.formatCurrency(s.total_generado)}`;
+        return `${s.veces_solicitado} reservas · ${this.formatCurrency(s.total_generado)}`;
       }}}
     } : null;
   }
 
   buildBarBarberos(): void {
-    const barbs = this.reporte!.barberos;
-    this.barBarberosOpts = barbs.length ? {
-      series: [
-        { name: 'Ingresos generados', data: barbs.map((b: any) => Number(b.total_servicios)) },
-        { name: 'Comisión barbero',   data: barbs.map((b: any) => Number(b.comision_barbero)) },
-      ],
-      chart:       { type: 'bar', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
-      xaxis:       { categories: barbs.map((b: any) => b.barbero), labels: { style: { fontSize: '10px' } } },
-      yaxis:       { labels: { formatter: (v: number) => this.fmtShort(v) } },
-      colors:      ['#1a1a2e', '#fbc447'],
-      plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
-      dataLabels:  { enabled: false },
-      legend:      { position: 'top', fontSize: '11px' },
-      grid:        { borderColor: '#f1f3f5' },
-      tooltip:     { y: { formatter: (v: number) => this.formatCurrency(v) } }
+    const sorted = [...(this.reporte!.barberos || [])].sort(
+      (a: any, b: any) => Number(b.total_servicios) - Number(a.total_servicios)
+    );
+    const BPALET = ['#fbc447','#1a1a2e','#10b981','#3b82f6','#8b5cf6','#f97316','#ec4899','#06b6d4'];
+    this.barBarberosOpts = sorted.length ? {
+      series: [{
+        name: 'Ingresos generados',
+        data: sorted.map((b: any, i: number) => ({
+          x: b.barbero.split(' ')[0],
+          y: Number(b.total_servicios),
+          fillColor: BPALET[i % BPALET.length]
+        }))
+      }],
+      chart: {
+        type: 'bar', height: Math.max(220, sorted.length * 52 + 60),
+        toolbar: { show: false }, fontFamily: 'inherit',
+        animations: { enabled: true, speed: 700, animateGradually: { enabled: true, delay: 100 } },
+        parentHeightOffset: 0
+      },
+      plotOptions: {
+        bar: {
+          distributed: true, borderRadius: 8, borderRadiusApplication: 'end',
+          horizontal: true, barHeight: '58%',
+          dataLabels: { position: 'right' }
+        }
+      },
+      dataLabels: {
+        enabled: true, textAnchor: 'start', offsetX: 8,
+        style: { fontSize: '11px', fontWeight: 700, colors: ['#374151'] },
+        formatter: (v: number) => this.fmtShort(v)
+      },
+      xaxis: {
+        labels: { formatter: (v: string) => this.fmtShort(Number(v)), style: { colors: '#9ca3af', fontSize: '10px' } },
+        axisBorder: { show: false }, axisTicks: { show: false }
+      },
+      yaxis: {
+        labels: { style: { colors: '#374151', fontSize: '12px', fontWeight: '600', fontFamily: 'inherit' } }
+      },
+      legend: { show: false },
+      grid: { borderColor: 'rgba(0,0,0,0.06)', strokeDashArray: 3, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+      tooltip: {
+        y: { formatter: (_v: number, opts: any) => {
+          const b = sorted[opts.dataPointIndex];
+          return `${this.formatCurrency(b.total_servicios)} · ${b.total_reservas} reservas`;
+        }},
+        style: { fontSize: '12px', fontFamily: 'inherit' }
+      }
     } : null;
   }
 
-  private buildChartsDetalle(): void {
+  private buildDetalle(): void {
     const d = this.reporte!;
 
     // ── Área: ingresos por día ─────────────────────────────────────────────
@@ -321,44 +315,32 @@ export class DashboardComponent implements OnInit {
     const diasData  = (d.ventas_por_dia || []).map((v: any) => Number(v.total));
     this.lineIngresosOpts = this.buildAreaDetalle('Ingresos', diasLabel, diasData, '#fbc447', '#1a1a2e');
 
-    // ── Área: gastos por día ───────────────────────────────────────────────
-    const diasGLabel = (d.gastos_por_dia || []).map((g: any) => this.fmtDia(g.dia));
-    const diasGData  = (d.gastos_por_dia || []).map((g: any) => Number(g.total));
-    this.lineGastosOpts = this.buildAreaDetalle('Gastos', diasGLabel, diasGData, '#ef4444', '#7f1d1d');
-
-    // ── Bar: ingresos por hora (solo horas con datos, rangos 6–22) ─────────
-    const horasMap: Record<number, number> = {};
-    (d.ventas_por_hora || []).forEach((h: any) => { horasMap[h.hora] = Number(h.total); });
-    const horasRange  = Array.from({ length: 17 }, (_, i) => i + 6);
-    const horasLabels = horasRange.map(h => `${h}:00`);
-    const horasData   = horasRange.map(h => horasMap[h] || 0);
-    this.barHoraOpts = {
-      series:      [{ name: 'Ingresos', data: horasData }],
-      chart:       { type: 'bar', height: 240, toolbar: { show: false }, fontFamily: 'inherit', parentHeightOffset: 0 },
-      xaxis:       { categories: horasLabels, axisBorder: { show: false }, axisTicks: { show: false },
-                     labels: { style: { colors: '#9ca3af', fontSize: '10px' } } },
-      yaxis:       { labels: { formatter: (v: number) => this.fmtShort(v), style: { colors: ['#9ca3af'], fontSize: '9px' } } },
-      colors:      ['#fbc447'],
-      plotOptions: { bar: { borderRadius: 4, columnWidth: '55%', distributed: false } },
-      dataLabels:  { enabled: false },
-      grid:        { borderColor: 'rgba(0,0,0,0.06)', strokeDashArray: 3, padding: { left: 0, right: 0 } },
-      tooltip:     { y: { formatter: (v: number) => this.formatCurrency(v) }, style: { fontSize: '12px', fontFamily: 'inherit' } },
-      fill:        { type: 'gradient', gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.25, opacityFrom: 1, opacityTo: 0.7 } }
-    };
-
-    // ── Bar horizontal: top productos ──────────────────────────────────────
-    const topP = ((d.top_productos || []) as any[]).slice(0, 7);
-    this.barProductosOpts = topP.length ? {
-      series:      [{ name: 'Unidades', data: topP.map((p: any) => Number(p.cantidad_vendida)) }],
-      chart:       { type: 'bar', height: Math.max(220, topP.length * 34), toolbar: { show: false }, fontFamily: 'inherit', parentHeightOffset: 0 },
-      xaxis:       { categories: topP.map((p: any) => p.nombre_producto),
-                     labels: { style: { colors: '#9ca3af', fontSize: '11px' } }, axisBorder: { show: false } },
-      yaxis:       { labels: { formatter: (v: number) => String(v) } },
-      colors:      ['#f59e0b'],
-      plotOptions: { bar: { borderRadius: 5, horizontal: true, barHeight: '60%' } },
-      dataLabels:  { enabled: false },
-      grid:        { borderColor: 'rgba(0,0,0,0.06)', strokeDashArray: 3, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-      tooltip:     { y: { formatter: (v: number) => `${v} unidades` }, style: { fontSize: '12px' } }
+    // ── Donut: gastos por categoría ────────────────────────────────────────
+    const gastosCat = (d.gastos_por_categoria || []) as any[];
+    const totalGas  = gastosCat.reduce((s: number, g: any) => s + Number(g.total), 0);
+    this.donutGastosOpts = gastosCat.length ? {
+      series:  gastosCat.map((g: any) => Number(g.total)),
+      chart:   { type: 'donut', height: 340, fontFamily: 'inherit',
+                 animations: { enabled: true, speed: 600 }, toolbar: { show: false } },
+      labels:  gastosCat.map((g: any) => g.categoria),
+      colors:  ['#ef4444','#f97316','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#84cc16','#14b8a6'],
+      dataLabels: { enabled: true,
+        formatter: (_val: number, opts: any) =>
+          `${Math.round(opts.w.globals.seriesPercent[opts.seriesIndex])}%`,
+        style: { fontSize: '11px', fontFamily: 'inherit', fontWeight: 700 },
+        dropShadow: { enabled: false }
+      },
+      legend: { position: 'right', fontSize: '12px', fontFamily: 'inherit',
+                markers: { width: 10, height: 10, radius: 4 },
+                formatter: (name: string, opts: any) =>
+                  `${name} — ${this.formatCurrency(opts.w.globals.series[opts.seriesIndex])}` },
+      plotOptions: { pie: { donut: { size: '64%',
+        labels: { show: true, total: { show: true, showAlways: true, label: 'Total gastos',
+          fontSize: '12px', color: '#374151', fontWeight: 700,
+          formatter: () => this.fmtShort(totalGas) } } } } },
+      stroke:  { width: 3, colors: ['#fff'] },
+      tooltip: { y: { formatter: (v: number) => `${this.formatCurrency(v)} · ${totalGas ? Math.round(v / totalGas * 100) : 0}%` },
+                 style: { fontSize: '12px', fontFamily: 'inherit' } }
     } : null;
 
     // ── Donut: reservas por estado ─────────────────────────────────────────
@@ -385,58 +367,41 @@ export class DashboardComponent implements OnInit {
       tooltip:     { style: { fontSize: '12px', fontFamily: 'inherit' } }
     } : null;
 
-    // ── Donut: créditos por estado ─────────────────────────────────────────
-    const credEst = (d.creditos?.estadisticas || []) as any[];
-    this.donutCreditosOpts = credEst.length ? {
-      series:      credEst.map((c: any) => Number(c.cantidad)),
-      chart:       { type: 'donut', height: 280, fontFamily: 'inherit' },
-      labels:      credEst.map((c: any) => c.estado.charAt(0).toUpperCase() + c.estado.slice(1)),
-      colors:      ['#f59e0b','#3b82f6','#10b981','#ef4444','#6b7280'],
-      dataLabels:  { enabled: true,
-        formatter: (_val: number, opts: any) => `${Math.round(opts.w.globals.seriesPercent[opts.seriesIndex])}%`,
-        style: { fontSize: '11px', fontFamily: 'inherit', fontWeight: 700 }, dropShadow: { enabled: false }
+    // ── Stacked bar: reservas por estado por día ───────────────────────────
+    const resDiasMap: Record<string, Record<string, number>> = {};
+    const resEstadosList: string[] = [];
+    (d.reservas_por_dia || []).forEach((r: any) => {
+      const dia = String(r.dia).split('T')[0];
+      if (!resDiasMap[dia]) resDiasMap[dia] = {};
+      resDiasMap[dia][r.estado] = (resDiasMap[dia][r.estado] || 0) + Number(r.cantidad);
+      if (!resEstadosList.includes(r.estado)) resEstadosList.push(r.estado);
+    });
+    const sortedResDias = Object.keys(resDiasMap).sort();
+    const resStateColors: Record<string, string> = {
+      completada: '#10b981', confirmada: '#3b82f6', pendiente: '#f59e0b', cancelada: '#ef4444'
+    };
+    this.stackedReservasOpts = sortedResDias.length ? {
+      series: resEstadosList.map(estado => ({
+        name: estado.charAt(0).toUpperCase() + estado.slice(1),
+        data: sortedResDias.map(dia => resDiasMap[dia][estado] || 0)
+      })),
+      chart: { type: 'bar', stacked: true, height: 280, toolbar: { show: false }, fontFamily: 'inherit',
+               animations: { enabled: true, speed: 600 }, parentHeightOffset: 0 },
+      colors: resEstadosList.map(e => resStateColors[e] || '#6b7280'),
+      plotOptions: { bar: { columnWidth: sortedResDias.length > 20 ? '85%' : '55%', borderRadius: 0 } },
+      xaxis: {
+        categories: sortedResDias.map(d => this.fmtDia(d)),
+        axisBorder: { show: false }, axisTicks: { show: false },
+        labels: { style: { colors: '#9ca3af', fontSize: '10px' }, rotate: sortedResDias.length > 14 ? -45 : 0 }
       },
-      legend:      { position: 'bottom', fontSize: '12px', fontFamily: 'inherit', markers: { width: 9, height: 9, radius: 3 } },
-      tooltip:     { y: { formatter: (v: number) => `${v} créditos` }, style: { fontSize: '12px' } },
-      plotOptions: { pie: { donut: { size: '60%',
-        labels: { show: true, total: { show: true, label: 'Total cred.', fontSize: '11px', color: '#1a1a2e',
-          formatter: (w: any) => String(w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0)) } } } } },
-      stroke: { width: 2, colors: ['#fff'] }
+      yaxis: { labels: { formatter: (v: number) => String(v), style: { colors: ['#9ca3af'], fontSize: '9px' } }, min: 0 },
+      dataLabels: { enabled: false },
+      legend: { position: 'top', horizontalAlign: 'right', fontSize: '11px',
+                markers: { width: 9, height: 9, radius: 3 }, itemMargin: { horizontal: 8 } },
+      grid: { borderColor: 'rgba(0,0,0,0.06)', strokeDashArray: 3 },
+      tooltip: { shared: true, intersect: false, style: { fontSize: '12px', fontFamily: 'inherit' } }
     } : null;
 
-    // ── Donut: gastos por categoría ────────────────────────────────────────
-    const gastosCat = (d.gastos_por_categoria || []) as any[];
-    this.donutGastosOpts = gastosCat.length ? {
-      series:      gastosCat.map((g: any) => Number(g.total)),
-      chart:       { type: 'donut', height: 280, fontFamily: 'inherit' },
-      labels:      gastosCat.map((g: any) => g.categoria),
-      colors:      ['#ef4444','#f97316','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#84cc16'],
-      dataLabels:  { enabled: true,
-        formatter: (_val: number, opts: any) => `${Math.round(opts.w.globals.seriesPercent[opts.seriesIndex])}%`,
-        style: { fontSize: '11px', fontFamily: 'inherit', fontWeight: 700 }, dropShadow: { enabled: false }
-      },
-      legend:      { position: 'bottom', fontSize: '12px', fontFamily: 'inherit', markers: { width: 9, height: 9, radius: 3 } },
-      tooltip:     { y: { formatter: (v: number) => this.formatCurrency(v) }, style: { fontSize: '12px' } },
-      plotOptions: { pie: { donut: { size: '62%',
-        labels: { show: true, total: { show: true, label: 'Total gastos', fontSize: '11px', color: '#1a1a2e',
-          formatter: (w: any) => this.fmtShort(w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0)) } } } } },
-      stroke: { width: 2, colors: ['#fff'] }
-    } : null;
-
-    // ── Bar horizontal: top clientes ───────────────────────────────────────
-    const topC = ((d.top_clientes || []) as any[]).slice(0, 8);
-    this.barClientesOpts = topC.length ? {
-      series:      [{ name: 'Total gastado', data: topC.map((c: any) => Number(c.total_gastado)) }],
-      chart:       { type: 'bar', height: Math.max(240, topC.length * 38), toolbar: { show: false }, fontFamily: 'inherit', parentHeightOffset: 0 },
-      xaxis:       { categories: topC.map((c: any) => c.cliente),
-                     labels: { style: { colors: '#9ca3af', fontSize: '11px' } }, axisBorder: { show: false } },
-      yaxis:       { labels: { formatter: (v: number) => this.fmtShort(v), style: { colors: ['#9ca3af'], fontSize: '9px' } } },
-      colors:      ['#8b5cf6'],
-      plotOptions: { bar: { borderRadius: 5, horizontal: true, barHeight: '55%' } },
-      dataLabels:  { enabled: false },
-      grid:        { borderColor: 'rgba(0,0,0,0.06)', strokeDashArray: 3, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-      tooltip:     { y: { formatter: (v: number) => this.formatCurrency(v) }, style: { fontSize: '12px', fontFamily: 'inherit' } }
-    } : null;
   }
 
   private buildAreaDetalle(name: string, categories: string[], data: number[], color: string, gradColor: string): any {
@@ -461,20 +426,10 @@ export class DashboardComponent implements OnInit {
 
   // ── Exports ───────────────────────────────────────────────────────────
   exportarPDF(): void {
-    const { fechaInicio, fechaFin } = this.computeFechas();
     this.descargando = true;
-    this.reporteService.descargarPDF({ fechaInicio, fechaFin }).subscribe({
-      next:  blob => { this.triggerDownload(blob, `reporte_${fechaInicio}_${fechaFin}.pdf`); this.descargando = false; },
+    this.reporteService.descargarPDF({ fechaInicio: this.fechaInicio, fechaFin: this.fechaFin }).subscribe({
+      next:  blob => { this.triggerDownload(blob, `reporte_${this.fechaInicio}_${this.fechaFin}.pdf`); this.descargando = false; },
       error: ()   => { this.toast.error('Error al generar PDF'); this.descargando = false; }
-    });
-  }
-
-  exportarExcel(): void {
-    const { fechaInicio, fechaFin } = this.computeFechas();
-    this.descargando = true;
-    this.reporteService.descargarExcel({ fechaInicio, fechaFin }).subscribe({
-      next:  blob => { this.triggerDownload(blob, `reporte_${fechaInicio}_${fechaFin}.xlsx`); this.descargando = false; },
-      error: ()   => { this.toast.error('Error al generar Excel'); this.descargando = false; }
     });
   }
 
@@ -485,28 +440,6 @@ export class DashboardComponent implements OnInit {
     a.click();
     URL.revokeObjectURL(url);
   }
-
-  compartirWhatsApp(): void {
-    if (!this.kpis) return;
-    const { fechaInicio, fechaFin } = this.computeFechas();
-    const k = this.kpis;
-    const texto = [
-      `*Reporte Barbería — ${this.periodoLabel}*`,
-      `📅 ${fechaInicio} al ${fechaFin}`,
-      ``,
-      `💰 Ingresos: ${this.formatCurrency(k.ingresos_total)}`,
-      `💸 Gastos: ${this.formatCurrency(k.total_gastos)}`,
-      `📊 Ganancia neta: ${this.formatCurrency(k.ganancia_neta)}`,
-      `✂️ Reservas: ${k.reservas_total} (${k.reservas_completadas} completadas)`,
-      `🧔 Comisiones: ${this.formatCurrency(k.total_comisiones_barbero)}`,
-      `👥 Clientes nuevos: ${k.clientes_nuevos}`,
-    ].join('\n');
-    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
-  }
-
-  // ── Modal detalle reserva ─────────────────────────────────────────────
-  abrirDetalleReserva(r: any): void { this.reservaDetalle = r; }
-  cerrarDetalleReserva(): void      { this.reservaDetalle = null; }
 
   // ── Getters ───────────────────────────────────────────────────────────
   get kpis(): IKPIs | null { return this.reporte?.kpis ?? null; }

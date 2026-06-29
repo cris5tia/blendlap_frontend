@@ -474,6 +474,10 @@
     gap: 1rem;
     box-sizing: border-box;
     width: 100%;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .input-prefix {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BarberoAgendaService, ICitaBarbero } from '../../../core/services/barbero-agenda.service';
@@ -48,7 +48,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
   presencialMesActual: Date = new Date();
   presencialDiasCalendario: { fecha: Date | null; disponible: boolean }[] = [];
   presencialHoy: Date = new Date();
-  proximasMesActual: Date = new Date();
 
   private destroy$ = new Subject<void>();
   private clockInterval: any;
@@ -69,6 +68,11 @@ export class AgendaComponent implements OnInit, OnDestroy {
     this.cargarHorarioBarberia();
     this.recalcularTimeline();
 
+    // Default: mostrar mañana en Próximas al entrar
+    const tm = new Date();
+    tm.setDate(tm.getDate() + 1);
+    this.onFiltroFechaChange(this.fechaLocalISO(tm));
+
     timer(0, 30000).pipe(
       exhaustMap(() => forkJoin({
         hoy: this.agendaService.getCitasHoy(),
@@ -79,7 +83,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: ({ hoy, proximas }) => {
         this.citasHoy = hoy.data;
         this.proximas = proximas.data;
-        this.asegurarFiltroFechaProximas();
         this.recalcularTimeline();
         this.cargando = false;
       },
@@ -114,7 +117,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
       next: ({ hoy, proximas }) => {
         this.citasHoy = hoy.data;
         this.proximas = proximas.data;
-        this.asegurarFiltroFechaProximas();
         this.recalcularTimeline();
         this.cargando = false;
       },
@@ -470,6 +472,19 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
   // ─── Filtro próximas ──────────────────────────────────────
   filtroFecha = '';
+  citasParaFecha: ICitaBarbero[] = [];
+  cargandoFecha = false;
+
+  onFiltroFechaChange(fecha: string): void {
+    this.filtroFecha = fecha;
+    this.citasParaFecha = [];
+    if (!fecha) return;
+    this.cargandoFecha = true;
+    this.agendaService.getCitasByFecha(fecha).pipe(take(1)).subscribe({
+      next: (res) => { this.citasParaFecha = res.data; this.cargandoFecha = false; },
+      error: () => { this.citasParaFecha = []; this.cargandoFecha = false; }
+    });
+  }
 
   get fechasUnicas(): string[] {
     const set = new Set(this.proximas.map(r => this.normalizarFecha(r.fecha)));
@@ -479,6 +494,9 @@ export class AgendaComponent implements OnInit, OnDestroy {
   get proximasFiltradas(): ICitaBarbero[] {
     const fecha = this.fechaProximaSeleccionada;
     if (!fecha) return [];
+    if (this.filtroFecha) {
+      return [...this.citasParaFecha].sort((a, b) => a.hora.localeCompare(b.hora));
+    }
     return this.proximas
       .filter(r => this.normalizarFecha(r.fecha) === fecha)
       .sort((a, b) => a.hora.localeCompare(b.hora));
@@ -490,83 +508,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
 
   get mostrarLineaAhoraProximas(): boolean {
     return this.fechaProximaSeleccionada === this.fechaLocalISO(new Date()) && this.mostrarLineaAhora;
-  }
-
-  seleccionarFechaProxima(fecha: string): void {
-    this.filtroFecha = fecha;
-  }
-
-  asegurarFiltroFechaProximas(): void {
-    const fechas = this.fechasUnicas;
-    if (fechas.length === 0) {
-      this.filtroFecha = '';
-      return;
-    }
-    if (!this.filtroFecha || !fechas.includes(this.filtroFecha)) {
-      this.filtroFecha = fechas[0];
-    }
-    const [y, m] = this.filtroFecha.split('-').map(Number);
-    this.proximasMesActual = new Date(y, m - 1, 1);
-  }
-
-  // ─── Mini-calendario próximas ─────────────────────────────────
-  get proximasDiasCalendario(): { fecha: Date | null; tieneReservas: boolean; cantReservas: number }[] {
-    const año = this.proximasMesActual.getFullYear();
-    const mes = this.proximasMesActual.getMonth();
-    const primerDia = new Date(año, mes, 1).getDay();
-    const diasEnMes = new Date(año, mes + 1, 0).getDate();
-    const dias: { fecha: Date | null; tieneReservas: boolean; cantReservas: number }[] = [];
-    for (let i = 0; i < primerDia; i++) {
-      dias.push({ fecha: null, tieneReservas: false, cantReservas: 0 });
-    }
-    for (let d = 1; d <= diasEnMes; d++) {
-      const fecha = new Date(año, mes, d);
-      const iso = `${año}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const cant = this.proximas.filter(r => this.normalizarFecha(r.fecha) === iso).length;
-      dias.push({ fecha, tieneReservas: cant > 0, cantReservas: cant });
-    }
-    return dias;
-  }
-
-  get proximasNombreMes(): string {
-    return this.proximasMesActual.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
-  }
-
-  proximasMesAnterior(): void {
-    this.proximasMesActual = new Date(this.proximasMesActual.getFullYear(), this.proximasMesActual.getMonth() - 1, 1);
-  }
-
-  proximasMesSiguiente(): void {
-    this.proximasMesActual = new Date(this.proximasMesActual.getFullYear(), this.proximasMesActual.getMonth() + 1, 1);
-  }
-
-  seleccionarDiaProximas(dia: { fecha: Date | null; tieneReservas: boolean }): void {
-    if (!dia.fecha || !dia.tieneReservas) return;
-    const f = dia.fecha;
-    const iso = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
-    this.seleccionarFechaProxima(iso);
-  }
-
-  esDiaSeleccionadoProximas(dia: { fecha: Date | null }): boolean {
-    if (!dia.fecha) return false;
-    const f = dia.fecha;
-    const iso = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
-    return this.fechaProximaSeleccionada === iso;
-  }
-
-  cantidadPorFecha(fecha: string): number {
-    return this.proximas.filter(r => this.normalizarFecha(r.fecha) === fecha).length;
-  }
-
-  etiquetaFecha(fechaISO: string): string {
-    const fecha = fechaISO.split('T')[0];
-    const hoy = new Date();
-    const manana = new Date(); manana.setDate(hoy.getDate() + 1);
-    const fmt = (d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    if (fecha === fmt(hoy)) return 'Hoy';
-    if (fecha === fmt(manana)) return 'Mañana';
-    return this.formatFechaCorta(fecha);
   }
 
   // ─── Utils ────────────────────────────────────────────────
@@ -582,13 +523,6 @@ export class AgendaComponent implements OnInit, OnDestroy {
     const p = h >= 12 ? 'PM' : 'AM';
     const h12 = h % 12 || 12;
     return `${h12} ${p}`;
-  }
-
-  formatFechaCorta(fecha: string): string {
-    if (!fecha) return '';
-    const parts = fecha.split('T')[0].split('-');
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return `${parseInt(parts[2])} ${meses[parseInt(parts[1]) - 1]}`;
   }
 
   formatFechaHoy(): string {
@@ -624,8 +558,5 @@ export class AgendaComponent implements OnInit, OnDestroy {
     return `${h12}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')} ${p}`;
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
-  }
 }
+

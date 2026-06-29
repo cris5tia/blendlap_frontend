@@ -15,6 +15,7 @@ export interface ICitaBarbero {
   nombre_servicio: string;
   duracion_total: number;
   precio_total: number;
+  foto_cliente?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -32,6 +33,11 @@ export class BarberoAgendaService {
 
   getProximas(): Observable<{ ok: boolean; data: ICitaBarbero[] }> {
     return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/proximas`)
+      .pipe(timeout(this.TIMEOUT));
+  }
+
+  getCitasByFecha(fecha: string): Observable<{ ok: boolean; data: ICitaBarbero[] }> {
+    return this.http.get<{ ok: boolean; data: ICitaBarbero[] }>(`${this.url}/barbero/por-fecha?fecha=${fecha}`)
       .pipe(timeout(this.TIMEOUT));
   }
 

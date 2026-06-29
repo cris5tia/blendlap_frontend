@@ -816,8 +816,8 @@
   flex: 1; min-height: 0; overflow-y: auto;
   border-bottom: 1px solid #e5e7eb;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .cm-item {

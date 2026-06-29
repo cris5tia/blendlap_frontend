@@ -12,7 +12,7 @@ $bg:     #f7f8fa;
   gap: 1.1rem;
   padding: 1.5rem 1rem 3rem;
 
-  @media (max-width: 480px) { padding: 1rem 0.75rem 3rem; }
+  @media (max-width: 768px) { padding: 1rem 0.75rem calc(80px + env(safe-area-inset-bottom)); }
 }
 
 .alert-error {

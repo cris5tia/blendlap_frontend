@@ -7,14 +7,8 @@
       <p class="page-header__sub">Visualiza el rendimiento del negocio en tiempo real</p>
     </div>
     <div class="header-actions">
-      <button class="btn-action btn-whatsapp" (click)="compartirWhatsApp()" [disabled]="!datos || cargando">
-        <i class="fab fa-whatsapp"></i> Compartir
-      </button>
-      <button class="btn-action btn-excel" (click)="exportarExcel()" [disabled]="!datos || descargando">
-        <i class="fas fa-file-excel"></i> Excel
-      </button>
       <button class="btn-action btn-pdf" (click)="exportarPDF()" [disabled]="!datos || descargando">
-        <i class="fas fa-file-pdf"></i> PDF
+        <i class="fas fa-file-pdf"></i> <span>Exportar PDF</span>
       </button>
     </div>
   </div>
@@ -79,13 +73,14 @@
     <!-- ══════════════════ TAB DASHBOARD ══════════════════ -->
     <div *ngIf="tab === 'dashboard'">
 
+      <!-- KPIs -->
       <div class="kpi-grid" *ngIf="kpis">
         <div class="kpi-card kpi-ingresos">
           <div class="kpi-card__icon"><i class="fas fa-dollar-sign"></i></div>
           <div class="kpi-card__body">
             <span class="kpi-card__label">Ingresos totales</span>
             <span class="kpi-card__value">{{ fmtCOP(kpis.ingresos_total) }}</span>
-            <span class="kpi-card__sub">Servicios: {{ fmtCOP(kpis.ingresos_servicios) }} · Productos: {{ fmtCOP(kpis.ingresos_productos) }}</span>
+            <span class="kpi-card__sub">Servicios {{ fmtCOP(kpis.ingresos_servicios) }} · Productos {{ fmtCOP(kpis.ingresos_productos) }}</span>
           </div>
         </div>
         <div class="kpi-card kpi-ganancia">
@@ -93,7 +88,7 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Ganancia neta</span>
             <span class="kpi-card__value" [class.negative]="kpis.ganancia_neta < 0">{{ fmtCOP(kpis.ganancia_neta) }}</span>
-            <span class="kpi-card__sub">Margen: {{ margenNeto }}%</span>
+            <span class="kpi-card__sub">Margen {{ margenNeto }}%</span>
           </div>
         </div>
         <div class="kpi-card kpi-gastos">
@@ -101,7 +96,7 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Total gastos</span>
             <span class="kpi-card__value">{{ fmtCOP(kpis.total_gastos) }}</span>
-            <span class="kpi-card__sub">Comisiones barberos: {{ fmtCOP(kpis.total_comisiones_barbero) }}</span>
+            <span class="kpi-card__sub">Comisiones {{ fmtCOP(kpis.total_comisiones_barbero) }}</span>
           </div>
         </div>
         <div class="kpi-card kpi-reservas">
@@ -109,7 +104,7 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Reservas</span>
             <span class="kpi-card__value">{{ kpis.reservas_total }}</span>
-            <span class="kpi-card__sub">{{ kpis.reservas_completadas }} completadas · {{ tasaCompletacion }}% tasa</span>
+            <span class="kpi-card__sub">{{ kpis.reservas_completadas }} completadas · {{ tasaCompletacion }}%</span>
           </div>
         </div>
         <div class="kpi-card kpi-clientes">
@@ -117,7 +112,7 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Clientes nuevos</span>
             <span class="kpi-card__value">{{ kpis.clientes_nuevos }}</span>
-            <span class="kpi-card__sub">En el período seleccionado</span>
+            <span class="kpi-card__sub">En el período</span>
           </div>
         </div>
         <div class="kpi-card kpi-ventas">
@@ -125,34 +120,49 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Transacciones</span>
             <span class="kpi-card__value">{{ kpis.cantidad_ventas }}</span>
-            <span class="kpi-card__sub">Créditos activos: {{ kpis.creditos_activos }}</span>
+            <span class="kpi-card__sub">Créditos activos {{ kpis.creditos_activos }}</span>
           </div>
         </div>
       </div>
 
+      <!-- Gráfica comparativa ingresos vs gastos -->
+      <div class="chart-card" *ngIf="lineComparativaOpts">
+        <div class="chart-card__header">
+          <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos vs Gastos por día</span>
+          <span class="chart-card__badge chart-card__badge--blue">Comparativa</span>
+        </div>
+        <apx-chart
+          [series]="lineComparativaOpts.series"   [chart]="lineComparativaOpts.chart"
+          [xaxis]="lineComparativaOpts.xaxis"     [yaxis]="lineComparativaOpts.yaxis"
+          [colors]="lineComparativaOpts.colors"   [stroke]="lineComparativaOpts.stroke"
+          [fill]="lineComparativaOpts.fill"       [markers]="lineComparativaOpts.markers"
+          [dataLabels]="lineComparativaOpts.dataLabels" [legend]="lineComparativaOpts.legend"
+          [grid]="lineComparativaOpts.grid"       [tooltip]="lineComparativaOpts.tooltip">
+        </apx-chart>
+      </div>
+
+      <!-- Top servicios + Métodos de pago -->
       <div class="charts-row">
         <div class="chart-card chart-lg">
           <div class="chart-card__header">
-            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por día</span>
+            <span class="chart-card__title"><i class="fas fa-scissors"></i> Top servicios más solicitados</span>
           </div>
-          <ng-container *ngIf="datos.ventas_por_dia.length; else emptyChart">
-            <apx-chart
-              [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
-              [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
-              [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
-              [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
-              [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
-            </apx-chart>
-          </ng-container>
-          <ng-template #emptyChart><p class="chart-empty">Sin ventas en el período</p></ng-template>
+          <apx-chart *ngIf="barServiciosOpts"
+            [series]="barServiciosOpts.series"  [chart]="barServiciosOpts.chart"
+            [xaxis]="barServiciosOpts.xaxis"    [yaxis]="barServiciosOpts.yaxis"
+            [colors]="barServiciosOpts.colors"  [plotOptions]="barServiciosOpts.plotOptions"
+            [dataLabels]="barServiciosOpts.dataLabels" [grid]="barServiciosOpts.grid"
+            [tooltip]="barServiciosOpts.tooltip">
+          </apx-chart>
+          <p *ngIf="!barServiciosOpts" class="chart-empty">Sin servicios en el período</p>
         </div>
         <div class="chart-card chart-sm">
           <div class="chart-card__header">
             <span class="chart-card__title"><i class="fas fa-wallet"></i> Métodos de pago</span>
           </div>
           <apx-chart *ngIf="donutMetodosOpts"
-            [series]="donutMetodosOpts.series" [chart]="donutMetodosOpts.chart"
-            [labels]="donutMetodosOpts.labels" [colors]="donutMetodosOpts.colors"
+            [series]="donutMetodosOpts.series"  [chart]="donutMetodosOpts.chart"
+            [labels]="donutMetodosOpts.labels"  [colors]="donutMetodosOpts.colors"
             [dataLabels]="donutMetodosOpts.dataLabels" [legend]="donutMetodosOpts.legend"
             [tooltip]="donutMetodosOpts.tooltip" [plotOptions]="donutMetodosOpts.plotOptions">
           </apx-chart>
@@ -160,32 +170,32 @@
         </div>
       </div>
 
+      <!-- Top productos + Hora pico -->
       <div class="charts-row">
-        <div class="chart-card chart-md">
+        <div class="chart-card chart-lg">
           <div class="chart-card__header">
-            <span class="chart-card__title"><i class="fas fa-scissors"></i> Top servicios</span>
-          </div>
-          <apx-chart *ngIf="barServiciosOpts"
-            [series]="barServiciosOpts.series" [chart]="barServiciosOpts.chart"
-            [xaxis]="barServiciosOpts.xaxis"   [yaxis]="barServiciosOpts.yaxis"
-            [colors]="barServiciosOpts.colors"  [plotOptions]="barServiciosOpts.plotOptions"
-            [dataLabels]="barServiciosOpts.dataLabels" [grid]="barServiciosOpts.grid"
-            [tooltip]="barServiciosOpts.tooltip">
-          </apx-chart>
-          <p *ngIf="!barServiciosOpts" class="chart-empty">Sin servicios en el período</p>
-        </div>
-        <div class="chart-card chart-md">
-          <div class="chart-card__header">
-            <span class="chart-card__title"><i class="fas fa-box"></i> Top productos</span>
+            <span class="chart-card__title"><i class="fas fa-box"></i> Top productos más vendidos</span>
           </div>
           <apx-chart *ngIf="barProductosOpts"
-            [series]="barProductosOpts.series" [chart]="barProductosOpts.chart"
-            [xaxis]="barProductosOpts.xaxis"   [yaxis]="barProductosOpts.yaxis"
+            [series]="barProductosOpts.series"  [chart]="barProductosOpts.chart"
+            [xaxis]="barProductosOpts.xaxis"    [yaxis]="barProductosOpts.yaxis"
             [colors]="barProductosOpts.colors"  [plotOptions]="barProductosOpts.plotOptions"
             [dataLabels]="barProductosOpts.dataLabels" [grid]="barProductosOpts.grid"
             [tooltip]="barProductosOpts.tooltip">
           </apx-chart>
           <p *ngIf="!barProductosOpts" class="chart-empty">Sin productos vendidos</p>
+        </div>
+        <div class="chart-card chart-sm">
+          <div class="chart-card__header">
+            <span class="chart-card__title"><i class="fas fa-clock"></i> Hora pico del día</span>
+          </div>
+          <apx-chart
+            [series]="barHoraOpts.series"   [chart]="barHoraOpts.chart"
+            [xaxis]="barHoraOpts.xaxis"     [yaxis]="barHoraOpts.yaxis"
+            [colors]="barHoraOpts.colors"   [plotOptions]="barHoraOpts.plotOptions"
+            [dataLabels]="barHoraOpts.dataLabels" [grid]="barHoraOpts.grid"
+            [tooltip]="barHoraOpts.tooltip">
+          </apx-chart>
         </div>
       </div>
     </div>
@@ -195,14 +205,15 @@
       <div class="charts-row">
         <div class="chart-card chart-lg">
           <div class="chart-card__header">
-            <span class="chart-card__title"><i class="fas fa-chart-line"></i> Ingresos por día</span>
+            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por día</span>
           </div>
           <apx-chart *ngIf="datos.ventas_por_dia.length"
-            [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
-            [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
+            [series]="lineIngresosOpts.series"  [chart]="lineIngresosOpts.chart"
+            [xaxis]="lineIngresosOpts.xaxis"    [yaxis]="lineIngresosOpts.yaxis"
             [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
-            [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
-            [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
+            [fill]="lineIngresosOpts.fill"      [markers]="lineIngresosOpts.markers"
+            [dataLabels]="lineIngresosOpts.dataLabels" [grid]="lineIngresosOpts.grid"
+            [tooltip]="lineIngresosOpts.tooltip">
           </apx-chart>
           <p *ngIf="!datos.ventas_por_dia.length" class="chart-empty">Sin ventas en el período</p>
         </div>
@@ -211,8 +222,8 @@
             <span class="chart-card__title"><i class="fas fa-wallet"></i> Por método de pago</span>
           </div>
           <apx-chart *ngIf="donutMetodosOpts"
-            [series]="donutMetodosOpts.series" [chart]="donutMetodosOpts.chart"
-            [labels]="donutMetodosOpts.labels" [colors]="donutMetodosOpts.colors"
+            [series]="donutMetodosOpts.series"  [chart]="donutMetodosOpts.chart"
+            [labels]="donutMetodosOpts.labels"  [colors]="donutMetodosOpts.colors"
             [dataLabels]="donutMetodosOpts.dataLabels" [legend]="donutMetodosOpts.legend"
             [tooltip]="donutMetodosOpts.tooltip" [plotOptions]="donutMetodosOpts.plotOptions">
           </apx-chart>
@@ -223,11 +234,12 @@
       <div class="chart-card">
         <div class="chart-card__header">
           <span class="chart-card__title"><i class="fas fa-clock"></i> Ingresos por hora del día</span>
+          <span class="chart-card__badge chart-card__badge--purple">Hora pico</span>
         </div>
         <apx-chart
-          [series]="barHoraOpts.series" [chart]="barHoraOpts.chart"
-          [xaxis]="barHoraOpts.xaxis"   [yaxis]="barHoraOpts.yaxis"
-          [colors]="barHoraOpts.colors"  [plotOptions]="barHoraOpts.plotOptions"
+          [series]="barHoraOpts.series"   [chart]="barHoraOpts.chart"
+          [xaxis]="barHoraOpts.xaxis"     [yaxis]="barHoraOpts.yaxis"
+          [colors]="barHoraOpts.colors"   [plotOptions]="barHoraOpts.plotOptions"
           [dataLabels]="barHoraOpts.dataLabels" [grid]="barHoraOpts.grid"
           [tooltip]="barHoraOpts.tooltip">
         </apx-chart>
@@ -274,7 +286,7 @@
           <div class="kpi-card__body">
             <span class="kpi-card__label">Completadas</span>
             <span class="kpi-card__value">{{ kpis.reservas_completadas }}</span>
-            <span class="kpi-card__sub">{{ tasaCompletacion }}% tasa</span>
+            <span class="kpi-card__sub">{{ tasaCompletacion }}% tasa éxito</span>
           </div>
         </div>
         <div class="kpi-card kpi-ventas">
@@ -299,23 +311,24 @@
             <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por estado</span>
           </div>
           <apx-chart *ngIf="donutReservasOpts"
-            [series]="donutReservasOpts.series" [chart]="donutReservasOpts.chart"
-            [labels]="donutReservasOpts.labels" [colors]="donutReservasOpts.colors"
+            [series]="donutReservasOpts.series"  [chart]="donutReservasOpts.chart"
+            [labels]="donutReservasOpts.labels"  [colors]="donutReservasOpts.colors"
             [dataLabels]="donutReservasOpts.dataLabels" [legend]="donutReservasOpts.legend"
-            [plotOptions]="donutReservasOpts.plotOptions">
+            [tooltip]="donutReservasOpts.tooltip" [plotOptions]="donutReservasOpts.plotOptions">
           </apx-chart>
           <p *ngIf="!donutReservasOpts" class="chart-empty">Sin reservas en el período</p>
         </div>
         <div class="chart-card chart-lg">
           <div class="chart-card__header">
-            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por reservas</span>
+            <span class="chart-card__title"><i class="fas fa-chart-area"></i> Ingresos por día (reservas)</span>
           </div>
           <apx-chart *ngIf="datos.ventas_por_dia.length"
-            [series]="lineIngresosOpts.series" [chart]="lineIngresosOpts.chart"
-            [xaxis]="lineIngresosOpts.xaxis"   [yaxis]="lineIngresosOpts.yaxis"
+            [series]="lineIngresosOpts.series"  [chart]="lineIngresosOpts.chart"
+            [xaxis]="lineIngresosOpts.xaxis"    [yaxis]="lineIngresosOpts.yaxis"
             [colors]="lineIngresosOpts.colors"  [stroke]="lineIngresosOpts.stroke"
-            [fill]="lineIngresosOpts.fill"      [dataLabels]="lineIngresosOpts.dataLabels"
-            [grid]="lineIngresosOpts.grid"       [tooltip]="lineIngresosOpts.tooltip">
+            [fill]="lineIngresosOpts.fill"      [markers]="lineIngresosOpts.markers"
+            [dataLabels]="lineIngresosOpts.dataLabels" [grid]="lineIngresosOpts.grid"
+            [tooltip]="lineIngresosOpts.tooltip">
           </apx-chart>
           <p *ngIf="!datos.ventas_por_dia.length" class="chart-empty">Sin datos</p>
         </div>
@@ -326,14 +339,14 @@
     <div *ngIf="tab === 'barberos'">
       <div class="chart-card">
         <div class="chart-card__header">
-          <span class="chart-card__title"><i class="fas fa-chart-bar"></i> Ingresos y comisiones por barbero</span>
+          <span class="chart-card__title"><i class="fas fa-chart-bar"></i> Ingresos generados, comisión y aporte por barbero</span>
         </div>
         <apx-chart *ngIf="barBarberosOpts"
-          [series]="barBarberosOpts.series" [chart]="barBarberosOpts.chart"
-          [xaxis]="barBarberosOpts.xaxis"   [yaxis]="barBarberosOpts.yaxis"
-          [colors]="barBarberosOpts.colors"  [plotOptions]="barBarberosOpts.plotOptions"
+          [series]="barBarberosOpts.series"   [chart]="barBarberosOpts.chart"
+          [xaxis]="barBarberosOpts.xaxis"     [yaxis]="barBarberosOpts.yaxis"
+          [colors]="barBarberosOpts.colors"   [plotOptions]="barBarberosOpts.plotOptions"
           [dataLabels]="barBarberosOpts.dataLabels" [legend]="barBarberosOpts.legend"
-          [grid]="barBarberosOpts.grid" [tooltip]="barBarberosOpts.tooltip">
+          [grid]="barBarberosOpts.grid"       [tooltip]="barBarberosOpts.tooltip">
         </apx-chart>
         <p *ngIf="!barBarberosOpts" class="chart-empty">Sin datos de barberos en el período</p>
       </div>
@@ -342,7 +355,9 @@
         <div class="table-card__header">
           <span class="chart-card__title"><i class="fas fa-table"></i> Detalle de comisiones</span>
         </div>
-        <div class="table-wrap">
+
+        <!-- Tabla desktop -->
+        <div class="table-wrap hide-mobile">
           <table class="rep-table">
             <thead>
               <tr>
@@ -383,6 +398,41 @@
               </tr>
             </tfoot>
           </table>
+        </div>
+
+        <!-- Cards mobile -->
+        <div class="rep-cards show-mobile">
+          <div class="rep-card" *ngFor="let b of datos.barberos">
+            <div class="rep-card__top">
+              <div class="rep-card__avatar-row">
+                <img *ngIf="b.foto" [src]="b.foto" [alt]="b.barbero" class="barbero-avatar" />
+                <div class="barbero-avatar-ph" *ngIf="!b.foto">{{ b.barbero.charAt(0) }}</div>
+                <div>
+                  <div class="rep-card__name">{{ b.barbero }}</div>
+                  <div class="rep-card__sub" *ngIf="b.titulo">{{ b.titulo }}</div>
+                </div>
+              </div>
+              <span class="badge badge-info">{{ b.comision }}%</span>
+            </div>
+            <div class="rep-card__stats">
+              <div class="rep-card__stat">
+                <span class="rep-card__stat-label"><i class="fas fa-calendar-check"></i> Reservas</span>
+                <span class="rep-card__stat-val">{{ b.total_reservas }}</span>
+              </div>
+              <div class="rep-card__stat">
+                <span class="rep-card__stat-label"><i class="fas fa-hand-holding-usd"></i> Para barbero</span>
+                <span class="rep-card__stat-val text-success">{{ fmtCOP(b.comision_barbero) }}</span>
+              </div>
+              <div class="rep-card__stat">
+                <span class="rep-card__stat-label"><i class="fas fa-store"></i> Para barbería</span>
+                <span class="rep-card__stat-val text-primary">{{ fmtCOP(b.comision_barberia) }}</span>
+              </div>
+              <div class="rep-card__stat rep-card__stat--full">
+                <span class="rep-card__stat-label">Total generado</span>
+                <span class="rep-card__stat-val"><strong>{{ fmtCOP(b.total_servicios) }}</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -428,8 +478,8 @@
             <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por estado</span>
           </div>
           <apx-chart *ngIf="donutCreditosOpts"
-            [series]="donutCreditosOpts.series" [chart]="donutCreditosOpts.chart"
-            [labels]="donutCreditosOpts.labels" [colors]="donutCreditosOpts.colors"
+            [series]="donutCreditosOpts.series"  [chart]="donutCreditosOpts.chart"
+            [labels]="donutCreditosOpts.labels"  [colors]="donutCreditosOpts.colors"
             [dataLabels]="donutCreditosOpts.dataLabels" [legend]="donutCreditosOpts.legend"
             [tooltip]="donutCreditosOpts.tooltip" [plotOptions]="donutCreditosOpts.plotOptions">
           </apx-chart>
@@ -442,7 +492,12 @@
           <div class="table-wrap">
             <table class="rep-table">
               <thead>
-                <tr><th>Estado</th><th class="center">Cantidad</th><th class="right">Monto total</th><th class="right">Saldo pendiente</th></tr>
+                <tr>
+                  <th>Estado</th>
+                  <th class="center">Cantidad</th>
+                  <th class="right">Monto total</th>
+                  <th class="right">Saldo pendiente</th>
+                </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let c of datos.creditos.estadisticas">
@@ -488,12 +543,12 @@
 
       <div class="chart-card">
         <div class="chart-card__header">
-          <span class="chart-card__title"><i class="fas fa-trophy"></i> Top clientes por gasto</span>
+          <span class="chart-card__title"><i class="fas fa-trophy"></i> Top clientes por gasto total</span>
         </div>
         <apx-chart *ngIf="barClientesOpts"
-          [series]="barClientesOpts.series" [chart]="barClientesOpts.chart"
-          [xaxis]="barClientesOpts.xaxis"   [yaxis]="barClientesOpts.yaxis"
-          [colors]="barClientesOpts.colors"  [plotOptions]="barClientesOpts.plotOptions"
+          [series]="barClientesOpts.series"   [chart]="barClientesOpts.chart"
+          [xaxis]="barClientesOpts.xaxis"     [yaxis]="barClientesOpts.yaxis"
+          [colors]="barClientesOpts.colors"   [plotOptions]="barClientesOpts.plotOptions"
           [dataLabels]="barClientesOpts.dataLabels" [grid]="barClientesOpts.grid"
           [tooltip]="barClientesOpts.tooltip">
         </apx-chart>
@@ -502,12 +557,19 @@
 
       <div class="table-card" *ngIf="datos.top_clientes.length">
         <div class="table-card__header">
-          <span class="chart-card__title"><i class="fas fa-table"></i> Ranking clientes</span>
+          <span class="chart-card__title"><i class="fas fa-table"></i> Ranking de clientes</span>
         </div>
-        <div class="table-wrap">
+
+        <!-- Tabla desktop -->
+        <div class="table-wrap hide-mobile">
           <table class="rep-table">
             <thead>
-              <tr><th class="center">#</th><th>Cliente</th><th class="center">Reservas</th><th class="right">Total gastado</th></tr>
+              <tr>
+                <th class="center">#</th>
+                <th>Cliente</th>
+                <th class="center">Reservas</th>
+                <th class="right">Total gastado</th>
+              </tr>
             </thead>
             <tbody>
               <tr *ngFor="let c of datos.top_clientes; let i = index">
@@ -518,6 +580,26 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Cards mobile -->
+        <div class="rep-cards show-mobile">
+          <div class="rep-card rep-card--rank" *ngFor="let c of datos.top_clientes; let i = index">
+            <div class="rep-card__top">
+              <div class="rep-card__name">{{ c.cliente }}</div>
+              <span class="rank-badge">#{{ i + 1 }}</span>
+            </div>
+            <div class="rep-card__stats">
+              <div class="rep-card__stat">
+                <span class="rep-card__stat-label"><i class="fas fa-calendar-check"></i> Reservas</span>
+                <span class="rep-card__stat-val">{{ c.total_reservas }}</span>
+              </div>
+              <div class="rep-card__stat">
+                <span class="rep-card__stat-label"><i class="fas fa-dollar-sign"></i> Total gastado</span>
+                <span class="rep-card__stat-val text-primary"><strong>{{ fmtCOP(c.total_gastado) }}</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -554,8 +636,8 @@
             <span class="chart-card__title"><i class="fas fa-chart-pie"></i> Por categoría</span>
           </div>
           <apx-chart *ngIf="donutGastosOpts"
-            [series]="donutGastosOpts.series" [chart]="donutGastosOpts.chart"
-            [labels]="donutGastosOpts.labels" [colors]="donutGastosOpts.colors"
+            [series]="donutGastosOpts.series"   [chart]="donutGastosOpts.chart"
+            [labels]="donutGastosOpts.labels"   [colors]="donutGastosOpts.colors"
             [dataLabels]="donutGastosOpts.dataLabels" [legend]="donutGastosOpts.legend"
             [tooltip]="donutGastosOpts.tooltip" [plotOptions]="donutGastosOpts.plotOptions">
           </apx-chart>
@@ -566,11 +648,12 @@
             <span class="chart-card__title"><i class="fas fa-chart-area"></i> Gastos por día</span>
           </div>
           <apx-chart *ngIf="datos.gastos_por_dia.length"
-            [series]="lineGastosOpts.series" [chart]="lineGastosOpts.chart"
-            [xaxis]="lineGastosOpts.xaxis"   [yaxis]="lineGastosOpts.yaxis"
-            [colors]="lineGastosOpts.colors"  [stroke]="lineGastosOpts.stroke"
-            [fill]="lineGastosOpts.fill"      [dataLabels]="lineGastosOpts.dataLabels"
-            [grid]="lineGastosOpts.grid"       [tooltip]="lineGastosOpts.tooltip">
+            [series]="lineGastosOpts.series"    [chart]="lineGastosOpts.chart"
+            [xaxis]="lineGastosOpts.xaxis"      [yaxis]="lineGastosOpts.yaxis"
+            [colors]="lineGastosOpts.colors"    [stroke]="lineGastosOpts.stroke"
+            [fill]="lineGastosOpts.fill"        [markers]="lineGastosOpts.markers"
+            [dataLabels]="lineGastosOpts.dataLabels" [grid]="lineGastosOpts.grid"
+            [tooltip]="lineGastosOpts.tooltip">
           </apx-chart>
           <p *ngIf="!datos.gastos_por_dia.length" class="chart-empty">Sin gastos en el período</p>
         </div>

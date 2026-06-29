@@ -257,6 +257,8 @@
   background: var(--color-white);
   border-radius: 20px; width: 100%; max-width: 500px;
   max-height: 90vh; overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
   animation: slideUp 0.25s ease; position: relative;
 
