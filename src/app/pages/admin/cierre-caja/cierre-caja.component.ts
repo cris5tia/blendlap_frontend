@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { VentaService, IVenta, ICierreCaja, IAbonoDia } from '../../../core/services/venta.service';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { CreditoService, ICredito } from '../../../core/services/credito.service';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 interface BarberoResumen {
   nombre:        string;
@@ -22,7 +24,9 @@ interface BarberoResumen {
   templateUrl: './cierre-caja.component.html',
   styleUrls: ['./cierre-caja.component.scss']
 })
-export class CierreCajaComponent implements OnInit {
+export class CierreCajaComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   fecha = new Date().toISOString().split('T')[0];
 
@@ -39,10 +43,25 @@ export class CierreCajaComponent implements OnInit {
     private reservaService: ReservaService,
     private creditoService: CreditoService,
     private barberoService: BarberoService,
-    private toastService:   ToastService
+    private toastService:   ToastService,
+    private socketService:  SocketService
   ) {}
 
-  ngOnInit(): void { this.cargarTodo(); }
+  ngOnInit(): void {
+    this.cargarTodo();
+    this.socketService.connect();
+    this.socketService.onVentaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarTodo());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarTodo());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   cargarTodo(): void {
     this.cargando = true;

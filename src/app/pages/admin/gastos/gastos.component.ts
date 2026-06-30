@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { GastoService, IGasto, IEstadisticasGasto } from '../../../core/services/gasto.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 import {
   ApexNonAxisChartSeries, ApexChart, ApexResponsive, ApexLegend,
   ApexDataLabels, ApexTooltip, ApexPlotOptions, ApexFill, ApexStroke,
@@ -39,7 +42,9 @@ export type BarChartOptions = {
   templateUrl: './gastos.component.html',
   styleUrls: ['./gastos.component.scss']
 })
-export class GastosComponent implements OnInit {
+export class GastosComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   modalTodos = false;
   categoriaOpen = false;
@@ -90,12 +95,22 @@ export class GastosComponent implements OnInit {
 
   constructor(
     private gastoService: GastoService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
     this.cargarStats();
     this.cargarGastos();
+    this.socketService.connect();
+    this.socketService.onGastoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => { this.cargarStats(); this.cargarGastos(); });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargarStats(): void {

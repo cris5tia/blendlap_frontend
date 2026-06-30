@@ -1,13 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ClienteService, ICliente } from '../../../core/services/cliente.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-clientes',
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss']
 })
-export class ClientesComponent implements OnInit {
+export class ClientesComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   clientes: ICliente[] = [];
   clientesFiltrados: ICliente[] = [];
@@ -32,11 +37,21 @@ export class ClientesComponent implements OnInit {
 
   constructor(
     private clienteService: ClienteService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
     this.cargarClientes();
+    this.socketService.connect();
+    this.socketService.onReservaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarClientes());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargarClientes(): void {

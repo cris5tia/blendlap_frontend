@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ProductoService, IProducto, ICrearProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 type VistaModal = 'crear' | 'editar' | 'movimiento' | 'movimientos' | null;
 
@@ -9,7 +12,9 @@ type VistaModal = 'crear' | 'editar' | 'movimiento' | 'movimientos' | null;
   templateUrl: './productos.component.html',
   styleUrls: ['./productos.component.scss']
 })
-export class ProductosComponent implements OnInit {
+export class ProductosComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   productos: IProducto[] = [];
   productosFiltrados: IProducto[] = [];
@@ -47,7 +52,8 @@ export class ProductosComponent implements OnInit {
 
   constructor(
     private productoService: ProductoService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +61,15 @@ export class ProductosComponent implements OnInit {
       this.filtroCategoria = 'barberia';
     }
     this.cargar(true);
+    this.socketService.connect();
+    this.socketService.onVentaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargar(false));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargar(avisarStockBajo = false): void {

@@ -1,15 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-reservas',
   templateUrl: './reservas.component.html',
   styleUrls: ['./reservas.component.scss']
 })
-export class ReservasComponent implements OnInit {
+export class ReservasComponent implements OnInit, OnDestroy {
 
+  private destroy$ = new Subject<void>();
   reservas: IReserva[] = [];
   barberos: IBarbero[] = [];
   cargando = false;
@@ -36,12 +40,30 @@ export class ReservasComponent implements OnInit {
   constructor(
     private reservaService: ReservaService,
     private barberoService: BarberoService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
     this.cargarReservas();
     this.cargarBarberos();
+
+    // Tiempo real: recargar al recibir eventos de reserva
+    this.socketService.connect();
+    this.socketService.onReservaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
+    this.socketService.onReservaEliminada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargarReservas(): void {

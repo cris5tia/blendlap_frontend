@@ -1,15 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { HorarioService, IHorarioDia, IExcepcion } from '../../../core/services/horario.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-horario',
   templateUrl: './horario.component.html',
   styleUrls: ['./horario.component.scss']
 })
-export class HorarioComponent implements OnInit {
+export class HorarioComponent implements OnInit, OnDestroy {
 
+  private destroy$ = new Subject<void>();
   usuario: any = null;
   horarioBarberia: IHorarioDia[] = [];
   excepciones: IExcepcion[] = [];
@@ -48,12 +52,22 @@ export class HorarioComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private horarioService: HorarioService,
-    private toast: ToastService
+    private toast: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
     this.cargarDatos();
+    this.socketService.connect();
+    this.socketService.onTurnoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarDatos());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargarDatos(): void {

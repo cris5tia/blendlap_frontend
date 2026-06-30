@@ -5,6 +5,7 @@ import { BarberoAgendaService, ICitaBarbero } from '../../../core/services/barbe
 import { ReservaService } from '../../../core/services/reserva.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { BarberoPresencialModalService } from '../../../core/services/barbero-presencial-modal.service';
+import { SocketService } from '../../../core/services/socket.service';
 import { timer, Subject, forkJoin } from 'rxjs';
 import { exhaustMap, takeUntil, take } from 'rxjs/operators';
 
@@ -58,6 +59,7 @@ export class AgendaComponent implements OnInit, OnDestroy {
     private reservaService: ReservaService,
     private toast: ToastService,
     private presencialModalService: BarberoPresencialModalService,
+    private socketService: SocketService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -96,6 +98,18 @@ export class AgendaComponent implements OnInit, OnDestroy {
     });
 
     this.presencialModalService.reservaCreada$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarDatos());
+
+    // Tiempo real: recargar agenda cuando llegue un evento de reserva
+    this.socketService.connect();
+    this.socketService.onReservaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarDatos());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarDatos());
+    this.socketService.onReservaEliminada()
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.cargarDatos());
 

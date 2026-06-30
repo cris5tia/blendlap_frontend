@@ -1,14 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { CreditoService, ICredito, IRegistrarAbono, ICrearCreditoAdmin } from '../../../core/services/credito.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-creditos',
   templateUrl: './creditos.component.html',
   styleUrls: ['./creditos.component.scss']
 })
-export class CreditosComponent implements OnInit {
+export class CreditosComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   // ─── Pestañas ─────────────────────────────────────────────
   tabActiva: 'pendientes' | 'activos' | 'pagados' | 'rechazados' = 'activos';
@@ -58,12 +63,23 @@ export class CreditosComponent implements OnInit {
   constructor(
     private creditoService:  CreditoService,
     private productoService: ProductoService,
-    private toastService:    ToastService
+    private toastService:    ToastService,
+    private socketService:   SocketService
   ) {}
 
   ngOnInit(): void {
     this.cargar();
     this.cargarProductos();
+
+    this.socketService.connect();
+    this.socketService.onCreditoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargar());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ─── Carga ────────────────────────────────────────────────
@@ -286,8 +302,8 @@ export class CreditosComponent implements OnInit {
         this.cargar();
         this.toastService.success('Solicitud rechazada');
       },
-      error: () => {
-        this.toastService.error('Error al rechazar', 'No se pudo rechazar la solicitud.');
+      error: (err: any) => {
+        this.toastService.error('Error al rechazar', err?.error?.mensaje || 'No se pudo rechazar la solicitud.');
         this.procesando = false;
       }
     });

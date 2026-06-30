@@ -1,6 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { HorarioService, IHorarioDia } from '../../../core/services/horario.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-turnos',
@@ -8,6 +11,8 @@ import { ToastService } from '../../../core/services/toast.service';
   styleUrls: ['./turnos.component.scss']
 })
 export class TurnosComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   horario: IHorarioDia[] = [];
   cargando = false;
@@ -18,14 +23,21 @@ export class TurnosComponent implements OnInit, OnDestroy {
 
   constructor(
     private horarioService: HorarioService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
     this.cargarHorario();
+    this.socketService.connect();
+    this.socketService.onTurnoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarHorario());
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.guardadoTimers.forEach(timer => clearTimeout(timer));
     this.guardadoTimers.clear();
   }

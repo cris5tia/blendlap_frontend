@@ -18,8 +18,11 @@ export class CarritoComponent implements OnInit {
   exito     = false;
   error     = '';
 
-  plazoSeleccionado = '1_quincena';
-  modalConfirmar    = false;
+  plazoSeleccionado       = '1_quincena';
+  modalConfirmar          = false;
+  mostrarAlertaTelefono   = false;
+
+  private usuario: any = null;
 
   plazos = [
     { id: '1_semana',    label: '1 Semana',    desc: '7 días'  },
@@ -37,9 +40,9 @@ export class CarritoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const usuario = this.authService.getUsuario();
-    if (!usuario) { this.router.navigate(['/login']); return; }
-    if (usuario.rol === 'admin' || usuario.rol === 'barbero') { this.router.navigate(['/']); return; }
+    this.usuario = this.authService.getUsuario();
+    if (!this.usuario) { this.router.navigate(['/login']); return; }
+    if (this.usuario.rol === 'admin' || this.usuario.rol === 'barbero') { this.router.navigate(['/']); return; }
 
     this.carritoService.items$.subscribe(items => this.items = items);
   }
@@ -74,8 +77,16 @@ export class CarritoComponent implements OnInit {
 
   abrirConfirmar(): void {
     if (!this.items.length) return;
+    if (!this.usuario?.telefono) {
+      this.mostrarAlertaTelefono = true;
+      return;
+    }
     this.modalConfirmar = true;
     this.error = '';
+  }
+
+  irAlPerfil(): void {
+    this.router.navigate(['/cliente/perfil']);
   }
 
   confirmarSolicitud(): void {

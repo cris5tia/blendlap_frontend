@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
 import { ResenaService, IResena } from '../../../core/services/resena.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -7,6 +9,7 @@ import { PagoService, ICompra } from '../../../core/services/pago.service';
 import { Router } from '@angular/router';
 import { TabService } from '../../../core/services/tab.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -49,6 +52,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   compras: ICompra[] = [];
   cargandoCompras = false;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private reservaService: ReservaService,
     private resenaService: ResenaService,
@@ -57,13 +62,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private pagoService: PagoService,
     public tabService: TabService,
     private toast: ToastService,
+    private socketService: SocketService,
     private router: Router,
   ) { }
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
-    // Solo carga reservas al inicio — el resto es lazy
     this.cargarReservas();
+
+    // Tiempo real: recargar mis reservas y créditos cuando cambien
+    this.socketService.connect();
+    this.socketService.onReservaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
+    this.socketService.onCreditoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarCreditos());
+
     this.tabService.tab$.subscribe(tab => {
       this.tabActual = tab as 'actuales' | 'historial' | 'creditos' | 'compras';
       this.reservaExpandida = null;
@@ -461,7 +479,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
   private _tick: any;
 
-  ngOnDestroy(): void { clearInterval(this._tick); }
+  ngOnDestroy(): void {
+    clearInterval(this._tick);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   modalCancelar = false;
   reservaACancelar: IReserva | null = null;

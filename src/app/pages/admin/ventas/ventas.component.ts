@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { VentaService, IVenta } from '../../../core/services/venta.service';
 import { ProductoService, IProducto } from '../../../core/services/producto.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 interface ICarritoItem {
   producto: IProducto;
@@ -13,7 +16,9 @@ interface ICarritoItem {
   templateUrl: './ventas.component.html',
   styleUrls: ['./ventas.component.scss']
 })
-export class VentasComponent implements OnInit {
+export class VentasComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   ventas:         IVenta[] = [];
   ventasFiltradas:IVenta[] = [];
@@ -45,10 +50,22 @@ export class VentasComponent implements OnInit {
   constructor(
     private ventaService:    VentaService,
     private productoService: ProductoService,
-    private toastService:    ToastService
+    private toastService:    ToastService,
+    private socketService:   SocketService
   ) {}
 
-  ngOnInit(): void { this.cargar(); }
+  ngOnInit(): void {
+    this.cargar();
+    this.socketService.connect();
+    this.socketService.onVentaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargar());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   cargar(): void {
     this.cargando = true;

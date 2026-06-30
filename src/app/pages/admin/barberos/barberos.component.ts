@@ -1,13 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { BarberoService, IBarbero } from '../../../core/services/barbero.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-barberos',
   templateUrl: './barberos.component.html',
   styleUrls: ['./barberos.component.scss']
 })
-export class BarberosComponent implements OnInit {
+export class BarberosComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -28,11 +33,21 @@ export class BarberosComponent implements OnInit {
 
   constructor(
     private barberoService: BarberoService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private socketService: SocketService
   ) { }
 
   ngOnInit(): void {
     this.cargarBarberos();
+    this.socketService.connect();
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarBarberos());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   cargarBarberos(): void {

@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { StatsService, IStatsBarbero } from '../../../core/services/stats.service';
+import { SocketService } from '../../../core/services/socket.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -26,10 +29,12 @@ export class StatsComponent implements OnInit, OnDestroy {
   private chartDiario:   Chart | null = null;
   private chartClientes: Chart | null = null;
   private chartPie:      Chart | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
-    private statsService: StatsService
+    private statsService: StatsService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit(): void {
@@ -39,9 +44,16 @@ export class StatsComponent implements OnInit, OnDestroy {
                    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     this.mesActualLabel = `${meses[ahora.getMonth()]} ${ahora.getFullYear()}`;
     this.cargarStats();
+
+    this.socketService.connect();
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarStats());
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.chartDiario?.destroy();
     this.chartClientes?.destroy();
     this.chartPie?.destroy();

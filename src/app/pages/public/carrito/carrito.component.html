@@ -217,6 +217,38 @@
     </div>
   </div>
 
+  <!-- ── Modal teléfono requerido ─────────────────────────── -->
+  <div class="modal-overlay" *ngIf="mostrarAlertaTelefono" (click)="mostrarAlertaTelefono = false">
+    <div class="modal-confirm" (click)="$event.stopPropagation()">
+
+      <div class="mc-header">
+        <div class="mc-icon"><i class="fas fa-phone-alt"></i></div>
+        <div>
+          <h2>Número requerido</h2>
+          <p>Para solicitar un crédito necesitamos contactarte</p>
+        </div>
+        <button class="mc-close" (click)="mostrarAlertaTelefono = false">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="mc-body">
+        <div class="mc-nota">
+          <i class="fas fa-info-circle"></i>
+          Para procesar tu solicitud de crédito es obligatorio tener un número de teléfono registrado. Agrégalo desde tu perfil y vuelve a intentarlo.
+        </div>
+      </div>
+
+      <div class="mc-footer">
+        <button class="btn-cancel" (click)="mostrarAlertaTelefono = false">Cancelar</button>
+        <button class="btn-confirmar" (click)="irAlPerfil()">
+          <i class="fas fa-user-edit"></i> Ir a mi perfil
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ── Modal confirmar ────────────────────────────────────── -->
   <div class="modal-overlay" *ngIf="modalConfirmar" (click)="modalConfirmar = false">
     <div class="modal-confirm" (click)="$event.stopPropagation()">

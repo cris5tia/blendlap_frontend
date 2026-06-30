@@ -1,9 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CreditoService, ICredito } from '../../../core/services/credito.service';
 import { PagoService, ICompra } from '../../../core/services/pago.service';
 import { ReservaService, IReserva } from '../../../core/services/reserva.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 export type PerfilTab = 'overview' | 'editar' | 'creditos' | 'compras';
 export type Tier = 'nuevo' | 'bronce' | 'plata' | 'oro' | 'legendario';
@@ -44,11 +47,14 @@ export class PerfilComponent implements OnInit, OnDestroy {
   reservas: IReserva[] = [];
   cargandoReservas = false;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private authService: AuthService,
     private creditoService: CreditoService,
     private pagoService: PagoService,
     private reservaService: ReservaService,
+    private socketService: SocketService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -64,6 +70,14 @@ export class PerfilComponent implements OnInit, OnDestroy {
     this.cargarCreditos();
     this.cargarCompras();
     this.cargarReservas();
+
+    this.socketService.connect();
+    this.socketService.onCreditoEvento()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarCreditos());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarReservas());
   }
 
   setTab(t: PerfilTab): void { this.tab = t; }
@@ -102,6 +116,8 @@ export class PerfilComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     document.body.style.overflow = '';
   }
 

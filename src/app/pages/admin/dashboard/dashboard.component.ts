@@ -1,14 +1,19 @@
-﻿                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      import { Component, OnInit } from '@angular/core';
+﻿                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { ReporteService, IReporteCompleto, IKPIs } from '../../../core/services/reporte.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+
+  private destroy$ = new Subject<void>();
 
   // ── Live data ─────────────────────────────────────────────────────────
   cargando      = true;
@@ -37,7 +42,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private reporteService:   ReporteService,
-    private toast:            ToastService
+    private toast:            ToastService,
+    private socketService:    SocketService
   ) {
     const hoy = new Date();
     const y   = hoy.getFullYear();
@@ -49,6 +55,22 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.cargarLive();
     this.cargarReporte();
+
+    this.socketService.connect();
+    this.socketService.onVentaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarLive());
+    this.socketService.onReservaNueva()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarLive());
+    this.socketService.onReservaActualizada()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.cargarLive());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ── Live ──────────────────────────────────────────────────────────────
