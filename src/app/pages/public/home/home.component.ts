@@ -149,8 +149,7 @@ export class HomeComponent implements OnInit {
   }
 
   agendarConServicio(servicio: IServicio): void {
-    sessionStorage.setItem('servicio_preseleccionado', JSON.stringify(servicio));
-    this.router.navigate(['/agendar']);
+    this.router.navigate(['/agendar'], { queryParams: { servicio: servicio.id_servicio } });
   }
 
   irAGrupo(index: number): void { this.grupoActual = index; }

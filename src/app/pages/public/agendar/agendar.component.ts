@@ -23,7 +23,8 @@ export class AgendarComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  barberoPreseleccionado = false;
+  barberoPreseleccionado  = false;
+  servicioPreseleccionado = false;
   usuarioActual: IUsuario | null = null;
 
   // ── Auto-modal ───────────────────────────────────────────────
@@ -77,9 +78,11 @@ export class AgendarComponent implements OnInit, OnDestroy {
   timerPlanes: any = null;
 
   get pasos(): Paso[] {
-    return this.barberoPreseleccionado
-      ? ['servicio', 'fecha', 'confirmacion']
-      : ['servicio', 'barbero', 'fecha', 'confirmacion'];
+    const todos: Paso[] = ['servicio', 'barbero', 'fecha', 'confirmacion'];
+    return todos.filter(p =>
+      !(p === 'servicio' && this.servicioPreseleccionado) &&
+      !(p === 'barbero'  && this.barberoPreseleccionado)
+    );
   }
 
   servicios: IServicio[] = [];
@@ -139,7 +142,8 @@ export class AgendarComponent implements OnInit, OnDestroy {
     }
 
     const params = this.route.snapshot.queryParams;
-    if (params['barbero']) this.barberoPreseleccionado = true;
+    if (params['barbero'])  this.barberoPreseleccionado  = true;
+    if (params['servicio']) this.servicioPreseleccionado = true;
 
     this.usuarioActual = this.authService.getUsuario();
     this.cargarServicios();
@@ -163,7 +167,11 @@ export class AgendarComponent implements OnInit, OnDestroy {
         this.servicioService.getAll().pipe(take(1)).subscribe({
           next: (res: any) => {
             const s = res.data.find((x: any) => x.id_servicio === id);
-            if (s) { this.serviciosSeleccionados = [s]; this.pasoActual = 'barbero'; }
+            if (s) {
+              this.serviciosSeleccionados  = [s];
+              this.servicioPreseleccionado = true;
+              this.pasoActual = this.barberoPreseleccionado ? 'fecha' : 'barbero';
+            }
           },
           error: () => {}
         });
