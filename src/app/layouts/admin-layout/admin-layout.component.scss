@@ -316,6 +316,12 @@
   overflow-x: hidden;
 }
 
+@media (max-width: 1279px) and (min-width: 921px) {
+  .admin-content {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 920px) and (min-width: 769px) {
   .sidebar-overlay {
     display: block;

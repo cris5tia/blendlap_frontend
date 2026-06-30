@@ -352,8 +352,8 @@ $xl: 1200px;
 
   > * { min-width: 0; }
 
-  @media (min-width: $md) { grid-template-columns: 1fr 1fr; }
-  @media (min-width: $lg) { grid-template-columns: 2fr 1fr; }
+  @media (min-width: $md)   { grid-template-columns: 1fr 1fr; }
+  @media (min-width: 1280px) { grid-template-columns: 2fr 1fr; }
 }
 
 // ─── Chart Card ───────────────────────────────────────────────────────────────
