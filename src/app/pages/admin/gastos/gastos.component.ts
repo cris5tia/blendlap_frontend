@@ -134,7 +134,7 @@ export class GastosComponent implements OnInit {
       chart: {
         type: 'donut',
         height: 340,
-        fontFamily: 'Montserrat, sans-serif',
+        fontFamily: 'inherit',
         toolbar: { show: false },
         animations: {
           enabled: true,
@@ -182,7 +182,7 @@ export class GastosComponent implements OnInit {
         position: 'bottom',
         fontSize: '12px',
         fontWeight: '600',
-        fontFamily: 'Montserrat, sans-serif',
+        fontFamily: 'inherit',
         markers: { width: 10, height: 10, radius: 10 },
         itemMargin: { horizontal: 8, vertical: 4 }
       },
@@ -213,7 +213,7 @@ export class GastosComponent implements OnInit {
     chart: {
       type: 'area',
       height: 280,
-      fontFamily: 'Montserrat, sans-serif',
+      fontFamily: 'inherit',
       toolbar: { show: false },
       animations: {
         enabled: true,
@@ -247,7 +247,7 @@ export class GastosComponent implements OnInit {
       labels: {
         style: {
           fontSize: '11px',
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'inherit',
           colors: '#9e9e9e'
         },
         rotate: -30
@@ -259,7 +259,7 @@ export class GastosComponent implements OnInit {
       labels: {
         style: {
           fontSize: '11px',
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'inherit',
           colors: '#9e9e9e'
         },
         formatter: (val) => {

@@ -1407,7 +1407,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 
   &:hover {
     border-color: var(--color-accent);
@@ -1480,7 +1480,7 @@
     font-size: 2rem;
     font-weight: 800;
     color: var(--color-accent);
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-primary);
     line-height: 1;
   }
 }
@@ -1501,7 +1501,7 @@
   justify-content: center;
   gap: 0.5rem;
   transition: background 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
@@ -1524,7 +1524,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

@@ -10,7 +10,7 @@ $borde: #e5e7eb;
   right: 1.25rem;
   bottom: 1.25rem;
   z-index: 1300;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 
   @media (max-width: 768px) {
     right: 1rem;
@@ -215,7 +215,7 @@ $borde: #e5e7eb;
 
   strong {
     display: block;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-primary);
     font-size: 1.05rem;
     color: $accent;
     letter-spacing: 0.02em;

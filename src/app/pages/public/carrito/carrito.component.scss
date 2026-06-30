@@ -36,7 +36,7 @@ $verde:       #22c55e;
   border: 1px solid rgba(255,255,255,0.12);
   color: rgba(255,255,255,0.88); border-radius: 9px;
   padding: 0.52rem 1rem; cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.82rem; font-weight: 600;
   transition: background 0.15s, color 0.15s;
   white-space: nowrap; flex-shrink: 0;
@@ -64,14 +64,14 @@ $verde:       #22c55e;
   background: rgba(251,196,71,0.14);
   border: 1px solid rgba(251,196,71,0.28);
   padding: 0.4rem 0.8rem; border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.76rem; font-weight: 700; color: $accent;
   i { font-size: 0.72rem; }
 }
 
 .cnav-secure {
   display: flex; align-items: center; gap: 0.32rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.73rem; font-weight: 600;
   color: rgba(255,255,255,0.4);
   i { color: $verde; font-size: 0.68rem; }
@@ -82,7 +82,7 @@ $verde:       #22c55e;
   padding: 0.7rem 1.5rem;
   background: rgba(255,255,255,0.04);
   border-top: 1px solid rgba(255,255,255,0.06);
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 }
 
 .step-item {
@@ -134,7 +134,7 @@ $verde:       #22c55e;
   max-width: 440px; width: 100%;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 
-  h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: $primary; margin-bottom: 0.5rem; }
+  h2 { font-family: var(--font-primary); font-size: 1.35rem; color: $primary; margin-bottom: 0.5rem; }
   p  { font-size: 0.85rem; color: $gray; line-height: 1.6; margin-bottom: 1.5rem; }
 }
 
@@ -180,7 +180,7 @@ $verde:       #22c55e;
   display: inline-flex; align-items: center; gap: 0.5rem;
   padding: 0.75rem 1.75rem; background: $primary; color: $white;
   border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 600;
-  cursor: pointer; font-family: 'Montserrat', sans-serif; transition: background 0.2s;
+  cursor: pointer; font-family: var(--font-primary); transition: background 0.2s;
   &:hover { background: #333; }
 }
 
@@ -196,13 +196,13 @@ $verde:       #22c55e;
 
   .ch-left {
     display: flex; align-items: center; gap: 0.7rem;
-    h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: $primary; margin: 0; }
+    h1 { font-family: var(--font-primary); font-size: 1.5rem; font-weight: 700; color: $primary; margin: 0; }
   }
 
   .ch-badge {
     background: $accent; color: $primary;
     padding: 0.18rem 0.65rem; border-radius: 20px;
-    font-size: 0.72rem; font-weight: 800; font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem; font-weight: 800; font-family: var(--font-primary);
   }
 }
 
@@ -211,7 +211,7 @@ $verde:       #22c55e;
   padding: 0.45rem 0.9rem; background: none;
   border: 1.5px solid $borde; border-radius: 8px;
   font-size: 0.78rem; font-weight: 600; color: $gray;
-  cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s;
+  cursor: pointer; font-family: var(--font-primary); transition: all 0.2s;
   &:hover { border-color: $rojo; color: $rojo; background: #fff5f5; }
 }
 
@@ -283,7 +283,7 @@ $verde:       #22c55e;
 
 .ci-precio {
   font-size: 1.05rem; font-weight: 800; color: $primary;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-primary);
 }
 
 .ci-controles {
@@ -325,8 +325,8 @@ $verde:       #22c55e;
 .sidebar-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.9rem 1.15rem; background: $primary;
-  .sh-title { font-size: 0.88rem; font-weight: 700; color: $white; font-family: 'Playfair Display', serif; }
-  .sh-count { font-size: 0.66rem; font-weight: 700; color: rgba(255,255,255,0.45); font-family: 'Montserrat', sans-serif; }
+  .sh-title { font-size: 0.88rem; font-weight: 700; color: $white; font-family: var(--font-primary); }
+  .sh-count { font-size: 0.66rem; font-weight: 700; color: rgba(255,255,255,0.45); font-family: var(--font-primary); }
 }
 
 .sidebar-items {
@@ -353,7 +353,7 @@ $verde:       #22c55e;
   width: 16px; height: 16px; border-radius: 50%;
   font-size: 0.52rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 }
 
 .si-nombre {
@@ -362,27 +362,27 @@ $verde:       #22c55e;
   em { font-style: normal; color: $gray; font-size: 0.67rem; }
 }
 
-.si-precio { font-size: 0.76rem; font-weight: 700; color: $primary; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
+.si-precio { font-size: 0.76rem; font-weight: 700; color: $primary; flex-shrink: 0; font-family: var(--font-primary); }
 
 .sidebar-subtotal {
   display: flex; justify-content: space-between;
   padding: 0.65rem 1.15rem 0;
-  font-size: 0.78rem; color: $gray; font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem; color: $gray; font-family: var(--font-primary);
 }
 
 .sidebar-total {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0.35rem 1.15rem 0.75rem;
   border-bottom: 1px solid $borde;
-  span   { font-size: 0.85rem; font-weight: 700; color: $primary; font-family: 'Montserrat', sans-serif; }
-  strong { font-size: 1.3rem; font-weight: 800; color: $primary; font-family: 'Playfair Display', serif; }
+  span   { font-size: 0.85rem; font-weight: 700; color: $primary; font-family: var(--font-primary); }
+  strong { font-size: 1.3rem; font-weight: 800; color: $primary; font-family: var(--font-primary); }
 }
 
 .alerta-error {
   display: flex; align-items: center; gap: 0.5rem;
   padding: 0.6rem 1.15rem;
   background: #fee2e2; color: #991b1b;
-  font-size: 0.78rem; font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem; font-family: var(--font-primary);
   border-top: 1px solid #fecaca;
 }
 
@@ -391,7 +391,7 @@ $verde:       #22c55e;
   display: flex; align-items: center; gap: 0.7rem;
   width: 100%; padding: 0.95rem 1.15rem;
   background: $primary; color: $white; border: none; cursor: pointer;
-  font-family: 'Montserrat', sans-serif; transition: filter 0.2s;
+  font-family: var(--font-primary); transition: filter 0.2s;
 
   > i:first-child { font-size: 0.9rem; color: $accent; flex-shrink: 0; }
 
@@ -411,7 +411,7 @@ $verde:       #22c55e;
   padding: 0.65rem 1.15rem;
   span { flex: 1; height: 1px; background: $borde; display: block; }
   p { font-size: 0.58rem; font-weight: 800; color: $gray; text-transform: uppercase;
-      letter-spacing: 0.07em; margin: 0; white-space: nowrap; font-family: 'Montserrat', sans-serif; }
+      letter-spacing: 0.07em; margin: 0; white-space: nowrap; font-family: var(--font-primary); }
 }
 
 // ── Plazos ────────────────────────────────────────────────────
@@ -423,7 +423,7 @@ $verde:       #22c55e;
   font-size: 0.68rem; font-weight: 800; color: $primary;
   text-transform: uppercase; letter-spacing: 0.07em;
   margin: 0 0 0.6rem; display: flex; align-items: center; gap: 0.38rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   i { color: $accent; }
 }
 
@@ -437,7 +437,7 @@ $verde:       #22c55e;
   background: $white; cursor: pointer; text-align: center;
   transition: all 0.15s;
   display: flex; flex-direction: column; gap: 0.07rem;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 
   .plazo-label { font-size: 0.7rem; font-weight: 700; color: $primary; display: block; }
   .plazo-desc  { font-size: 0.56rem; color: $gray; display: block; }
@@ -456,7 +456,7 @@ $verde:       #22c55e;
   display: flex; align-items: center; justify-content: center; gap: 0.55rem;
   width: 100%; padding: 0.9rem 1.15rem;
   background: $accent; color: $primary; border: none; cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.9rem; font-weight: 800;
   transition: filter 0.2s;
   border-top: 1px solid rgba(0,0,0,0.06);
@@ -533,7 +533,7 @@ $verde:       #22c55e;
   display: flex; justify-content: space-between;
   padding: 0.55rem 0 0; margin-top: 0.4rem; border-top: 2px solid $primary;
   font-size: 0.88rem; font-weight: 600; color: $primary;
-  strong { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  strong { font-family: var(--font-primary); font-size: 1.05rem; }
 }
 
 .mc-nota {
@@ -551,14 +551,14 @@ $verde:       #22c55e;
 .btn-cancel {
   padding: 0.6rem 1.1rem; background: $gray-light; border: 1.5px solid $borde;
   border-radius: 8px; font-size: 0.83rem; font-weight: 600;
-  cursor: pointer; color: $gray; font-family: 'Montserrat', sans-serif; transition: all 0.15s;
+  cursor: pointer; color: $gray; font-family: var(--font-primary); transition: all 0.15s;
   &:hover { background: darken($gray-light, 4%); }
 }
 
 .btn-confirmar {
   padding: 0.6rem 1.35rem; background: $accent; color: $primary;
   border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 800;
-  cursor: pointer; font-family: 'Montserrat', sans-serif;
+  cursor: pointer; font-family: var(--font-primary);
   display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;
   &:hover:not(:disabled) { background: $accent-soft; transform: translateY(-1px); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }

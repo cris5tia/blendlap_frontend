@@ -548,7 +548,7 @@
     display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
     img { height: 64px; width: auto; object-fit: contain; }
   }
-  &__marca { font-size: 0.7rem; font-weight: 900; letter-spacing: 3px; color: #1a1a1a; font-family: 'Playfair Display', serif; }
+  &__marca { font-size: 0.7rem; font-weight: 900; letter-spacing: 3px; color: #1a1a1a; font-family: var(--font-primary); }
 
   &__info { flex: 1; }
   &__info h1 { font-size: 20pt; font-weight: 900; margin: 0; color: #1a1a1a; }
@@ -557,7 +557,7 @@
   &__total {
     text-align: right;
     &-label { display: block; font-size: 8pt; text-transform: uppercase; letter-spacing: 1px; color: #666; }
-    &-val   { display: block; font-size: 20pt; font-weight: 900; color: #15803d; font-family: 'Playfair Display', serif; }
+    &-val   { display: block; font-size: 20pt; font-weight: 900; color: #15803d; font-family: var(--font-primary); }
   }
 }
 
@@ -626,7 +626,7 @@
     padding: 1.2cm 1.5cm 1.5cm;
     gap: 0.65rem;
     font-size: 10pt;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-primary);
     max-width: none;
   }
 

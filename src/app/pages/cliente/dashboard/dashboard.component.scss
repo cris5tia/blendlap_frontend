@@ -22,7 +22,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 
   &.mt { margin-top: 0.5rem; }
   &:hover { background: #fdd278; }
@@ -47,11 +47,11 @@
     color: #FBC447;
     font-size: 1.1rem; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-primary);
   }
 
   &__nombre {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-primary);
     font-size: 1.4rem; font-weight: 900;
     color: #1a1a1a; margin: 0 0 0.2rem;
   }
@@ -71,7 +71,7 @@
   font-size: 0.85rem; font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
   &:hover { background: rgba(10, 10, 10, 0.15); color: #fff; }
 }
 .alert {
@@ -108,7 +108,7 @@
   font-size: 0.88rem; font-weight: 600;
   color: #9e9e9e;
   cursor: pointer; transition: all 0.2s;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-primary);
 
   &.active {
     color: #1a1a1a;
@@ -564,7 +564,7 @@
 
 .credito-monto {
   font-size: 1.1rem; font-weight: 800; color: #1a1a1a;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-primary);
 }
 
 .credito-badge {
@@ -651,7 +651,7 @@
 
 .compra-total {
   font-size: 1.1rem; font-weight: 800; color: #1a1a1a;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-primary);
 }
 
 .compra-fecha { font-size: 0.75rem; color: #9e9e9e; }
