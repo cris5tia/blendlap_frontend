@@ -29,11 +29,19 @@ import { HistoriaComponent } from './pages/public/nosotros/historia/historia.com
 import { RecuperarPasswordComponent } from './pages/public/recuperar-password/recuperar-password.component';
 import { CheckoutComponent } from './pages/public/checkout/checkout.component';
 import { PagoResultadoComponent } from './pages/public/pago-resultado/pago-resultado.component';
+import { LegalComponent } from './pages/public/legal/legal.component';
 const routes: Routes = [
   { path: 'nosotros/historia', redirectTo: 'nosotros', pathMatch: 'full' },
   { path: 'nosotros/mision', redirectTo: 'nosotros', pathMatch: 'full' },
   { path: 'nosotros/valores', redirectTo: 'nosotros', pathMatch: 'full' },
   { path: 'nosotros/trabaja', redirectTo: 'nosotros', pathMatch: 'full' },
+
+  // Legal (sin navbar/footer del layout público)
+  { path: 'legal/terminos',   component: LegalComponent, data: { tipo: 'terminos' } },
+  { path: 'legal/privacidad', component: LegalComponent, data: { tipo: 'privacidad' } },
+  { path: 'legal/datos',      component: LegalComponent, data: { tipo: 'datos' } },
+  { path: 'legal/derechos',   component: LegalComponent, data: { tipo: 'derechos' } },
+  { path: 'legal/cambios',    component: LegalComponent, data: { tipo: 'cambios' } },
 
   // Rutas públicas
   {

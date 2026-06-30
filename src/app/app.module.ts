@@ -68,6 +68,7 @@ import { HistoriaComponent } from './pages/public/nosotros/historia/historia.com
 import { MisionComponent } from './pages/public/nosotros/mision/mision.component';
 import { TrabajaComponent } from './pages/public/nosotros/trabaja/trabaja.component';
 import { ValoresComponent } from './pages/public/nosotros/valores/valores.component';
+import { LegalComponent } from './pages/public/legal/legal.component';
 import { ImgUrlPipe } from './shared/pipes/img-url.pipe';
 import { MediaUrlPipe } from './shared/pipes/media-url.pipe';
 import { ChatWidgetComponent } from './shared/components/chat-widget/chat-widget.component';
@@ -118,6 +119,7 @@ import { environment } from '../environments/environment';
     MisionComponent,
     TrabajaComponent,
     ValoresComponent,
+    LegalComponent,
   ],
   imports: [
     BrowserModule,

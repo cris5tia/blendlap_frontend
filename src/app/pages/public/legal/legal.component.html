@@ -1,0 +1,64 @@
+<div class="legal-page" *ngIf="contenido">
+
+  <div class="legal-hero">
+    <div class="container legal-hero__inner">
+
+      <div class="legal-hero__top">
+        <a routerLink="/" class="legal-logo">
+          <img src="assets/images/navbar/logo.png" alt="Blendlap" />
+        </a>
+        <button type="button" class="legal-back" (click)="volver()">
+          <i class="fas fa-arrow-left"></i>
+          <span>Volver</span>
+        </button>
+      </div>
+
+      <h1>{{ contenido.titulo }}</h1>
+      <p class="legal-fecha">Última actualización: {{ fechaActualizacion }}</p>
+
+      <!-- Ver también -->
+      <nav class="legal-otros">
+        <span class="legal-otros__titulo">Ver también</span>
+        <div class="legal-otros__links">
+          <a *ngFor="let doc of otrosDocumentos" [routerLink]="['/legal', doc.tipo]">
+            {{ doc.titulo }}
+          </a>
+        </div>
+      </nav>
+
+    </div>
+  </div>
+
+  <main class="container legal-contenido">
+
+    <div class="legal-resumen">
+      <i class="fas fa-info-circle"></i>
+      <div>
+        <span>En resumen</span>
+        <p>{{ contenido.resumen }}</p>
+      </div>
+    </div>
+
+    <section class="legal-card" *ngFor="let seccion of contenido.secciones">
+      <h2>{{ seccion.titulo }}</h2>
+
+      <p *ngFor="let parrafo of seccion.parrafos">{{ parrafo }}</p>
+
+      <ul *ngIf="seccion.lista">
+        <li *ngFor="let item of seccion.lista">{{ item }}</li>
+      </ul>
+
+      <div class="legal-nota" *ngIf="seccion.nota">
+        <i class="fas fa-shield-alt"></i>
+        <p>{{ seccion.nota }}</p>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<!-- Botón scroll to top -->
+<button class="scroll-top" [class.scroll-top--visible]="mostrarScrollTop" (click)="scrollAlTop()" aria-label="Subir al inicio">
+  <i class="fas fa-chevron-up"></i>
+</button>
