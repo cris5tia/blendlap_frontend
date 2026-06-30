@@ -271,7 +271,7 @@ export class DashboardComponent implements OnInit {
         }))
       }],
       chart: {
-        type: 'bar', height: Math.max(220, sorted.length * 52 + 60),
+        type: 'bar', height: Math.max(260, sorted.length * 62 + 80),
         toolbar: { show: false }, fontFamily: 'inherit',
         animations: { enabled: true, speed: 700, animateGradually: { enabled: true, delay: 100 } },
         parentHeightOffset: 0
@@ -279,14 +279,18 @@ export class DashboardComponent implements OnInit {
       plotOptions: {
         bar: {
           distributed: true, borderRadius: 8, borderRadiusApplication: 'end',
-          horizontal: true, barHeight: '58%',
-          dataLabels: { position: 'right' }
+          horizontal: true, barHeight: '48%',
+          dataLabels: { position: 'center' }
         }
       },
       dataLabels: {
-        enabled: true, textAnchor: 'start', offsetX: 8,
-        style: { fontSize: '11px', fontWeight: 700, colors: ['#374151'] },
-        formatter: (v: number) => this.fmtShort(v)
+        enabled: true, textAnchor: 'middle', offsetX: 0,
+        style: { fontSize: '11px', fontWeight: 700, colors: ['#fff'] },
+        formatter: (v: number) => {
+          if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(3).replace(/\.?0+$/, '') + 'M';
+          if (v >= 1_000) return '$' + (v / 1_000).toFixed(0) + 'K';
+          return '$' + Math.round(v);
+        }
       },
       xaxis: {
         labels: { formatter: (v: string) => this.fmtShort(Number(v)), style: { colors: '#9ca3af', fontSize: '10px' } },
