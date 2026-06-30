@@ -1347,12 +1347,12 @@
   color: #fff;
 
   h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-primary);
     font-size: 1.6rem;
-    font-weight: 700;
+    font-weight: 900;
     color: #fff;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 }
 
