@@ -376,11 +376,11 @@
     </div>
     <h3>Cancelar cita</h3>
     <p>¿Estás seguro de cancelar tu reserva con <strong>{{ reservaACancelar?.nombre_barbero }}</strong>?</p>
-    <div style="display:flex; gap:0.75rem; margin-top:0.5rem; width:100%;">
-      <button class="btn-cancelar-modal" style="flex:1;" (click)="modalCancelar = false">
+    <div style="display:flex; gap:0.75rem; margin-top:0.5rem; width:100%; box-sizing:border-box; min-width:0;">
+      <button class="btn-cancelar-modal" style="flex:1; min-width:0;" (click)="modalCancelar = false">
         No, mantener
       </button>
-      <button class="btn-accion btn-accion--cancelar" style="flex:1; border-radius:9px;"
+      <button class="btn-accion btn-accion--cancelar" style="flex:1; min-width:0; border-radius:9px;"
         (click)="ejecutarCancelar()" [disabled]="cancelando">
         <i class="fas fa-spinner fa-spin" *ngIf="cancelando"></i>
         {{ cancelando ? 'Cancelando...' : 'Sí, cancelar' }}

@@ -99,8 +99,18 @@ export class RecuperarPasswordComponent {
       this.error = 'Ingresa el código de 6 dígitos completo';
       return;
     }
+    this.cargando = true;
     this.error = '';
-    this.paso = 3;
+    this.authService.verificarCodigoRecuperacion(this.correo, this.codigoCompleto).subscribe({
+      next: () => {
+        this.cargando = false;
+        this.paso = 3;
+      },
+      error: (err) => {
+        this.error = err.error?.mensaje || 'Código inválido o expirado';
+        this.cargando = false;
+      }
+    });
   }
 
   reenviarCodigo(): void {

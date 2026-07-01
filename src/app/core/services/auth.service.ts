@@ -147,6 +147,13 @@ export class AuthService {
     );
   }
 
+  verificarCodigoRecuperacion(correo_electronico: string, codigo: string): Observable<{ ok: boolean; valido: boolean }> {
+    return this.http.post<{ ok: boolean; valido: boolean }>(
+      `${this.apiUrl}/verificar-codigo`,
+      { correo_electronico, codigo }
+    );
+  }
+
   resetearPassword(correo_electronico: string, codigo: string, nueva_contrasena: string): Observable<{ ok: boolean; mensaje: string }> {
     return this.http.post<{ ok: boolean; mensaje: string }>(
       `${this.apiUrl}/resetear-password`,

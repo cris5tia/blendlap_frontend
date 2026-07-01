@@ -503,7 +503,7 @@
         <div class="mc__item-info">
           <span class="mc__item-nombre">{{ item.producto.nombre_producto }}</span>
           <span class="mc__item-talla" *ngIf="item.talla">Talla: {{ item.talla }}</span>
-          <span class="mc__item-precio">{{ formatPrecio(item.producto.precio) }}</span>
+          <span class="mc__item-precio">{{ formatPrecio(item.producto.precio * item.cantidad) }}</span>
         </div>
         <div class="mc__item-ctrl">
           <button class="mc__ctrl-btn" (click)="disminuirItemModal(item.producto.id_producto!)">

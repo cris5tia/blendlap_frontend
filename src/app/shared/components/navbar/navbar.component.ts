@@ -291,7 +291,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout(): void {
     this.closeMenu();
     this.dropdownOpen = false;
-    this.carritoService.limpiar();
     this.authService.logout();
   }
 
