@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PagoService } from '../../../core/services/pago.service';
 import { CarritoService } from '../../../core/services/carrito.service';
+import { environment } from '../../../../environments/environment';
 
 type EstadoPago = 'verificando' | 'aprobado' | 'rechazado' | 'error';
 
@@ -23,7 +24,6 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
 
   constructor(
     private route:          ActivatedRoute,
-    private router:         Router,
     private pagoService:    PagoService,
     private carritoService: CarritoService
   ) {}
@@ -74,6 +74,10 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
   }
 
   irAMisCompras(): void {
-    this.router.navigate(['/cliente/perfil'], { queryParams: { tab: 'compras' } });
+    window.location.href = `${environment.appUrl}/cliente/perfil?tab=compras`;
+  }
+
+  irABlendlap(): void {
+    window.location.href = environment.appUrl;
   }
 }
