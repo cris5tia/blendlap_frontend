@@ -35,7 +35,8 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.verificar();
+    // Dar tiempo a Wompi para registrar la transacción antes de verificar
+    this.timer = setTimeout(() => this.verificar(), 1500);
   }
 
   ngOnDestroy(): void {
@@ -46,17 +47,17 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
     this.pagoService.verificarPago(this.transactionId).subscribe({
       next: (res) => {
         if (res.ok && res.estado === 'aprobado') {
-          this.estado    = 'aprobado';
+          this.estado     = 'aprobado';
           this.referencia = res.referencia || '';
           this.idVenta    = res.idVenta    || null;
           this.carritoService.limpiar();
           sessionStorage.removeItem('wompi_referencia');
         } else if (res.estado === 'rechazado') {
           this.estado  = 'rechazado';
-          this.mensaje = 'Tu pago fue rechazado. Intenta con otro metodo.';
+          this.mensaje = res.mensaje || 'Tu pago fue rechazado. Intenta con otro metodo.';
         } else {
           this.estado  = 'error';
-          this.mensaje = res.mensaje || 'Error al procesar el pago';
+          this.mensaje = res.mensaje || 'No se pudo verificar la transaccion';
         }
       },
       error: (err) => {
