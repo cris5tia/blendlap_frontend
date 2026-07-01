@@ -18,6 +18,8 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
   idVenta: number | null = null;
   mensaje        = '';
   private timer: any;
+  private reintentos = 0;
+  private readonly MAX_REINTENTOS = 5;
 
   constructor(
     private route:          ActivatedRoute,
@@ -36,7 +38,7 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
     }
 
     // Dar tiempo a Wompi para registrar la transacción antes de verificar
-    this.timer = setTimeout(() => this.verificar(), 1500);
+    this.timer = setTimeout(() => this.verificar(), 2000);
   }
 
   ngOnDestroy(): void {
@@ -55,6 +57,10 @@ export class PagoResultadoComponent implements OnInit, OnDestroy {
         } else if (res.estado === 'rechazado') {
           this.estado  = 'rechazado';
           this.mensaje = res.mensaje || 'Tu pago fue rechazado. Intenta con otro metodo.';
+        } else if (res.estado === 'pendiente' && this.reintentos < this.MAX_REINTENTOS) {
+          // Wompi aún procesando — reintentar en 3s
+          this.reintentos++;
+          this.timer = setTimeout(() => this.verificar(), 3000);
         } else {
           this.estado  = 'error';
           this.mensaje = res.mensaje || 'No se pudo verificar la transaccion';
