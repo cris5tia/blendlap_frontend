@@ -18,7 +18,7 @@ export class PublicLayoutComponent {
   }
 
   private get esPantallaCompleta(): boolean {
-    return ['/checkout', '/login', '/registro', '/recuperar-password'].includes(this.pathActual);
+    return ['/checkout', '/login', '/registro', '/recuperar-password', '/pago/resultado'].includes(this.pathActual);
   }
 
   get mostrarNavbar(): boolean {
