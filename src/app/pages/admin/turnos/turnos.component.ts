@@ -18,6 +18,7 @@ export class TurnosComponent implements OnInit, OnDestroy {
   cargando = false;
   guardando = false;
   private guardadoTimers = new Map<number, ReturnType<typeof setTimeout>>();
+  private toastExitoTimer: any;
 
   diasNombre = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -40,6 +41,14 @@ export class TurnosComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.guardadoTimers.forEach(timer => clearTimeout(timer));
     this.guardadoTimers.clear();
+    clearTimeout(this.toastExitoTimer);
+  }
+
+  private mostrarToastExito(): void {
+    clearTimeout(this.toastExitoTimer);
+    this.toastExitoTimer = setTimeout(() => {
+      this.toastService.success('Horario guardado correctamente');
+    }, 800);
   }
 
   cargarHorario(): void {
@@ -83,7 +92,7 @@ export class TurnosComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.guardando = false;
-        this.toastService.success('Horario actualizado correctamente');
+        this.mostrarToastExito();
       },
       error: () => {
         this.toastService.error('Error al guardar el horario');
@@ -111,7 +120,7 @@ export class TurnosComponent implements OnInit, OnDestroy {
           if (pendientes === 0) {
             this.guardando = false;
             if (errores === 0) {
-              this.toastService.success('Horario guardado correctamente');
+              this.mostrarToastExito();
             }
           }
         },
