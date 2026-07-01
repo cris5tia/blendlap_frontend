@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IProducto } from './producto.service';
+import { AuthService } from './auth.service';
 
 export interface IItemCarrito {
   producto: IProducto;
@@ -11,11 +12,25 @@ export interface IItemCarrito {
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
 
-  private itemsSubject = new BehaviorSubject<IItemCarrito[]>(this.cargarStorage());
+  private userId: number | null = null;
+  private itemsSubject = new BehaviorSubject<IItemCarrito[]>([]);
   private modalSubject = new BehaviorSubject<boolean>(false);
 
   items$ = this.itemsSubject.asObservable();
   modal$ = this.modalSubject.asObservable();
+
+  constructor(private authService: AuthService) {
+    // Cuando el usuario cambia (login/logout), actualizar el carrito en memoria
+    this.authService.usuario$.subscribe(u => {
+      if (u?.id_usuario) {
+        this.userId = u.id_usuario;
+        this.itemsSubject.next(this.cargarStorage());
+      } else {
+        this.userId = null;
+        this.itemsSubject.next([]);
+      }
+    });
+  }
 
   get items(): IItemCarrito[] {
     return this.itemsSubject.getValue();
@@ -66,12 +81,15 @@ export class CarritoService {
 
   private actualizar(items: IItemCarrito[]): void {
     this.itemsSubject.next(items);
-    try { localStorage.setItem('carrito_blendlap', JSON.stringify(items)); } catch { }
+    if (this.userId) {
+      try { localStorage.setItem(`carrito_blendlap_${this.userId}`, JSON.stringify(items)); } catch { }
+    }
   }
 
   private cargarStorage(): IItemCarrito[] {
+    if (!this.userId) return [];
     try {
-      const data = localStorage.getItem('carrito_blendlap');
+      const data = localStorage.getItem(`carrito_blendlap_${this.userId}`);
       return data ? JSON.parse(data) : [];
     } catch { return []; }
   }
