@@ -28,7 +28,8 @@ export class StatsService {
 
   constructor(private http: HttpClient) {}
 
-  getStatsBarbero(): Observable<{ ok: boolean; data: IStatsBarbero }> {
-    return this.http.get<{ ok: boolean; data: IStatsBarbero }>(`${this.url}/barbero`);
+  getStatsBarbero(mes?: number, año?: number): Observable<{ ok: boolean; data: IStatsBarbero }> {
+    const params = mes !== undefined && año !== undefined ? `?mes=${mes}&year=${año}` : '';
+    return this.http.get<{ ok: boolean; data: IStatsBarbero }>(`${this.url}/barbero${params}`);
   }
 }

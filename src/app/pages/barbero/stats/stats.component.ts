@@ -25,6 +25,12 @@ export class StatsComponent implements OnInit, OnDestroy {
   error = '';
 
   mesActualLabel = '';
+  mesSeleccionado = 0;
+  añoSeleccionado = 0;
+  private mesActualReal = 0;
+  private añoActualReal = 0;
+  private readonly MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                            'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
   private chartDiario:   Chart | null = null;
   private chartClientes: Chart | null = null;
@@ -40,9 +46,11 @@ export class StatsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.usuario = this.authService.getUsuario();
     const ahora = new Date();
-    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-    this.mesActualLabel = `${meses[ahora.getMonth()]} ${ahora.getFullYear()}`;
+    this.mesActualReal   = ahora.getMonth() + 1;
+    this.añoActualReal   = ahora.getFullYear();
+    this.mesSeleccionado = this.mesActualReal;
+    this.añoSeleccionado = this.añoActualReal;
+    this.actualizarLabel();
     this.cargarStats();
 
     this.socketService.connect();
@@ -59,9 +67,40 @@ export class StatsComponent implements OnInit, OnDestroy {
     this.chartPie?.destroy();
   }
 
+  esMesActual(): boolean {
+    return this.mesSeleccionado === this.mesActualReal && this.añoSeleccionado === this.añoActualReal;
+  }
+
+  actualizarLabel(): void {
+    this.mesActualLabel = `${this.MESES[this.mesSeleccionado - 1]} ${this.añoSeleccionado}`;
+  }
+
+  mesAnterior(): void {
+    if (this.mesSeleccionado === 1) {
+      this.mesSeleccionado = 12;
+      this.añoSeleccionado--;
+    } else {
+      this.mesSeleccionado--;
+    }
+    this.actualizarLabel();
+    this.cargarStats();
+  }
+
+  mesSiguiente(): void {
+    if (this.esMesActual()) return;
+    if (this.mesSeleccionado === 12) {
+      this.mesSeleccionado = 1;
+      this.añoSeleccionado++;
+    } else {
+      this.mesSeleccionado++;
+    }
+    this.actualizarLabel();
+    this.cargarStats();
+  }
+
   cargarStats(): void {
     this.cargando = true;
-    this.statsService.getStatsBarbero().subscribe({
+    this.statsService.getStatsBarbero(this.mesSeleccionado, this.añoSeleccionado).subscribe({
       next: (res) => {
         this.stats = res.data;
         this.cargando = false;
@@ -90,8 +129,10 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   private fillDias(raw: { dia: number; citas: number; ingresos: number }[]) {
-    const hoy = new Date().getDate();
-    return Array.from({ length: hoy }, (_, i) => {
+    const diasEnMes = this.esMesActual()
+      ? new Date().getDate()
+      : new Date(this.añoSeleccionado, this.mesSeleccionado, 0).getDate();
+    return Array.from({ length: diasEnMes }, (_, i) => {
       const d = i + 1;
       const f = raw.find(r => +r.dia === d);
       return { dia: d, citas: f ? +f.citas : 0, ingresos: f ? +f.ingresos : 0 };

@@ -24,6 +24,17 @@
       </div>
     </div>
 
+    <!-- Selector de mes -->
+    <div class="mes-nav">
+      <button class="mes-nav__btn" (click)="mesAnterior()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="mes-nav__label">{{ mesActualLabel }}</span>
+      <button class="mes-nav__btn" (click)="mesSiguiente()" [disabled]="esMesActual()">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
     <!-- KPIs — todos blancos -->
     <div class="kpis-grid">
 
